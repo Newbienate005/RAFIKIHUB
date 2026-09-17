@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&display=swap');
+
+/* Brand system pulled from the real rafikihub.com source
+   (scripts/landing.scss): $primary: #FF8033, $secondary: #011F55,
+   $font-primary: Poppins.
+   IDENTITY PASS (per user request — site read as generic corporate SaaS,
+   needed its own creative identity): --font-display now maps to Fraunces,
+   a warm, characterful editorial serif with real personality in its
+   italics — used for every headline, pull-quote, and display number.
+   --font-sans stays Poppins for body copy, labels, and UI chrome, so the
+   serif/sans pairing itself carries the "arts magazine, not SaaS product"
+   signal everywhere var(--font-display) is already used, with almost no
+   per-page changes needed. --color-gold stays the client-requested warm
+   charcoal (moved off the original navy secondary) — see theme.tsx. */
+@theme {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Poppins', Arial, sans-serif;
+
+  --color-bg: #FFFFFF;
+  --color-fg: #1C2D41;
+  --color-terra: #FF8033;
+  --color-terra-light: #FF9757;
+  --color-gold: #211F1C;
+  --color-card: #FFFFFF;
+  --color-muted: #F1F3F5;
+  --color-border: #E9ECEF;
+  --color-muted-fg: #6C757D;
+}
+
+html {
+  background-color: #FFFFFF;
+  color: #1C2D41;
+  font-family: 'Poppins', Arial, sans-serif;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  scrollbar-width: none;
+  box-sizing: border-box;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+::selection {
+  background: #FF8033;
+  color: #FFFFFF;
+}
+
+/* Editorial type rhythm. Fraunces (the display serif) already carries its
+   own warmth and personality at normal tracking — the tight -0.01em tuned
+   for bold geometric Poppins headlines was fighting the serif's natural
+   letterforms, so display headings now sit at their natural spacing.
+   Purely cosmetic — no selectors here touch interactive/functional markup. */
+h1, h2 {
+  letter-spacing: 0;
+}
+
+/* --- East African-inspired accents ---------------------------------
+   A subtle, tasteful nod to the region RafikiHub is rooted in (its
+   fictional HQ is Nairobi): a banded stripe echoing the red/green/blue/
+   black/white rhythm of Maasai beadwork, and a soft diamond-lattice
+   watermark echoing woven textile geometry. Both are deliberately
+   low-contrast texture, not loud decoration — they sit under the nav,
+   atop the footer, and behind page-hero copy without competing with it. */
+.rh-beadband {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #211F1C 0px, #211F1C 40px,
+    #FFFFFF 40px, #FFFFFF 46px,
+    #A6392D 46px, #A6392D 86px,
+    #FFFFFF 86px, #FFFFFF 92px,
+    #1F6E43 92px, #1F6E43 132px,
+    #FFFFFF 132px, #FFFFFF 138px,
+    #1B3F6B 138px, #1B3F6B 178px,
+    #FFFFFF 178px, #FFFFFF 184px
+  );
+}
+
+.rh-pattern-hero {
+  background-image:
+    linear-gradient(135deg, rgba(255,128,51,0.05) 25%, transparent 25.5%, transparent 74.5%, rgba(255,128,51,0.05) 75%),
+    linear-gradient(45deg, rgba(255,128,51,0.05) 25%, transparent 25.5%, transparent 74.5%, rgba(255,128,51,0.05) 75%);
+  background-size: 34px 34px;
+  background-position: 0 0, 17px 17px;
+}
