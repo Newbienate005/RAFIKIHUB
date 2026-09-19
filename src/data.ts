@@ -431,3 +431,447 @@ export const videos: VideoItem[] = [
   { id: 'v5', title: 'Casting Directors Explain Callbacks', thumbnail: seed('video-casting', 640, 400), category: 'Careers', duration: '31 min', instructor: 'Ibrahim Touré' },
   { id: 'v6', title: 'Musical Theatre Basics for Young Performers', thumbnail: seed('video-young', 640, 400), category: 'Young Performers', duration: '24 min', instructor: 'Naledi Khumalo' },
 ]
+
+// ===========================================================================
+// Real-site parity data — added when the Dashboard/Register/Join/Options/
+// Locations/Contacts/Profile pages were rebuilt to match rafikihub.com's
+// actual PHP source (dashboard/index.php, register.php, join-now.php,
+// options.php, locations.php, contacts.php, profile.php) instead of the
+// originally-invented wireframe content. See RafikiHub_Audit_and_Fixes.md-
+// style research notes in project history for the full page-by-page diff.
+//
+// A few of these lists are marked "DB-driven, no static fallback in the
+// real code" — the live site pulls them from MySQL tables (plans,
+// plan_categories, users, locations) with no hardcoded backup anywhere in
+// the PHP. Those are necessarily best-effort static approximations here,
+// since this project has no backend. Everything else (countries, the CV
+// attribute selects, membership category bullet copy) is a faithful,
+// near-verbatim match to static HTML/PHP that really exists on the site.
+// ===========================================================================
+
+// Full country list, matching the real site's data/files/countries.php
+// (a standard ~195-country picker) used on the quick-signup modal, the
+// full Register form, and the Locations scouting-request form.
+export const fullCountryList = [
+  'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia',
+  'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium',
+  'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria',
+  'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad',
+  'Chile', 'China', 'Colombia', 'Comoros', 'Congo (Brazzaville)', 'Congo (DRC)', 'Costa Rica', "Côte d'Ivoire",
+  'Croatia', 'Cuba', 'Cyprus', 'Czechia', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador',
+  'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland',
+  'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea',
+  'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq',
+  'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait',
+  'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania',
+  'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania',
+  'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique',
+  'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria',
+  'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama',
+  'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia',
+  'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino',
+  'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore',
+  'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain',
+  'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania',
+  'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan',
+  'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay',
+  'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe',
+]
+
+// --- Membership Options & Categories (join-now.php / options.php / register.php) ---
+// DB-driven on the real site (plans / plan_categories tables) — best-effort
+// static approximation. The 8 top-level cards and their bullet copy below
+// ARE the real, static marketing copy from join-now.php / options.php.
+
+export interface MembershipCard {
+  option: string
+  bullets: string[]
+  categories?: string[]
+  criteria?: string[]
+}
+
+export const membershipCards: MembershipCard[] = [
+  {
+    option: 'Performers',
+    bullets: [
+      'Build a full professional profile, headshots and multimedia included.',
+      "Your online profile can be seen by all of the industry professionals who use RafikiHub's online services daily.",
+    ],
+    categories: [
+      'Actor', 'Actress', 'Dancer', 'Fashion Designer', 'Fashion Stylist',
+      'Independent Performer', 'Make-Up Artist', 'Model', 'Musician', 'Photographer',
+    ],
+  },
+  {
+    option: 'Agents',
+    bullets: [
+      'Join RafikiHub to give your clients access to the best roles in television, film, theatre and commercials.',
+      'Simplify the way you manage your clients, by submitting them for roles on RafikiHub and tracking responses in one place.',
+    ],
+  },
+  {
+    option: 'Casting Professionals',
+    bullets: [
+      'Specific search or browse our database of talented performers.',
+      'Send out casting briefs and receive submissions.',
+      'Easily manage audition lists, and capture and share audition footage.',
+    ],
+  },
+  {
+    option: 'Young Performers',
+    bullets: [
+      "If you're between 4-18 years old and an aspiring performer, RafikiHub is the platform for you.",
+      'Advice and support is provided for you as a young performer, as well as your parents or guardians.',
+    ],
+    categories: ['Young Performer'],
+  },
+  {
+    option: 'Crew',
+    bullets: [
+      'Showcase your professional portfolio.',
+      'Seen by all of the industry professionals who use RafikiHub daily.',
+      'Submit your RafikiHub link for upcoming work instantly.',
+      'Receive support with building out your production career.',
+    ],
+  },
+  {
+    option: 'Pets',
+    bullets: [
+      'Present your pet or animal to the industry by managing and updating their RafikiHub profile.',
+      'Submit your pet for castings and auditions.',
+      "Submit multimedia files of your pet's best tricks and abilities.",
+    ],
+  },
+  {
+    option: 'Corporates',
+    bullets: [
+      'Browse the database of talent.',
+      'Engage/contact the database of talent directly.',
+      'Create a casting/audition call out to source for a brand ambassador or similar.',
+    ],
+  },
+  {
+    option: 'Rooms & Studio',
+    bullets: [
+      'A platform to list and advertise your studio, space and/or rehearsal room.',
+      'Link with like-minded industry projects that require a space like yours.',
+      'A transparent, seamless way to be discovered by productions that need your space.',
+    ],
+    criteria: [
+      'A reputable, creative space',
+      'Professionally accredited space (e.g. proper soundproofing)',
+      'Industry recognised/standard equipment',
+      'Proof of property license and/or ownership (copy of lease or title)',
+      'Company Registration documents for your space',
+    ],
+  },
+]
+
+export const wardrobeOptions = ['Fashion Stylist', 'Fashion Designer']
+export const guardianOptions = ['Parent', 'Guardian']
+export const genderOptions = ['Male', 'Female', 'Other']
+
+// Maps a chosen Member Option to which of the 5 real role-based dashboard
+// bodies (performers.php / agents-and-casting-body.php / production.php /
+// pets-body.php / rooms-body.php) a new account lands on.
+export type DashboardRole = 'performer' | 'casting' | 'crew' | 'pet' | 'rooms'
+
+export function roleForMemberOption(option: string): DashboardRole {
+  switch (option) {
+    case 'Agents':
+    case 'Casting Professionals':
+    case 'Corporates':
+      return 'casting'
+    case 'Crew':
+      return 'crew'
+    case 'Pets':
+      return 'pet'
+    case 'Rooms & Studio':
+      return 'rooms'
+    default:
+      return 'performer' // Performers, Young Performers
+  }
+}
+
+// --- CV / "Edit CV" attribute selects (dashboard/index.php performer EDIT CV tab) ---
+// These option sets are static in the real code (hardcoded <option> lists).
+
+export const appearanceOptions = [
+  'Black - Other Areas', 'Black - Caribbean', 'Black - African', 'Black - American', 'Mixed Race',
+  'Scandinavian', 'White', 'Eastern European', 'East Asia', 'Pakistan', 'Asian', 'Indian',
+  'Filipino/Malay/Thai', 'Chinese', 'Japanese', 'Korean', 'Maori', 'Latin American', 'Hispanic',
+  'Native American',
+]
+export const eyeColorOptions = [
+  'Black', 'Blue', 'Brown', 'Green', 'Grey', 'Hazel', 'Blue-Green', 'Blue-Grey', 'Grey-Green',
+  'Light Blue', 'Heterochromia/Mixed',
+]
+export const hairColorOptions = [
+  'Auburn', 'Dark Brown', 'Blond(e)', 'Grey', 'Red/Titian', 'Light/Mid Brown', 'Black', 'White',
+  'Greying', 'Fair', 'Silver', 'Strawberry Blond(e)', 'Salt & Pepper', 'Sandy', 'Blond(e) - Dark',
+  'Blond(e) - Medium',
+]
+export const hairLengthOptions = ['Short', 'Mid Length', 'Long', 'Bald', 'Balding', 'Shaved']
+export const facialHairOptions = ['Beard', 'Moustache', 'Sideburns', 'Full Set', 'Goatee']
+
+export const voiceQualityOptions = [
+  'Breathy', 'Bright', 'Clear', 'Delicate', 'Gentle', 'Husky', 'Light', 'Low', 'Melodious', 'Nasal',
+  'Piping', 'Sharp', 'Silky', 'Silvery', 'Smooth', 'Strong', 'Sweet', 'Tight', 'Velvety', 'Warm',
+]
+export const voiceCharacterOptions = [
+  'Amused', 'Assured', 'Authoritative', 'Cool', 'Direct', 'Earthy', 'Engaging', 'Enthusiastic',
+  'Friendly', 'Girlish', 'Intimate', 'Mature', 'Natural', 'Precise', 'Relaxed', 'Sensitive',
+  'Serious', 'Sincere', 'Sympathetic', 'Twinkly',
+]
+export const lowVoiceOptions = ['Alto F3-D5', 'Bass E2-C4']
+export const mediumVoiceOptions = ['Baritone G4-E2', 'Mezzo soprano A3-F5']
+export const highVoiceOptions = ['Soprano C4-A5', 'Tenor B2-G4']
+
+export const heightFeetOptions = ['2 ft', '3 ft', '4 ft', '5 ft', '6 ft', '7 ft', '8 ft']
+export const heightInchesOptions = Array.from({ length: 12 }, (_, i) => `${i} in`)
+
+export const distinguishingTraitOptions = ['Scar', 'Tattoo', 'Birthmark', 'Piercing', 'Mole', 'Freckles']
+export const traitLocationOptions = ['Face', 'Neck', 'Arm', 'Hand', 'Leg', 'Torso', 'Back', 'Other']
+
+// 8 skill categories from the "Skills & Links" pill, each with its own
+// two-tier proficiency scale exactly as in the real CV editor.
+export interface SkillCategoryDef {
+  name: string
+  proficiencyOptions: [string, string]
+}
+export const skillCategories: SkillCategoryDef[] = [
+  { name: 'Accents & Dialects', proficiencyOptions: ['High Standard', 'Native'] },
+  { name: 'Languages', proficiencyOptions: ['High Standard', 'Native'] },
+  { name: 'Music & Dance', proficiencyOptions: ['Skilled', 'Highly Skilled'] },
+  { name: 'Other Skills', proficiencyOptions: ['Skilled', 'Highly Skilled'] },
+  { name: 'Performance', proficiencyOptions: ['Skilled', 'Highly Skilled'] },
+  { name: 'Presenting', proficiencyOptions: ['Skilled', 'Highly Skilled'] },
+  { name: 'Sports', proficiencyOptions: ['Skilled', 'Highly Skilled'] },
+  { name: 'Vehicle Licences', proficiencyOptions: ['Skilled', 'Highly Skilled'] },
+]
+
+export interface SkillEntry {
+  id: string
+  category: string
+  name: string
+  proficiency: string
+}
+
+export interface TrainingRecord {
+  id: string
+  course: string
+  institution: string
+  startDate: string
+  endDate: string
+}
+
+export interface CreditRecord {
+  id: string
+  title: string
+  type: string
+  productionYear: string
+  role: string
+  productionCompany: string
+  director: string
+}
+
+export type DocStatus = 'Not Uploaded' | 'Pending' | 'Rejected' | 'Approved'
+
+// The full "Edit CV" profile shape — mirrors dashboard/index.php's
+// createTheCV form field-for-field (personal data, appearance, voice,
+// vocal range, further measurements, skills, credits, training, about me).
+export interface CvProfile {
+  name: string
+  website: string
+  country: string
+  phone: string
+  idPassportNumber: string
+  idPassportStatus: DocStatus
+  kraTaxNumber: string
+  kraTaxStatus: DocStatus
+  physicalAddress: string
+  email: string
+  profileLinkSlug: string
+  playingAgeFrom: string
+  playingAgeTo: string
+  dateOfBirth: string
+  gender: string
+  musicGenre: string
+  heightFeet: string
+  heightInches: string
+  cities: string[]
+  nationalities: string[]
+  appearance: string
+  eyeColor: string
+  hairColor: string
+  hairLength: string
+  facialHair: string
+  voiceQuality: string
+  voiceCharacter: string
+  lowVoice: string
+  mediumVoice: string
+  highVoice: string
+  showFurtherMeasurements: boolean
+  bustChest: string
+  waist: string
+  insideLeg: string
+  insideArm: string
+  collar: string
+  hat: string
+  weightKg: string
+  shoeSize: string
+  hips: string
+  dressSize: string
+  hasTwin: boolean
+  distinguishingTraits: { trait: string; location: string }[]
+  training: TrainingRecord[]
+  educationCertificateStatus: DocStatus
+  aboutMe: string
+  skills: SkillEntry[]
+  facebookUrl: string
+  twitterUrl: string
+  instagramUrl: string
+  credits: CreditRecord[]
+  profileComplete: number
+  missingFields: string[]
+}
+
+export const demoCvProfile: CvProfile = {
+  name: 'Amara Diallo',
+  website: 'www.amaradiallo.africa',
+  country: 'Senegal',
+  phone: '+221 77 000 0000',
+  idPassportNumber: 'SN0234871',
+  idPassportStatus: 'Approved',
+  kraTaxNumber: '',
+  kraTaxStatus: 'Not Uploaded',
+  physicalAddress: 'Plateau, Dakar, Senegal',
+  email: 'amara.diallo@rafikihub.com',
+  profileLinkSlug: 'amara-diallo',
+  playingAgeFrom: '24',
+  playingAgeTo: '32',
+  dateOfBirth: '1996-05-14',
+  gender: 'Female',
+  musicGenre: 'Afrobeat, Sabar Percussion',
+  heightFeet: '5 ft',
+  heightInches: '6 in',
+  cities: ['Dakar', 'Amsterdam'],
+  nationalities: ['Senegalese'],
+  appearance: 'Black - African',
+  eyeColor: 'Brown',
+  hairColor: 'Black',
+  hairLength: 'Long',
+  facialHair: '',
+  voiceQuality: 'Warm',
+  voiceCharacter: 'Engaging',
+  lowVoice: '',
+  mediumVoice: 'Mezzo soprano A3-F5',
+  highVoice: '',
+  showFurtherMeasurements: false,
+  bustChest: '', waist: '', insideLeg: '', insideArm: '', collar: '', hat: '', weightKg: '', shoeSize: '', hips: '', dressSize: '',
+  hasTwin: false,
+  distinguishingTraits: [],
+  training: [
+    { id: 'tr1', course: 'Contemporary Choreography Intensive', institution: 'École des Sables', startDate: '2018-01', endDate: '2018-06' },
+  ],
+  educationCertificateStatus: 'Pending',
+  aboutMe: 'Dancer and choreographer blending Sabar traditions with contemporary movement, performing and teaching across West Africa and Europe.',
+  skills: [
+    { id: 'sk1', category: 'Music & Dance', name: 'Sabar Dance', proficiency: 'Highly Skilled' },
+    { id: 'sk2', category: 'Languages', name: 'Wolof', proficiency: 'Native' },
+    { id: 'sk3', category: 'Languages', name: 'French', proficiency: 'High Standard' },
+  ],
+  facebookUrl: '', twitterUrl: '', instagramUrl: 'instagram.com/amaradiallo',
+  credits: [
+    { id: 'cr1', title: 'Sable Nights', type: 'Music Video', productionYear: '2025', role: 'Lead Dancer', productionCompany: 'Baraza Media Lab', director: 'Fatou Sy' },
+  ],
+  profileComplete: 72,
+  missingFields: ['KRA/Tax Number', 'Further Measurements', 'Voiceover Reel'],
+}
+
+// --- Home tab stats (dashboard/index.php performers-body.php HOME tab) ---
+// These four numbers are literally hardcoded in the real production HTML —
+// not tied to the logged-in user or any live query — so they're reproduced
+// as the same static numbers here rather than invented "realistic" ones.
+export const dashboardHomeStats = { opportunities: 12, totalUsers: 2265, applications: 41, partners: 5 }
+
+export interface CastingPosting {
+  id: string
+  reference: string
+  castingTitle: string
+  type: string
+  status: 'Open' | 'Closed' | 'Under Review'
+}
+export const auditionsTable: CastingPosting[] = [
+  { id: 'a1', reference: 'RH-2026-0142', castingTitle: 'Lead Vocalist — Amapiano Festival Tour', type: 'Music', status: 'Open' },
+  { id: 'a2', reference: 'RH-2026-0139', castingTitle: 'Background Dancers (x6) — Music Video', type: 'Dance', status: 'Open' },
+  { id: 'a3', reference: 'RH-2025-0987', castingTitle: 'Voiceover Artist — Radio Drama', type: 'Voiceover', status: 'Closed' },
+]
+export interface MyApplicationRow {
+  id: string
+  reference: string
+  castingTitle: string
+  type: string
+  status: 'Applied' | 'Shortlisted' | 'Declined'
+}
+export const myApplicationsTable: MyApplicationRow[] = [
+  { id: 'ap1', reference: 'RH-2026-0142', castingTitle: 'Lead Vocalist — Amapiano Festival Tour', type: 'Music', status: 'Shortlisted' },
+  { id: 'ap2', reference: 'RH-2026-0130', castingTitle: 'Featured Extra — Feature Film', type: 'Film', status: 'Applied' },
+]
+
+export interface AgentRow { id: string; agentName: string; agentEmail: string; agentCountry: string; status: 'Active' | 'Pending' }
+export const myAgentsTable: AgentRow[] = [
+  { id: 'ag1', agentName: 'Thandiwe Moyo', agentEmail: 'thandiwe@rafikihub.com', agentCountry: 'Zimbabwe', status: 'Active' },
+]
+// The real "My Calendar" tab reuses the "My Agents" table's column headers
+// verbatim (AGENT NAME / AGENT EMAIL / AGENT COUNTRY / STATUS) — a genuine
+// copy-paste quirk in production. Kept here on purpose for fidelity rather
+// than silently "fixed", per the same AgentRow shape.
+export const myCalendarTable: AgentRow[] = myAgentsTable
+
+export interface PerformersCornerRow { id: string; supplierName: string; training: string; type: string; charges: string }
+export const performersCornerTable: PerformersCornerRow[] = [
+  { id: 'pc1', supplierName: 'Nairobi Voice Studio', training: 'Voiceover Coaching', type: 'Training', charges: 'KSh 3,500/session' },
+  { id: 'pc2', supplierName: 'Sable Photography', training: 'Headshot Package', type: 'Photography', charges: 'KSh 8,000' },
+]
+
+export interface InvoiceRow { id: string; invoiceName: string; invoiceNumber: string; invoiceDate: string; status: 'Paid' | 'Unpaid' | 'Draft' }
+export const myInvoicesTable: InvoiceRow[] = [
+  { id: 'inv1', invoiceName: 'Baraza Media Lab — Festival Tour', invoiceNumber: 'INV-2026-014', invoiceDate: 'Feb 14, 2026', status: 'Paid' },
+]
+
+export interface InvoiceLineItem { id: string; description: string; amount: number }
+
+// --- Rooms & Studio (rooms-hire-template.php) ---
+export interface RoomListingRow { id: string; reference: string; country: string; city: string; type: string; size: string }
+export interface RoomBookingRow { id: string; reference: string; country: string; city: string; type: string; status: 'Pending' | 'Confirmed' | 'Declined' }
+export interface RoomBookingRequestRow { id: string; reference: string; fullName: string; mobile: string; status: 'Pending' | 'Confirmed' | 'Declined' }
+
+export const roomListingsTable: RoomListingRow[] = [
+  { id: 'rl1', reference: 'RS-0021', country: 'Kenya', city: 'Nairobi', type: 'Rehearsal Room', size: '80 sqm' },
+]
+export const roomBookingsTable: RoomBookingRow[] = []
+export const roomBookingRequestsTable: RoomBookingRequestRow[] = []
+
+export const facilityTypeOptions = ['Rehearsal Room', 'Recording Studio', 'Photography Studio', 'Dance Studio', 'Event Space', 'Green Screen Studio']
+export const chargeFrequencyOptions = ['Per Hour', 'Per Day', 'Per Week']
+export const currencyOptions = ['KES', 'USD', 'NGN', 'ZAR', 'GHS', 'EUR', 'GBP']
+
+// --- Locations scouting request form (locations.php) ---
+export const intendedLocationOptions = [
+  'Office Space', 'Village/Town', 'Housing (Apartment, House, Bungalow, etc.)',
+  'In Nature (Forest, Mountain, Beach, River, Lake, Bush, Savannah, etc.)',
+  'Sports Facility', 'Bars/Restaurants', 'Farms', 'Government Facility', 'Studio Space/Green Screen', 'Other',
+]
+
+// --- Contacts Listing directory (contacts.php, DB-driven: users with
+// roles_id=2 i.e. Agents/Casting Professionals/Corporates, contact_listing
+// opted-in, status not Expired/Blocked/Unverified) ---
+export interface ContactDirectoryEntry { id: string; name: string; category: string }
+export const contactDirectory: ContactDirectoryEntry[] = [
+  { id: 'cd1', name: 'Thandiwe Moyo', category: 'Agent' },
+  { id: 'cd2', name: 'Ibrahim Touré', category: 'Casting Professional' },
+  { id: 'cd3', name: 'Baraza Media Lab', category: 'Corporate' },
+  { id: 'cd4', name: 'Africa Uncut Media', category: 'Corporate' },
+  { id: 'cd5', name: 'Fatou Sy Talent Agency', category: 'Agent' },
+]
