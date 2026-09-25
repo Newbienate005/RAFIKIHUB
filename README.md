@@ -1,40 +1,105 @@
-# RafikiHub
+# RafikiHub website (v2)
 
-A React + TypeScript + Tailwind v4 frontend for rafikihub.com, built with Vite. This started as a Figma Make prototype and has been cleaned up here into a standalone project — no Figma Make tooling required, just plain `npm`/`vite`.
+Next.js 15 site for RafikiHub, with SEO + AEO built in, forms saved to a Postgres database, and ready to host on Vercel.
 
-## Getting started
+## 1. Run it on your computer
+
+Requires Node.js 20+.
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env.local      # then fill in the values
+npm run dev                     # open http://localhost:3000
 ```
 
-Then open the printed local URL (defaults to port 5173). `npm run build` produces a production build in `dist/`; `npm run typecheck` runs TypeScript with no emit.
+The site runs without a database. Forms will show a "database isn't connected yet" message until step 3 is done.
 
-## Stack
+## 2. Bring over the images from the old site
 
-- **React 19** + **TypeScript 5.7**, built with **Vite 8**
-- **Tailwind CSS v4** (CSS-first `@theme`, see `src/index.css`)
-- State-based SPA routing — there's no router library; `App.tsx` holds a `Page` union type and a `navigate(page, data)` function passed down through props. There are no URL routes; deep-linking would need to be added if that matters for the real site.
-- `src/theme.tsx` exposes a `useTheme()` hook with a flat token object (`t.bg`, `t.fg`, `t.terra`, etc.) — light theme only right now.
-- `src/data.ts` holds the mock/seed data (testimonials, team, blog posts, timeline, etc.) consumed by the pages.
+```bash
+npm run images:import
+```
 
-## Where the content stands
+This crawls rafikihub.com and downloads every image (headshots, logo, banners) into `public/images/legacy/`.
+Open `public/images/legacy/index.html` in your browser to see them all with their file paths.
 
-Most pages now carry real, verbatim or structurally-matched content pulled from the actual rafikihub.com codebase (a PHP snapshot the client shared): Terms & Conditions and Privacy Policy (`TermsPage.tsx`/`PrivacyPage.tsx`, sourced from `src/termsData.ts`/`src/privacyData.ts`), About's four core sections, the Homepage's "Kick-off your career" copy, Services' quote/essay, and — as of the latest pass — the dashboards and forms:
+Then open `lib/images.ts` and point each slot at the file you want, e.g.
 
-- **Register** (`RegisterPage.tsx`) — the real two-step flow from `register.php`/`registerForm.php`/`signup.php`: a quick Name/Email/Country/Phone/Gender panel, then a full Personal Details + Account Details form (Member Option → Member Category, Wardrobe/Young-Performer conditionals, a 3-credit minimum for Actor/Actress, password confirmation).
-- **Join / Options** (`JoinPage.tsx`/`OptionsPage.tsx`) — the real 8 membership category cards (Performers, Agents, Casting Professionals, Young Performers, Crew, Pets, Corporates, Rooms & Studio) with their actual bullet copy and Rooms & Studio's listing criteria. There is no pricing anywhere on the real site, so the old 4-tier price table is gone.
-- **Locations** (`LocationsPage.tsx`) — the real film-location scouting request form (Organization, Country, dates, Intended Location, Services Required, etc.), not a member-cities gallery.
-- **Contacts** (`ContactsPage.tsx`) — the real searchable Agent/Casting/Corporate directory with a quick-signup sidebar widget, not a "contact us" form.
-- **Talent Management** (`TalentManagementPage.tsx`) — the real static pitch page for RafikiHub's in-house talent agency, not a talent-browsing grid.
-- **Dashboard** (`DashboardPage.tsx` + `src/pages/dashboard/*`) — a role-based dashboard (`performer` / `casting` / `crew` / `pet` / `rooms`, see `DashboardRole` in `data.ts`). The Performer role is built out in full depth: real hardcoded HOME stats, Opportunities/My Agents/My Media/Rooms & Studio/Resource Hub tabs, an Invoice generator, a Calendar tab (which intentionally reuses My Agents' table columns — a genuine quirk in the live production code, kept on purpose), and a full multi-section "Edit CV" builder (personal data, appearance, voice attributes, vocal range, skills-with-proficiency, training, credits) matching the real CV editor field-for-field. Casting/Crew/Pet/Rooms roles are simplified variants — the real site's own treatment of those roles wasn't researched to the same depth.
-- **Profile** (`ProfilePage.tsx`) — a tabbed PROFILE / SKILLS / CREDITS / MEDIA & FILES layout matching `profile.php`, with a contact-details card and social links, instead of the old hero + "similar artists" layout.
+```ts
+logo: "/images/legacy/logo.png",
+hero: [{ src: "/images/legacy/june-wekesa.jpg", name: "June Wekesa", role: "Actress" }, ...]
+```
 
-Some pieces are necessarily **best-effort approximations**, because the real site pulls them from a database with no static fallback anywhere in the PHP: the exact Member Option/Category values, the dashboard's DataTables (agents, applications, invoices, calendar rows), and the Young Performer "Specification" list are all plausible mock data rather than the live values. `fullCountryList`, the CV attribute selects (appearance/eye/hair/voice/etc.), and the 8 membership cards' bullet copy, by contrast, are close-to-verbatim matches to real static HTML/PHP.
+Any slot without a file shows a neat initials placeholder, so nothing ever looks broken. Restart `npm run dev` after adding images.
 
-Testimonials, team bios, blog posts, FAQ entries, and video listings are still placeholder/mock data — the live site has no static seed data for these either (100% database-driven with no fallback). `src/data.ts` is where all of this lives — swap it for real data once a backend exists.
+## 3. Connect the database (Neon Postgres, free tier)
 
-## No backend yet
+The database stores four things (see `lib/db/schema.ts`):
 
-This is a frontend-only project — there's no API, no database, and no auth. Forms (register, invoices, CV edits, contact, etc.) update local component state but don't persist or send anywhere, and file uploads just record the chosen filename. The real site's invoice tool generates an actual PDF server-side (via mPDF); that's out of scope here since there's no server. Hooking this up to a real backend is the next piece of work.
+| Table | Filled by |
+|---|---|
+| `members` | Join form (`/join`) |
+| `casting_calls` | Post a casting form (`/casting`) |
+| `contact_messages` | Contact form (`/contact`) |
+| `newsletter_subscribers` | Footer email sign-up |
+
+**Easiest way, through Vercel (after step 4):**
+1. In your Vercel project, open **Storage → Create Database → Neon (Serverless Postgres)** and connect it to the project.
+   Vercel adds `DATABASE_URL` to your environment variables automatically.
+2. Copy that `DATABASE_URL` into your local `.env.local`.
+3. Create the tables:
+   ```bash
+   npm run db:push
+   ```
+4. Redeploy on Vercel. Forms now save.
+
+**Or directly with Neon:** sign up at neon.tech, create a project, copy the connection string into `DATABASE_URL`, run `npm run db:push`, and add the same variable in Vercel → Settings → Environment Variables.
+
+**See submissions:** `npm run db:studio` opens a table browser, or use the Tables view in the Neon console.
+
+Want to use Supabase or another Postgres instead? Any Postgres connection string works in `DATABASE_URL`.
+
+## 4. Host on Vercel
+
+1. Push this folder to a GitHub repository:
+   ```bash
+   git init && git add . && git commit -m "RafikiHub v2"
+   git branch -M main
+   git remote add origin https://github.com/<you>/rafikihub.git
+   git push -u origin main
+   ```
+2. Go to vercel.com → **Add New → Project** → import the repo. Vercel detects Next.js; keep the defaults.
+3. Add environment variables: `NEXT_PUBLIC_SITE_URL=https://rafikihub.com` (and `DATABASE_URL`, see step 3).
+4. Click **Deploy**. You get a `*.vercel.app` preview link.
+5. Point your domain: Vercel → Project → **Settings → Domains** → add `rafikihub.com` and `www.rafikihub.com`,
+   then update the DNS records at your domain registrar exactly as Vercel shows (usually an `A` record to `76.76.21.21` and a `CNAME` for `www` to `cname.vercel-dns.com`).
+
+Every future `git push` redeploys automatically.
+
+## 5. After launch: SEO checklist
+
+- Add the site to **Google Search Console** and **Bing Webmaster Tools**, then submit `https://rafikihub.com/sitemap.xml`.
+- Old URLs (`/about-us`, `/join-now`, `/services`) redirect permanently to the new pages (`next.config.mjs`), so existing rankings carry over. Add more there if you find other old links.
+- Create or claim a **Google Business Profile** for RafikiHub in Nairobi, using the same name, phone and email as the site.
+- Test structured data at search.google.com/test/rich-results (home, /faq, a blog post).
+
+## What's built in for SEO and AEO
+
+- **Metadata** on every page: unique title, description, canonical URL, Open Graph and Twitter cards, plus an auto-generated share image (`app/opengraph-image.tsx`).
+- **Structured data (JSON-LD):** Organization + LocalBusiness, WebSite, FAQPage, BreadcrumbList, Article, Service and Person.
+- **Answer-first content:** question headings ("What is RafikiHub?", "How does casting work?") with a direct answer in the first sentence, which is what Google's AI Overviews, ChatGPT, Perplexity and Claude quote.
+- **FAQ in plain HTML** (`<details>`) so answers are readable by every crawler, with or without JavaScript.
+- **`robots.txt`** that allows search engines and AI answer engines, **`sitemap.xml`**, and **`/llms.txt`**, a plain-text summary for AI assistants.
+- Static pages, optimised images (AVIF/WebP), semantic HTML, accessible forms and keyboard focus for strong Core Web Vitals.
+
+## Where to edit things
+
+| What | File |
+|---|---|
+| Phone, email, domain, social links | `lib/site.ts` |
+| FAQs, testimonials, member types, team, articles, profile structure | `lib/data.ts` |
+| Images | `lib/images.ts` |
+| Colours and fonts | top of `app/globals.css` |
+| Form fields | the page file, e.g. `app/join/page.tsx`, plus `lib/validation.ts` |
+
+To add a blog post, add an entry to `articles` in `lib/data.ts`. It appears on `/blog`, in the sitemap and gets Article schema automatically.

@@ -1,0 +1,13 @@
+import type { Metadata } from "next";
+import { site } from "./site";
+
+/** Per-page metadata with canonical URL, Open Graph and Twitter cards. */
+export function pageMeta({ title, description, path }: { title: string; description: string; path: string }): Metadata {
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { title, description, url: `${site.url}${path}`, siteName: site.name, locale: "en_KE", type: "website" },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
