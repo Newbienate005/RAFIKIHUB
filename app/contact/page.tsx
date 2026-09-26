@@ -1,4 +1,6 @@
+import { JsonLd } from "@/components/JsonLd";
 import { LeadForm } from "@/components/LeadForm";
+import { localBusinessSchema } from "@/lib/schema";
 import { PageHeader } from "@/components/PageHeader";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -12,6 +14,7 @@ export const metadata = pageMeta({
 export default function ContactPage() {
   return (
     <>
+      <JsonLd data={localBusinessSchema()} />
       <PageHeader kicker="Get in touch" title={<>Contact <em>us</em></>} lead="We're always here to help with membership, castings and representation." crumbs={[{ name: "Contact", path: "/contact" }]} />
       <section className="section">
         <div className="wrap form-wrap">

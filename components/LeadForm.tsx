@@ -52,7 +52,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({ ok: false, error: "Something went wrong on our side. Try again, or email info@rafikihub.com." }));
       if (json.ok) return setState("done");
       setFieldErrors(json.fields ?? {});
       setError(json.error ?? "That didn't go through. Try again.");

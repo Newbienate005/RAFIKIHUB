@@ -3,8 +3,13 @@ const tz = "Africa/Nairobi";
 export const longDate = (d: string) =>
   new Date(d).toLocaleDateString("en-KE", { weekday: "long", day: "numeric", month: "short", year: "numeric", timeZone: tz });
 
-export const shortDate = (d: string) =>
-  new Date(d).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric", timeZone: tz });
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** e.g. "26 Mar 2025". Formatted by hand so server and browser output match (ICU month names differ). */
+export const shortDate = (d: string) => {
+  const [y, m, day] = d.slice(0, 10).split("-").map(Number);
+  return `${day} ${MONTHS[m - 1]} ${y}`;
+};
 
 /** Day and month for the date badge, e.g. { day: "26", month: "Mar" } */
 export const badgeDate = (d: string) => {

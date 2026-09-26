@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { Answer } from "@/components/Answer";
+import { PageFaq } from "@/components/PageFaq";
 import { PageHeader } from "@/components/PageHeader";
+import { pageFaqs } from "@/lib/data";
 import { ProfileCard } from "@/components/ProfileCard";
 import { getRepresentedProfiles } from "@/lib/profiles";
 import { JsonLd } from "@/components/JsonLd";
@@ -27,6 +30,10 @@ export default async function TalentManagementPage() {
         lead="We represent a select group of actors of all ages across radio, theatre, commercials, film and television."
         crumbs={[{ name: "Talent management", path: "/talent-management" }]}
       />
+      <Answer question="How do I get an acting agent in Kenya?">
+        Apply to an agency that represents actors in your market. RafikiHub Talent Management represents a small roster of
+        Kenyan actors of all ages: email {site.talentEmail} with your headshot, CV and showreel link, and the team will be in touch.
+      </Answer>
       <section className="section">
         <div className="wrap split">
           <div className="path__media" style={{ aspectRatio: "4 / 5" }}>
@@ -67,6 +74,7 @@ export default async function TalentManagementPage() {
           </div>
         </section>
       ) : null}
+      <PageFaq title="Representation questions" items={pageFaqs.talentManagement} />
     </>
   );
 }

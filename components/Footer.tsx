@@ -24,7 +24,7 @@ export function Footer() {
       <div className="wrap site-footer__grid">
         <div>
           <h2>About RafikiHub</h2>
-          <p>RafikiHub connects cast and crew to industry professionals with roles in theatre, television and film productions across Africa.</p>
+          <p>RafikiHub connects cast and crew to industry professionals with roles in theatre, television and film productions across Africa. <em>Rafiki</em> is Swahili for “friend”.</p>
           <SocialIcons />
         </div>
         <nav aria-label="Sio Bahati Services">

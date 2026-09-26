@@ -10,6 +10,7 @@ export const metadata = pageMeta({
   title: "Video Library: acting workshops and masterclasses",
   description: "Free workshops and masterclasses from RafikiHub: acting, self-tapes, auditions and crew skills, taught by working artists in Kenya.",
   path: "/videos",
+  noindex: videos.length === 0,
 });
 
 export default function VideosPage() {

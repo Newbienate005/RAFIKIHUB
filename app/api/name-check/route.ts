@@ -15,8 +15,12 @@ export async function POST(req: Request) {
 
   const name = parsed.data.name.toLowerCase().replace(/\s+/g, " ");
   const norm = (col: unknown) => sql`lower(regexp_replace(trim(${col}), '\\s+', ' ', 'g'))`;
-  const [profile] = await db.select({ n: talentProfiles.profileUrl }).from(talentProfiles).where(sql`${norm(talentProfiles.fullName)} = ${name}`).limit(1);
-  const [member] = profile ? [] : await db.select({ n: members.id }).from(members).where(sql`${norm(members.fullName)} = ${name}`).limit(1);
-
-  return NextResponse.json({ ok: true, available: !profile && !member });
+  try {
+    const [profile] = await db.select({ n: talentProfiles.profileUrl }).from(talentProfiles).where(sql`${norm(talentProfiles.fullName)} = ${name}`).limit(1);
+    const [member] = profile ? [] : await db.select({ n: members.id }).from(members).where(sql`${norm(members.fullName)} = ${name}`).limit(1);
+    return NextResponse.json({ ok: true, available: !profile && !member });
+  } catch (err) {
+    console.error("[name-check]", err);
+    return NextResponse.json({ ok: false, error: "We couldn't check that name just now. Try again soon." }, { status: 500 });
+  }
 }

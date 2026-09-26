@@ -1,13 +1,16 @@
 import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
+import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
 import { contactListings } from "@/lib/data";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
-  title: "Contact Listings: agents, casting directors and industry services in Kenya",
+  title: "Talent agents and casting directors in Kenya",
   description: "The Rafiki Data Bank: a directory of talent agents, casting directors, production companies, photographers and training for performers in Kenya and Africa.",
   path: "/contact-listings",
+  // Keep the directory out of search results until it has enough listings to be useful
+  noindex: contactListings.length <= 3,
 });
 
 export default function ContactListingsPage() {
@@ -20,7 +23,7 @@ export default function ContactListingsPage() {
   };
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
+      <JsonLd data={schema} />
       <PageHeader
         kicker="Rafiki Data Bank"
         title={<>Contact <em>Listings</em></>}

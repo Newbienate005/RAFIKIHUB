@@ -57,10 +57,10 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-      <section className="section section--white" aria-labelledby="journey" id="journey">
+      <section className="section section--white" aria-labelledby="journey-title" id="journey">
         <div className="wrap timeline-wrap">
           <p className="kicker">Our story</p>
-          <h2>RafikiHub: our journey</h2>
+          <h2 id="journey-title">RafikiHub: our journey</h2>
           <ol className="timeline">
             {timeline.map((t) => (
               <li key={t.title}>

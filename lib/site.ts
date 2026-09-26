@@ -88,6 +88,3 @@ export const drawerGroups: NavGroup[] = [
     ],
   },
 ];
-
-/** Every top-level page link, for sitemaps and tests */
-export const nav: NavLink[] = [...navLeft, ...navRight].flatMap((n) => (isGroup(n) ? n.items : [n]));

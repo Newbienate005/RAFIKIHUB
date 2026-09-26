@@ -15,7 +15,7 @@ type Props = {
 
 /** Fills its parent (give the parent a size or aspect-ratio). Falls back to an initials placeholder. */
 export function Photo({ src, alt, label, sizes = "(max-width: 768px) 100vw, 50vw", priority, className }: Props) {
-  if (src && available.has(src)) {
+  if (src && (/^https?:\/\//.test(src) || available.has(src))) {
     return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={`photo ${className ?? ""}`} />;
   }
   const initials = (label ?? alt)
@@ -25,7 +25,7 @@ export function Photo({ src, alt, label, sizes = "(max-width: 768px) 100vw, 50vw
     .map((w) => w[0]?.toUpperCase())
     .join("");
   return (
-    <div className={`photo photo--empty ${className ?? ""}`} role="img" aria-label={alt}>
+    <div className={`photo photo--empty ${className ?? ""}`} {...(alt ? { role: "img", "aria-label": alt } : { "aria-hidden": true })}>
       <span aria-hidden="true">{initials}</span>
     </div>
   );

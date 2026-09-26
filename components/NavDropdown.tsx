@@ -9,6 +9,9 @@ import type { NavGroup } from "@/lib/site";
 export function NavDropdown({ group }: { group: NavGroup }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  // Hover opens the menu; the click that follows a hover shouldn't immediately close it again
+  const hovered = useRef(false);
+  const panelId = `nav-${group.label.toLowerCase().replace(/\W+/g, "-")}`;
   const pathname = usePathname();
   const active = group.items.some((i) => pathname === i.href);
 
@@ -23,12 +26,12 @@ export function NavDropdown({ group }: { group: NavGroup }) {
   }, [open]);
 
   return (
-    <div className="dropdown" ref={ref} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button type="button" className={`dropdown__toggle${active ? " is-active" : ""}`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+    <div className="dropdown" ref={ref} onMouseEnter={() => { hovered.current = true; setOpen(true); }} onMouseLeave={() => { hovered.current = false; setOpen(false); }}>
+      <button type="button" className={`dropdown__toggle${active ? " is-active" : ""}`} aria-expanded={open} aria-controls={panelId} onClick={() => { if (hovered.current) { hovered.current = false; return; } setOpen((o) => !o); }}>
         {group.label}
         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" /></svg>
       </button>
-      <div className="dropdown__panel" hidden={!open}>
+      <div className="dropdown__panel" id={panelId} hidden={!open}>
         <ul>
           {group.items.map((i) => (
             <li key={i.href}>

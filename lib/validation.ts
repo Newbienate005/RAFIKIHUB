@@ -5,7 +5,8 @@ const req = (label: string, max = 200) =>
 const opt = (max = 200) => z.string().trim().max(max).optional().or(z.literal(""));
 const email = z.string({ required_error: "Enter your email address." }).trim().email("Enter an email address like name@example.com.").max(200);
 const phone = z.string({ required_error: "Enter a phone number, including the country code." }).trim().min(7, "Enter a phone number, including the country code.").max(40);
-const honeypot = z.string().max(0).optional().or(z.literal(""));
+// Never fails validation: a filled honeypot is silently accepted and dropped in lib/api.ts
+const honeypot = z.string().optional();
 
 export const joinSchema = z.object({
   fullName: req("full name", 160),

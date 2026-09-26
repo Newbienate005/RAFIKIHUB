@@ -12,7 +12,7 @@ export function NameChecker() {
     setState({ status: "checking" });
     try {
       const res = await fetch("/api/name-check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({ ok: false, error: "Something went wrong on our side. Try again soon." }));
       if (!json.ok) return setState({ status: "error", message: json.error });
       setState({ status: json.available ? "available" : "taken" });
     } catch {

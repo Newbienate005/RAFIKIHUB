@@ -10,7 +10,6 @@
 export const images = {
   /** Leave as null to use the all-caps RAFIKIHUB wordmark. Set a path to use an image logo instead. */
   logo: null as string | null,
-  ogDefault: "/images/legacy/og.jpg",
 
   // Hero contact sheet: six performer headshots
   hero: [

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ContactSheet } from "@/components/ContactSheet";
 import { ArticleCard } from "@/components/ArticleCard";
 import { FaqList } from "@/components/FaqList";
@@ -10,6 +11,12 @@ import { images } from "@/lib/images";
 import { shortDate } from "@/lib/dates";
 import { faqSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: { absolute: "RafikiHub | Casting platform for actors and performers in Kenya" },
+  description: "RafikiHub is a Nairobi casting platform connecting actors, models and performers in Kenya and Africa with casting directors for film, TV, theatre and ads.",
+  alternates: { canonical: "/" },
+};
 
 const homeFaqs = faqs.slice(0, 5);
 const latestArticles = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 4);
@@ -24,7 +31,7 @@ export default function Home() {
       <section className="hero">
         <div className="wrap hero__grid">
           <div>
-            <p className="kicker">Africa's performing arts community</p>
+            <p className="kicker">Karibu · Africa's performing arts community</p>
             <h1>
               <span className="line">Get seen.</span>
               <span className="line line--sun">Get cast.</span>

@@ -3,14 +3,16 @@ import { JsonLd } from "@/components/JsonLd";
 import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
 import { Photo } from "@/components/Photo";
-import { services } from "@/lib/data";
+import { Answer } from "@/components/Answer";
+import { PageFaq } from "@/components/PageFaq";
+import { pageFaqs, services } from "@/lib/data";
 import { serviceSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
 const description =
   "Sio Bahati Services from RafikiHub: professional acting headshots, showreels and audition preparation for performers in Nairobi, Kenya.";
 
-export const metadata = pageMeta({ title: "Sio Bahati Services: headshots, showreels and audition prep in Nairobi", description, path: "/services" });
+export const metadata = pageMeta({ title: "Headshots, showreels and audition prep in Nairobi", description, path: "/services" });
 
 export default function ServicesPage() {
   return (
@@ -22,6 +24,10 @@ export default function ServicesPage() {
         lead="Sio bahati means 'it's not luck' in Swahili. Headshots, showreels and audition prep to give casting directors every reason to call you in."
         crumbs={[{ name: "Sio Bahati Services", path: "/services" }]}
       />
+      <Answer question="Where can I get acting headshots in Nairobi?">
+        RafikiHub's Sio Bahati Services offer professional acting headshots, showreels and one-to-one audition preparation
+        at our office in Parklands, Nairobi. Book a session below and we'll confirm availability and price within two working days.
+      </Answer>
 
       <section className="section">
         <div className="wrap">
@@ -69,6 +75,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      <PageFaq title="Sio Bahati Services: common questions" items={pageFaqs.services} />
       <CtaBand title="Not a member yet?" text="Your headshots and showreel go straight onto your RafikiHub profile." primary={{ href: "/join", label: "Join RafikiHub" }} secondary={{ href: "/membership", label: "See membership options" }} />
     </>
   );

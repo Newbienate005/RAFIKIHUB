@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const meta = pageMeta({ title: article.title, description: article.excerpt, path: `/blog/${article.url}` });
   return {
     ...meta,
-    openGraph: { ...meta.openGraph, type: "article", publishedTime: article.publishedAt, section: article.genre },
+    openGraph: { ...meta.openGraph, type: "article", publishedTime: article.publishedAt, modifiedTime: article.updatedAt ?? article.publishedAt, section: article.genre, authors: [article.author] },
   };
 }
 
@@ -48,7 +48,7 @@ export default async function ArticlePage({ params }: Params) {
               <ol>
                 <li><Link href="/">Home</Link></li>
                 <li><Link href="/blog">Blog</Link></li>
-                <li><span aria-current="page">{article.genre}</span></li>
+                <li><span aria-current="page">{article.title}</span></li>
               </ol>
             </nav>
             <h1>{article.title}</h1>

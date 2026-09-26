@@ -6,7 +6,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { Photo } from "@/components/Photo";
 import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, show, type TalentProfile } from "@/lib/data";
 import { getProfile, getSimilarProfiles } from "@/lib/profiles";
-import { breadcrumbSchema } from "@/lib/schema";
+import { breadcrumbSchema, profilePageSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
 
 export const revalidate = 3600; // refresh profile pages hourly
@@ -44,19 +44,7 @@ export default async function ProfilePage({ params }: Params) {
   const m = p.furtherMeasurements;
   const age = ageFrom(p.personalData.dateOfBirth);
 
-  const person = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: p.fullName,
-    jobTitle: p.category,
-    description: p.bio ?? undefined,
-    url: `${site.url}/profile/${p.profileUrl}`,
-    image: p.media.headshots[0] ? `${site.url}${p.media.headshots[0]}` : undefined,
-    nationality: p.nationalities.map((n) => ({ "@type": "Country", name: n })),
-    homeLocation: p.cities[0] ? { "@type": "Place", name: p.cities[0] } : undefined,
-    knowsLanguage: p.languages,
-    ...(p.representedByRafikiHub ? { memberOf: { "@type": "Organization", name: "RafikiHub Talent Management", url: `${site.url}/talent-management` } } : {}),
-  };
+  const person = profilePageSchema(p);
 
   return (
     <>

@@ -1,7 +1,10 @@
 import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
 import { JsonLd } from "@/components/JsonLd";
-import { castingSteps } from "@/lib/data";
+import Link from "next/link";
+import { Answer } from "@/components/Answer";
+import { PageFaq } from "@/components/PageFaq";
+import { castingSteps, pageFaqs } from "@/lib/data";
 import { serviceSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
@@ -20,6 +23,10 @@ export default function CastingPage() {
         lead="Send your breakdown to registered agents and talent across Kenya and Africa, then review every submission in one place."
         crumbs={[{ name: "Cast a project", path: "/casting" }]}
       />
+      <Answer question="How do you cast actors in Kenya?">
+        Post a casting breakdown on RafikiHub. It goes to registered agents and matching performers across Kenya and Africa,
+        every submission arrives in one place, and you invite your shortlist to audition.
+      </Answer>
       <section className="section">
         <div className="wrap form-wrap">
           <div>
@@ -32,6 +39,10 @@ export default function CastingPage() {
             <p style={{ marginTop: "2rem" }}>
               Every performer has a searchable profile with headshots, credits, showreels, voice clips and skills.
               Casting information stays private to RafikiHub members.
+            </p>
+            <p>
+              New to the platform? Read <Link href="/blog/how-casting-works-on-rafikihub">how casting works on RafikiHub</Link> or
+              the <Link href="/faq">casting FAQ</Link>.
             </p>
           </div>
           <div className="panel">
@@ -56,6 +67,7 @@ export default function CastingPage() {
           </div>
         </div>
       </section>
+      <PageFaq title="Casting on RafikiHub: common questions" items={pageFaqs.casting} />
     </>
   );
 }

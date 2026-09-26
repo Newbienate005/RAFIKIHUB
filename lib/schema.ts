@@ -1,12 +1,23 @@
 import { site } from "./site";
-import type { Article, Faq, TeamMember } from "./data";
+import manifest from "./image-manifest.json";
+import type { Article, Faq, TalentProfile, TeamMember } from "./data";
 
-const orgId = `${site.url}/#organization`;
+export const orgId = `${site.url}/#organization`;
+const available = new Set<string>(manifest as string[]);
+
+/** Absolute URL for an image, but only if the local file exists (or it's already absolute). */
+export function absImage(src?: string | null): string | undefined {
+  if (!src) return undefined;
+  if (/^https?:\/\//.test(src)) return src;
+  return available.has(src) ? `${site.url}${src}` : undefined;
+}
+
+export const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export function organizationSchema() {
   return {
     "@context": "https://schema.org",
-    "@type": ["Organization", "LocalBusiness"],
+    "@type": "Organization",
     "@id": orgId,
     name: site.name,
     url: site.url,
@@ -15,7 +26,8 @@ export function organizationSchema() {
     description: site.description,
     email: site.email,
     telephone: site.phone,
-    founder: { "@type": "Person", name: site.founder },
+    founder: { "@type": "Person", "@id": `${site.url}/team#${slugify(site.founder)}`, name: site.founder },
+    slogan: "Get seen. Get cast.",
     address: {
       "@type": "PostalAddress",
       streetAddress: `${site.address.building}, ${site.address.street}, ${site.address.area}`,
@@ -29,7 +41,7 @@ export function organizationSchema() {
       { "@type": "Place", name: "East Africa" },
       { "@type": "Continent", name: "Africa" },
     ],
-    knowsAbout: ["Casting", "Talent management", "Acting", "Performing arts", "Film and television casting in Kenya"],
+    knowsAbout: ["Casting", "Talent management", "Acting", "Performing arts", "Film and television casting in Kenya", "Auditions in Nairobi", "African film and theatre"],
     sameAs: Object.values(site.social),
     contactPoint: [
       { "@type": "ContactPoint", contactType: "customer support", email: site.email, telephone: site.phone, areaServed: "KE", availableLanguage: ["English", "Swahili"] },
@@ -51,7 +63,7 @@ export function websiteSchema() {
   };
 }
 
-export function faqSchema(items: Faq[]) {
+export function faqSchema(items: Pick<Faq, "q" | "a">[]) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -77,18 +89,25 @@ export function breadcrumbSchema(trail: { name: string; path: string }[]) {
 }
 
 export function articleSchema(post: Article) {
+  const url = `${site.url}/blog/${post.url}`;
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "@id": `${url}#article`,
     headline: post.title,
-    articleSection: post.genre,
     description: post.excerpt,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    isPartOf: { "@id": `${site.url}/blog#blog` },
+    articleSection: post.genre,
     datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    ...(post.image ? { image: `${site.url}${post.image}` } : {}),
-    author: { "@type": "Organization", name: post.author, url: site.url },
+    dateModified: post.updatedAt ?? post.publishedAt,
+    image: [absImage(post.image) ?? `${site.url}/opengraph-image`],
+    author: post.author === site.name
+      ? { "@type": "Organization", "@id": orgId, name: site.name, url: site.url }
+      : { "@type": "Person", name: post.author },
     publisher: { "@id": orgId },
-    mainEntityOfPage: `${site.url}/blog/${post.url}`,
+    wordCount: post.content.reduce((n, b) => n + b.text.split(/\s+/).length, 0),
     inLanguage: "en-KE",
   };
 }
@@ -126,17 +145,74 @@ export function serviceSchema(name: string, description: string, path: string) {
 }
 
 export function personSchema(p: TeamMember) {
+  const image = absImage(p.image);
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": `${site.url}/team#${slugify(p.name)}`,
     name: p.name,
     jobTitle: p.position,
-    ...(p.image ? { image: `${site.url}${p.image}` } : {}),
+    url: `${site.url}/team`,
+    ...(image ? { image } : {}),
     description: p.bio[0],
     worksFor: { "@id": orgId },
-    alumniOf: [
-      { "@type": "EducationalOrganization", name: "Lewisham College" },
-      { "@type": "EducationalOrganization", name: "Arts Educational Schools, London" },
-    ],
+    ...(p.alumniOf?.length ? { alumniOf: p.alumniOf.map((name) => ({ "@type": "EducationalOrganization", name })) } : {}),
+    ...(p.profileUrl ? { sameAs: [`${site.url}/profile/${p.profileUrl}`] } : {}),
+  };
+}
+
+/** The Nairobi office, for /locations and /contact. Add geo and opening hours once confirmed; don't guess them. */
+export function localBusinessSchema() {
+  const a = site.address;
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${site.url}/#nairobi-office`,
+    name: `${site.name} Nairobi`,
+    parentOrganization: { "@id": orgId },
+    url: `${site.url}/locations`,
+    image: `${site.url}/opengraph-image`,
+    telephone: site.phone,
+    email: site.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: `${a.building}, ${a.street}`,
+      addressLocality: `${a.area}, ${a.city}`,
+      addressRegion: a.region,
+      addressCountry: a.country,
+    },
+    hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${a.building}, ${a.area}, ${a.city}, ${a.countryName}`)}`,
+    areaServed: [{ "@type": "City", name: "Nairobi" }, { "@type": "Country", name: "Kenya" }, { "@type": "Continent", name: "Africa" }],
+    priceRange: "KES 250–2,500",
+  };
+}
+
+export function profilePageSchema(p: TalentProfile, updatedAt?: Date) {
+  const url = `${site.url}/profile/${p.profileUrl}`;
+  const image = absImage(p.media.headshots[0]);
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": url,
+    url,
+    name: `${p.fullName}, ${p.category}`,
+    inLanguage: "en-KE",
+    isPartOf: { "@id": `${site.url}/#website` },
+    ...(updatedAt ? { dateModified: updatedAt.toISOString() } : {}),
+    mainEntity: {
+      "@type": "Person",
+      "@id": `${url}#person`,
+      name: p.fullName,
+      jobTitle: p.category,
+      url,
+      ...(p.bio ? { description: p.bio } : {}),
+      ...(image ? { image } : {}),
+      ...(p.cities[0] ? { homeLocation: { "@type": "Place", name: `${p.cities[0]}, ${p.personalData.country}` } } : {}),
+      nationality: p.nationalities.map((n) => ({ "@type": "Country", name: n })),
+      knowsLanguage: p.languages,
+      ...(p.representedByRafikiHub
+        ? { memberOf: { "@type": "Organization", name: "RafikiHub Talent Management", url: `${site.url}/talent-management`, parentOrganization: { "@id": orgId } } }
+        : {}),
+    },
   };
 }

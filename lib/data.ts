@@ -305,6 +305,8 @@ export type Article = {
   genre: ArticleGenre;
   excerpt: string;
   publishedAt: string; // ISO
+  /** Set when the article is meaningfully edited, so search engines see a fresh date */
+  updatedAt?: string;
   author: string;
   image: Maybe<string>;
   content: { heading?: string; text: string }[];
@@ -420,6 +422,7 @@ export type TeamMember = {
   bio: string[];
   /** Links the team member to their own talent profile, if they have one */
   profileUrl?: string;
+  alumniOf?: string[];
 };
 
 export const team: TeamMember[] = [
@@ -428,6 +431,7 @@ export const team: TeamMember[] = [
     position: "Founder and CEO",
     image: "/images/people/kate-snow.jpg",
     profileUrl: "katesnow",
+    alumniOf: ["Lewisham College", "Arts Educational Schools, London"],
     bio: [
       "Kate studied at Lewisham College from 2009, earning a BTEC National Diploma in Performing Arts, then trained at Arts Educational Schools in Chiswick, London, graduating with a BA (Hons) in Acting for Film and Television.",
       "She worked as an actress in London for several years, represented by John Doe Management, before returning home to Kenya in 2017 to continue her acting career, with roles including the film You Again and the short film Relationship Goals.",
@@ -470,6 +474,44 @@ export const faqs: Faq[] = [
   { category: "About RafikiHub", q: "How do I contact RafikiHub?", a: "Email info@rafikihub.com or call +254 (0) 114 011 932. Our office is at Park Place Business Centre, Park Place Building, 2nd Floor, Parklands, Nairobi. For agent representation, email talent@rafikihub.com." },
 ];
 
+/** Short, answer-first Q&As for key pages. Shown on the page and emitted as FAQPage schema for search and AI answer engines. */
+export type PageFaqKey = "casting" | "membership" | "talentManagement" | "services" | "locations";
+export const pageFaqs: Record<PageFaqKey, { q: string; a: string }[]> = {
+  casting: [
+    { q: "How do I post a casting call in Kenya on RafikiHub?", a: "Send your breakdown with the form on this page: production company, project type, title, dates, location, and the roles and requirements. RafikiHub confirms the details with you before it goes out to agents and talent." },
+    { q: "Who receives my casting breakdown?", a: "Registered agents and performers across Kenya and Africa who match the roles. Agents submit their clients, performers submit their own profiles, and every submission arrives in one place for you to review." },
+    { q: "What kinds of projects can I cast on RafikiHub?", a: "Feature films, TV series, short films, commercials, theatre, music videos, photo shoots and voice-over work." },
+    { q: "What should a casting breakdown include?", a: "Character names, age ranges, looks, skills, pay and any usage terms. The clearer the breakdown, the better matched the submissions you receive." },
+    { q: "Is casting information kept confidential?", a: "Yes. Casting information stays private to RafikiHub members, and any member found sharing it outside the platform has their membership terminated. You can also leave your own contact details out of the breakdown." },
+  ],
+  membership: [
+    { q: "How much is RafikiHub membership?", a: "Basic is Ksh 250 per month, Standard is Ksh 1,250 for 6 months and Premium is Ksh 2,500 for 12 months." },
+    { q: "What is the difference between the plans?", a: "Only the length and the price. Every plan includes the same full membership. Standard and Premium both work out at about Ksh 208 a month." },
+    { q: "How much do I save with a longer plan?", a: "Compared with paying for Basic every month, Standard saves Ksh 250 over 6 months and Premium saves Ksh 500 over 12 months." },
+    { q: "What does every plan include?", a: "A full profile with headshots, credits, showreels and voice clips, castings from directors across Kenya and Africa, instant submissions with your RafikiHub link, and invitations to workshops, events and career advice." },
+    { q: "How do I pay for membership?", a: "Payment details are confirmed when RafikiHub sets up your membership after you apply. For questions, call +254 (0) 114 011 932 or email info@rafikihub.com." },
+  ],
+  talentManagement: [
+    { q: "What is RafikiHub Talent Management?", a: "RafikiHub's own talent agency. It represents a select group of actors of all ages in Kenya across film, television, theatre, radio and commercials." },
+    { q: "How do I apply for representation?", a: "Email talent@rafikihub.com with your headshot, CV and showreel link. Joining RafikiHub first means casting teams can already find your profile." },
+    { q: "What does representation include?", a: "A formal contract, submissions to roles that suit you, negotiation of fees and terms on your behalf, and ongoing guidance on headshots, showreels, training and career direction." },
+    { q: "Does the agency take commission?", a: "Yes. The commission on each job is set out in the formal contract you sign before representation begins." },
+    { q: "Is RafikiHub membership the same as representation?", a: "No. Membership gives you a profile and access to castings. Talent Management is a separate, selective agency service with a small roster." },
+  ],
+  services: [
+    { q: "What does Sio Bahati mean?", a: "Sio bahati is Swahili for \"it's not luck\". Sio Bahati Services are RafikiHub's headshot, showreel and audition preparation services for performers in Nairobi." },
+    { q: "What is included in a headshot session?", a: "A session with a photographer who shoots performers, guidance on wardrobe and looks before the shoot, and edited images ready for your RafikiHub profile." },
+    { q: "Can I get a showreel if I don't have any footage?", a: "Yes. As well as cutting existing clips into a reel, RafikiHub can shoot scenes for performers who don't have footage yet." },
+    { q: "How much do the services cost?", a: "Prices are confirmed when you book. Send a booking request and RafikiHub will confirm availability and price by email or phone within two working days." },
+    { q: "What does audition prep involve?", a: "One-to-one preparation for a specific audition or self-tape: script and character work, self-tape set-up and delivery tips, and practice runs with feedback." },
+  ],
+  locations: [
+    { q: "Where is RafikiHub's office?", a: "Park Place Business Centre, Park Place Building, 2nd Floor, Parklands, Nairobi, Kenya." },
+    { q: "Does RafikiHub only work with performers in Nairobi?", a: "No. Profiles and castings are online, so RafikiHub works with performers, crew and productions across Kenya, East Africa, the rest of the continent and internationally." },
+    { q: "Has RafikiHub worked with international productions?", a: "Yes. RafikiHub has worked with production companies from the UK, the US and South Africa." },
+    { q: "How do I contact the Nairobi office?", a: "Call +254 (0) 114 011 932 or email info@rafikihub.com. For agent representation, email talent@rafikihub.com." },
+  ],
+};
 
 /* ─────────────────────────── Home: three ways in ──────────────────────────── */
 // Copy from the old rafikihub.com home page ("Our Services").
@@ -587,7 +629,6 @@ export type ContactListing = {
   /** Enhanced listings appear first and are highlighted */
   enhanced?: boolean;
 };
-export const contactListingTypes: ContactListing["type"][] = ["Agent", "Casting director", "Production company", "Photographer", "Training", "Service"];
 export const contactListings: ContactListing[] = [
   {
     name: "RafikiHub Talent Management",

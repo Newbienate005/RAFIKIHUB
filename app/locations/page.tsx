@@ -1,7 +1,11 @@
 import { CtaBand } from "@/components/CtaBand";
+import Link from "next/link";
+import { JsonLd } from "@/components/JsonLd";
+import { PageFaq } from "@/components/PageFaq";
 import { PageHeader } from "@/components/PageHeader";
+import { localBusinessSchema } from "@/lib/schema";
 import { Photo } from "@/components/Photo";
-import { locations } from "@/lib/data";
+import { locations, pageFaqs } from "@/lib/data";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -17,6 +21,7 @@ export default function LocationsPage() {
   const [hq, ...rest] = locations;
   return (
     <>
+      <JsonLd data={localBusinessSchema()} />
       <PageHeader
         kicker="RafikiHub Locations"
         title={<>Rooted in Nairobi, <em>working across Africa</em>.</>}
@@ -39,7 +44,10 @@ export default function LocationsPage() {
               <a href={`tel:${site.phone}`}>{site.phoneDisplay}</a><br />
               <a href={`mailto:${site.email}`}>{site.email}</a>
             </p>
-            <a className="btn btn--ink" href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener">Open in Google Maps</a>
+            <div className="btn-row">
+              <a className="btn btn--ink" href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener">Open in Google Maps</a>
+              <Link className="btn btn--ghost" href="/contact">Send us a message</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -57,6 +65,7 @@ export default function LocationsPage() {
           </ul>
         </div>
       </section>
+      <PageFaq title="Visiting and working with us" items={pageFaqs.locations} />
       <CtaBand title="Wherever you are, you can join." text="RafikiHub profiles and castings are online, so you can be seen from anywhere." primary={{ href: "/join", label: "Join the Hub" }} />
     </>
   );

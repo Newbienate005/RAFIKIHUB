@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
-  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "en_KE",
@@ -37,13 +36,15 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
   formatDetection: { telephone: true, email: true },
   category: "entertainment",
+  // Nairobi City County (ISO 3166-2:KE-30)
+  other: { "geo.region": "KE-30", "geo.placename": "Nairobi", "geo.position": "-1.2921;36.8219", ICBM: "-1.2921, 36.8219" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#211F1C",
+  themeColor: "#2b1f5c",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
         />
         <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM summary" />
+        <link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="RafikiHub Blog" />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
       </head>
       <body>

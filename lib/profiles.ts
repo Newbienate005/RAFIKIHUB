@@ -24,6 +24,21 @@ export async function getProfile(profileUrl: string): Promise<TalentProfile | nu
   return isDev && profileUrl === exampleProfile.profileUrl ? exampleProfile : null;
 }
 
+/** Every published profile URL, for the sitemap. */
+export async function getPublishedProfileUrls(): Promise<{ profileUrl: string; updatedAt: Date }[]> {
+  const db = getDb();
+  if (!db) return [];
+  try {
+    return await db
+      .select({ profileUrl: talentProfiles.profileUrl, updatedAt: talentProfiles.updatedAt })
+      .from(talentProfiles)
+      .where(eq(talentProfiles.published, true));
+  } catch (e) {
+    console.error("[profiles] sitemap lookup failed", e);
+    return [];
+  }
+}
+
 /** Actors represented by RafikiHub Talent Management, for the roster. */
 export async function getRepresentedProfiles(limit = 12): Promise<TalentProfile[]> {
   const db = getDb();
