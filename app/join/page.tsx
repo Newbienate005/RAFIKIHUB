@@ -1,20 +1,22 @@
+import Link from "next/link";
 import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
-import { memberTypes, faqs } from "@/lib/data";
+import { joinBenefits, memberTypes, faqs, plans } from "@/lib/data";
+import { PlanCards } from "@/components/PlanCards";
 import { faqSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Join RafikiHub as an actor, model or performer",
   description:
-    "Create your RafikiHub profile and apply for film, TV, theatre and commercial castings in Kenya and Africa. Open to actors, young performers, models, make-up artists, stylists, pet models and agents.",
+    "Create your RafikiHub profile and apply for film, TV, theatre and commercial castings in Kenya and Africa. Open to actors, young performers, models, make-up artists, stylists, agents and casting directors.",
   path: "/join",
 });
 
 const joinFaqs = faqs.filter((f) =>
-  ["Who can join RafikiHub?", "What goes on a RafikiHub profile?", "What makes a good acting headshot?", "Can my pet be cast in a commercial or film?", "How should I apply for a role?"].includes(f.q),
+  ["Who can join RafikiHub?", "What goes on a RafikiHub profile?", "What makes a good acting headshot?", "How should I apply for a role?", "How much does RafikiHub membership cost?"].includes(f.q),
 );
 
 export default function JoinPage() {
@@ -22,10 +24,36 @@ export default function JoinPage() {
     <>
       <JsonLd data={faqSchema(joinFaqs)} />
       <PageHeader
-        title="Join RafikiHub"
+        kicker="Membership"
+        title={<>Find your <em>rafiki</em>.</>}
         lead="Tell us about yourself and we'll set up your membership. You'll get a full profile and start receiving castings that match you."
         crumbs={[{ name: "Join", path: "/join" }]}
       />
+      <section className="section" aria-labelledby="how">
+        <div className="wrap">
+          <p className="kicker">Member benefits</p>
+          <h2 id="how">How RafikiHub works</h2>
+          <ul className="benefits">
+            {joinBenefits.map((b, i) => (
+              <li key={b.title}>
+                <span className="benefits__n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                <h3>{b.title}</h3>
+                <p>{b.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="section section--white" aria-labelledby="plans">
+        <div className="wrap">
+          <p className="kicker">Membership options</p>
+          <h2 id="plans">Choose a plan</h2>
+          <PlanCards />
+          <p className="small" style={{ marginTop: "1.5rem" }}><Link href="/membership">Compare plans in detail</Link></p>
+        </div>
+      </section>
+
       <section className="section">
         <div className="wrap form-wrap">
           <div>
@@ -60,6 +88,7 @@ export default function JoinPage() {
                 { name: "email", label: "Email", type: "email", required: true, autoComplete: "email", half: true },
                 { name: "phone", label: "Phone", type: "tel", required: true, autoComplete: "tel", half: true, hint: "Include the country code, e.g. +254" },
                 { name: "category", label: "I'm joining as", type: "select", required: true, options: memberTypes.map((m) => m.formLabel) },
+                { name: "plan", label: "Membership plan", type: "select", options: [...plans.map((p) => p.id), "undecided"], optionLabels: [...plans.map((p) => `${p.name}: Ksh ${p.priceKsh.toLocaleString("en-KE")} ${p.label}`), "Not sure yet"], defaultFromQuery: "plan" },
                 { name: "location", label: "Town or city", autoComplete: "address-level2" },
                 { name: "message", label: "Experience and training", type: "textarea", hint: "A few lines on your credits, training or what you're looking for." },
               ]}

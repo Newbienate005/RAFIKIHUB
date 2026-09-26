@@ -15,7 +15,8 @@ export default function CastingPage() {
     <>
       <JsonLd data={serviceSchema("Casting breakdown distribution", description, "/casting")} />
       <PageHeader
-        title="Cast your next project"
+        kicker="For casting professionals"
+        title={<>Cast your next <em>project</em></>}
         lead="Send your breakdown to registered agents and talent across Kenya and Africa, then review every submission in one place."
         crumbs={[{ name: "Cast a project", path: "/casting" }]}
       />

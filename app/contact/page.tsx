@@ -12,7 +12,7 @@ export const metadata = pageMeta({
 export default function ContactPage() {
   return (
     <>
-      <PageHeader title="Contact us" lead="We're always here to help with membership, castings and representation." crumbs={[{ name: "Contact", path: "/contact" }]} />
+      <PageHeader kicker="Get in touch" title={<>Contact <em>us</em></>} lead="We're always here to help with membership, castings and representation." crumbs={[{ name: "Contact", path: "/contact" }]} />
       <section className="section">
         <div className="wrap form-wrap">
           <div>
@@ -21,7 +21,7 @@ export default function ContactPage() {
               <li><strong>General enquiries</strong><a href={`mailto:${site.email}`}>{site.email}</a></li>
               <li><strong>Phone</strong><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></li>
               <li><strong>Agent representation</strong><a href={`mailto:${site.talentEmail}`}>{site.talentEmail}</a></li>
-              <li><strong>Based in</strong><span>{site.city}, Kenya</span></li>
+              <li><strong>Visit us</strong><span>{site.address.building}, {site.address.street}, {site.address.area}, {site.address.city}</span></li>
             </ul>
           </div>
           <div className="panel">

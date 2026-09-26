@@ -8,7 +8,8 @@
  * Any slot whose file doesn't exist yet shows a tidy placeholder instead of a broken image.
  */
 export const images = {
-  logo: "/images/legacy/logo.png",
+  /** Leave as null to use the all-caps RAFIKIHUB wordmark. Set a path to use an image logo instead. */
+  logo: null as string | null,
   ogDefault: "/images/legacy/og.jpg",
 
   // Hero contact sheet: six performer headshots
@@ -25,7 +26,6 @@ export const images = {
     performers: "/images/legacy/performers.jpg",
     casting: "/images/legacy/casting.jpg",
     workshop: "/images/legacy/workshop.jpg",
-    petModel: "/images/legacy/pet-model.jpg",
     talentManagement: "/images/legacy/talent-management.jpg",
   },
 } as const;

@@ -2,11 +2,11 @@ import Link from "next/link";
 import { JsonLd } from "./JsonLd";
 import { breadcrumbSchema } from "@/lib/schema";
 
-type Props = { title: string; lead: string; crumbs: { name: string; path: string }[] };
+type Props = { title: React.ReactNode; lead: string; crumbs: { name: string; path: string }[]; kicker?: string };
 
-export function PageHeader({ title, lead, crumbs }: Props) {
+export function PageHeader({ title, lead, crumbs, kicker }: Props) {
   return (
-    <header className="page-header">
+    <header className="page-header pattern">
       <JsonLd data={breadcrumbSchema(crumbs)} />
       <div className="wrap">
         <nav aria-label="Breadcrumb" className="crumbs">
@@ -19,6 +19,7 @@ export function PageHeader({ title, lead, crumbs }: Props) {
             ))}
           </ol>
         </nav>
+        {kicker ? <p className="kicker">{kicker}</p> : null}
         <h1>{title}</h1>
         <p className="lead">{lead}</p>
       </div>

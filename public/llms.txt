@@ -4,9 +4,12 @@
 
 ## Key facts
 - Location: Nairobi, Kenya. Serves Kenya, East Africa and Africa.
-- Who can join: actors, young performers (registered by a parent or guardian), independent performers, models, fashion stylists and designers, make-up artists, pet models, studio spaces and agents.
+- Who can join: actors, young performers (registered by a parent or guardian), independent performers, models, fashion stylists and designers, make-up artists and other crew, agents, casting directors, and brands or event organisers.
 - For casting professionals: post casting breakdowns to registered agents and talent, search performer profiles, and shortlist for audition.
 - Services: casting platform, talent management (agent representation), acting workshops, mentoring and headshot sessions.
+- Membership: Basic Ksh 250 per month, Standard Ksh 1,250 for 6 months, Premium Ksh 2,500 for 12 months.
+- Sio Bahati Services: headshots, showreels and audition preparation.
+- Address: Park Place Business Centre, Park Place Building, 2nd Floor, Parklands, Nairobi, Kenya.
 - Contact: info@rafikihub.com, +254 114 011 932. Representation: talent@rafikihub.com.
 
 ## Pages
@@ -17,5 +20,11 @@
 - [FAQ](https://rafikihub.com/faq): how casting works, applying for roles, headshots, confidentiality
 - [About](https://rafikihub.com/about): mission and background
 - [Team](https://rafikihub.com/team): founder Kate Snow
-- [Advice](https://rafikihub.com/blog): articles for performers
+- [Blog](https://rafikihub.com/blog): reviews, member stories and advice for performers
+- [Membership options](https://rafikihub.com/membership): plans and prices
+- [Sio Bahati Services](https://rafikihub.com/services): headshots, showreels, audition prep
+- [Video Library](https://rafikihub.com/videos): workshops and masterclasses
+- [Contact Listings](https://rafikihub.com/contact-listings): industry directory
+- [Locations](https://rafikihub.com/locations): Nairobi headquarters
+- [Resources](https://rafikihub.com/resources): tools and guides, including a stage name checker
 - [Contact](https://rafikihub.com/contact)

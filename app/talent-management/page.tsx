@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
+import { ProfileCard } from "@/components/ProfileCard";
+import { getRepresentedProfiles } from "@/lib/profiles";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
 import { images } from "@/lib/images";
@@ -12,12 +14,16 @@ const description =
 
 export const metadata = pageMeta({ title: "Talent management and agent representation in Kenya", description, path: "/talent-management" });
 
-export default function TalentManagementPage() {
+export const revalidate = 3600;
+
+export default async function TalentManagementPage() {
+  const roster = await getRepresentedProfiles();
   return (
     <>
       <JsonLd data={serviceSchema("RafikiHub Talent Management", description, "/talent-management")} />
       <PageHeader
-        title="Looking for an agent? RafikiHub Talent Management"
+        kicker="Talent Management"
+        title={<>Looking for an agent? <em>RafikiHub Talent Management</em></>}
         lead="We represent a select group of actors of all ages across radio, theatre, commercials, film and television."
         crumbs={[{ name: "Talent management", path: "/talent-management" }]}
       />
@@ -52,6 +58,15 @@ export default function TalentManagementPage() {
           </div>
         </div>
       </section>
+      {roster.length ? (
+        <section className="section section--white" aria-labelledby="roster">
+          <div className="wrap">
+            <p className="kicker">Talents</p>
+            <h2 id="roster">Meet our <em>rafikis</em></h2>
+            <div className="cards cards--talent">{roster.map((p) => <ProfileCard key={p.profileUrl} p={p} />)}</div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

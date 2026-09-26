@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { CtaBand } from "@/components/CtaBand";
 import { PageHeader } from "@/components/PageHeader";
 import { Photo } from "@/components/Photo";
 import { images } from "@/lib/images";
+import { team, timeline, timelineClosing } from "@/lib/data";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -16,7 +18,8 @@ export default function AboutPage() {
   return (
     <>
       <PageHeader
-        title="Bringing the industry together"
+        kicker="About us"
+        title={<>Bringing the industry <em>together</em></>}
         lead="Our mission is to create easy links between artists and industry professionals, while boosting the showcase of Kenyan, East African and African talent."
         crumbs={[{ name: "About", path: "/about" }]}
       />
@@ -54,6 +57,45 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <section className="section section--white" aria-labelledby="journey" id="journey">
+        <div className="wrap timeline-wrap">
+          <p className="kicker">Our story</p>
+          <h2>RafikiHub: our journey</h2>
+          <ol className="timeline">
+            {timeline.map((t) => (
+              <li key={t.title}>
+                <span className="timeline__year">{t.year}</span>
+                <div>
+                  <h3>{t.title}</h3>
+                  <p className="timeline__tagline">{t.tagline}</p>
+                  {t.body.map((b) => <p key={b.slice(0, 24)}>{b}</p>)}
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="timeline__closing">{timelineClosing}</p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="leaders">
+        <div className="wrap">
+          <div className="section-head">
+            <div><p className="kicker">Leadership</p><h2 id="leaders">Meet the team</h2></div>
+            <Link href="/team" className="link-strong">View full team →</Link>
+          </div>
+          <ul className="team-strip">
+            {team.map((m) => (
+              <li key={m.name}>
+                <span className="team-strip__photo"><Photo src={m.image ?? undefined} alt={m.name} label={m.name} sizes="96px" /></span>
+                <strong>{m.name}</strong>
+                <span className="small">{m.position}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <CtaBand title="Come build it with us." primary={{ href: "/join", label: "Join the Hub" }} secondary={{ href: "/contact", label: "Talk to us" }} />
     </>
   );
 }

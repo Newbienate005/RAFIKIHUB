@@ -18,10 +18,12 @@ export function organizationSchema() {
     founder: { "@type": "Person", name: site.founder },
     address: {
       "@type": "PostalAddress",
-      addressLocality: site.city,
-      addressRegion: site.region,
-      addressCountry: site.country,
+      streetAddress: `${site.address.building}, ${site.address.street}, ${site.address.area}`,
+      addressLocality: site.address.city,
+      addressRegion: site.address.region,
+      addressCountry: site.address.country,
     },
+    legalName: site.legalName,
     areaServed: [
       { "@type": "Country", name: "Kenya" },
       { "@type": "Place", name: "East Africa" },
@@ -77,8 +79,9 @@ export function breadcrumbSchema(trail: { name: string; path: string }[]) {
 export function articleSchema(post: Article) {
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: post.title,
+    articleSection: post.genre,
     description: post.excerpt,
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
@@ -87,6 +90,26 @@ export function articleSchema(post: Article) {
     publisher: { "@id": orgId },
     mainEntityOfPage: `${site.url}/blog/${post.url}`,
     inLanguage: "en-KE",
+  };
+}
+
+export function blogSchema(items: Article[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${site.url}/blog#blog`,
+    name: "RafikiHub Blog",
+    url: `${site.url}/blog`,
+    publisher: { "@id": orgId },
+    inLanguage: "en-KE",
+    blogPost: items.map((a) => ({
+      "@type": "BlogPosting",
+      headline: a.title,
+      description: a.excerpt,
+      datePublished: a.publishedAt,
+      url: `${site.url}/blog/${a.url}`,
+      articleSection: a.genre,
+    })),
   };
 }
 

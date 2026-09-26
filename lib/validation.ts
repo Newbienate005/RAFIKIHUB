@@ -12,6 +12,7 @@ export const joinSchema = z.object({
   email,
   phone,
   category: z.string({ required_error: "Choose what you're joining as." }).trim().min(1, "Choose what you're joining as.").max(80),
+  plan: z.enum(["basic", "standard", "premium", "undecided"]).optional().or(z.literal("")),
   location: opt(120),
   message: opt(2000),
   website: honeypot,
@@ -39,3 +40,15 @@ export const contactSchema = z.object({
 });
 
 export const newsletterSchema = z.object({ email, website: honeypot });
+
+export const bookingSchema = z.object({
+  service: z.enum(["headshots", "showreels", "audition-preps"], { errorMap: () => ({ message: "Choose a service." }) }),
+  fullName: req("name", 160),
+  email,
+  phone,
+  preferredDate: opt(60),
+  notes: opt(2000),
+  website: honeypot,
+});
+
+export const nameCheckSchema = z.object({ name: z.string().trim().min(2, "Enter at least two letters.").max(160) });

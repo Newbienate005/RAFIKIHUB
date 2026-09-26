@@ -1,3 +1,4 @@
+import { CtaBand } from "@/components/CtaBand";
 import { PageHeader } from "@/components/PageHeader";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
@@ -15,7 +16,7 @@ export default function TeamPage() {
   return (
     <>
       <JsonLd data={team.map(personSchema)} />
-      <PageHeader title="Our team" lead="Performers and industry people who know what it takes to build a career in the arts." crumbs={[{ name: "Team", path: "/team" }]} />
+      <PageHeader kicker="Our team" title={<>The team behind <em>RafikiHub</em></>} lead="Performers and industry people who know what it takes to build a career in the arts." crumbs={[{ name: "Team", path: "/team" }]} />
       <section className="section">
         <div className="wrap">
           {team.map((p) => (
@@ -32,6 +33,7 @@ export default function TeamPage() {
           ))}
         </div>
       </section>
+      <CtaBand kicker="We're hiring" title="Want to help us build?" text="We're always looking for people who understand the performing arts in Africa. Tell us what you'd bring." primary={{ href: "/contact", label: "Get in touch" }} />
     </>
   );
 }

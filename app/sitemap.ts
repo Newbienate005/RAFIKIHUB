@@ -14,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["/team", 0.5, "yearly"],
     ["/blog", 0.7, "weekly"],
     ["/contact", 0.6, "yearly"],
+    ["/membership", 0.9, "monthly"],
+    ["/services", 0.8, "monthly"],
+    ["/videos", 0.6, "weekly"],
+    ["/contact-listings", 0.6, "monthly"],
+    ["/locations", 0.6, "yearly"],
+    ["/resources", 0.6, "monthly"],
   ];
   return [
     ...pages.map(([path, priority, changeFrequency]) => ({ url: `${site.url}${path}`, lastModified: now, changeFrequency, priority })),

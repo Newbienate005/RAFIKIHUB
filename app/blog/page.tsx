@@ -1,34 +1,40 @@
-import Link from "next/link";
+import { ArticleCard } from "@/components/ArticleCard";
+import { BlogFilter } from "@/components/BlogFilter";
+import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
-import { articles } from "@/lib/data";
+import { articleGenres, articles } from "@/lib/data";
+import { blogSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
-  title: "News and advice for performers",
-  description: "Practical advice for actors and performers in Kenya: headshots, auditions, how casting works and member stories from RafikiHub.",
+  title: "Blog: news, reviews and advice for performers in Kenya",
+  description:
+    "The RafikiHub blog: theatre and film reviews, member stories, and practical advice on headshots, auditions and casting for actors and performers in Kenya.",
   path: "/blog",
 });
 
-const fmt = (d: string) => new Date(d).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" });
-
 export default function BlogPage() {
   const sorted = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const [latest, ...rest] = sorted;
   return (
     <>
-      <PageHeader title="News and advice" lead="Practical help for building a career in the performing arts." crumbs={[{ name: "Advice", path: "/blog" }]} />
+      <JsonLd data={blogSchema(sorted)} />
+      <PageHeader
+        kicker="Our blog"
+        title={<>From the <em>community</em></>}
+        lead="News, reviews, member stories and advice from Kenya's performing arts scene."
+        crumbs={[{ name: "Blog", path: "/blog" }]}
+      />
       <section className="section">
         <div className="wrap">
-          <ul className="posts">
-            {sorted.map((a) => (
-              <li key={a.url}>
-                <time dateTime={a.publishedAt}>{fmt(a.publishedAt)}</time>
-                <div>
-                  <h2><Link href={`/blog/${a.url}`}>{a.title}</Link></h2>
-                  <p>{a.excerpt}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <h2 className="eyebrow">Latest</h2>
+          <ArticleCard article={latest} featured headingLevel={2} />
+        </div>
+      </section>
+      <section className="section section--white" aria-labelledby="recent">
+        <div className="wrap">
+          <h2 id="recent">Recent articles</h2>
+          <BlogFilter articles={rest} genres={[...articleGenres]} />
         </div>
       </section>
     </>

@@ -54,7 +54,7 @@ export function ageFrom(dateOfBirth: Maybe<string>, today = new Date()) {
 
 export const profileCategories = [
   "Actor", "Young Performer", "Independent Performer", "Model", "Voice Over Artist",
-  "Dancer", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist", "Pet/Animal",
+  "Dancer", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist",
 ] as const;
 
 export const appearanceOptions = [
@@ -215,7 +215,7 @@ export const exampleProfile: TalentProfile = {
 /* ──────────────────────────── Member types (join) ──────────────────────────── */
 
 export type MemberType = {
-  key: "talent" | "young-performer" | "agent" | "casting-professional" | "industry-client" | "pet-animal" | "studio-space" | "creative";
+  key: "talent" | "young-performer" | "agent" | "casting-professional" | "industry-client" | "crew";
   name: string;
   /** Short line used in lists */
   tagline: string;
@@ -280,33 +280,13 @@ export const memberTypes: MemberType[] = [
     ],
   },
   {
-    key: "pet-animal",
-    name: "Pet models",
-    tagline: "Well-trained animals for shoots, ads and screen work.",
-    formLabel: "Pet model",
+    key: "crew",
+    name: "Crew",
+    tagline: "Camera, lighting, sound, styling, make-up and more.",
+    formLabel: "Crew (camera, lighting, styling, make-up…)",
     benefits: [
-      "Present your pet or animal to the industry with its own profile",
-      "Submit your pet for castings and auditions",
-      "Upload videos of your pet's best tricks and training for casting teams to see",
-    ],
-  },
-  {
-    key: "studio-space",
-    name: "Studio spaces",
-    tagline: "Studios, rehearsal rooms and locations to hire.",
-    formLabel: "Studio or space",
-    benefits: [
-      "List and advertise your studio, space or rehearsal room",
-      "Connect with productions that need a space like yours",
-    ],
-  },
-  {
-    key: "creative",
-    name: "Stylists, designers and make-up artists",
-    tagline: "Creative crew for shoots and productions.",
-    formLabel: "Stylist, designer or make-up artist",
-    benefits: [
-      "Show your portfolio to productions and brands",
+      "Express yourself and boost your portfolio",
+      "Build industry contacts with productions and brands",
       "Get booked for shoots, sets and campaigns",
     ],
   },
@@ -314,10 +294,15 @@ export const memberTypes: MemberType[] = [
 
 /* ───────────────────────────────── Articles ───────────────────────────────── */
 
+/** The old blog had an "All Genres" filter. These are the genres used here. */
+export const articleGenres = ["Article", "Review", "Member story", "Advice"] as const;
+export type ArticleGenre = (typeof articleGenres)[number];
+
 export type Article = {
   /** The old `?url=` value. Old link /article?url=<url> redirects to /blog/<url>. */
   url: string;
   title: string;
+  genre: ArticleGenre;
   excerpt: string;
   publishedAt: string; // ISO
   author: string;
@@ -330,6 +315,7 @@ export const articles: Article[] = [
     // Same slug as the old article so the old link redirects here
     url: "lucy-maina---rafikihub-member--talent",
     title: "Lucy Maina: RafikiHub member and represented talent",
+    genre: "Member story",
     excerpt: "Actress Lucy Maina on mentorship, headshots and workshops with RafikiHub Talent Management.",
     publishedAt: "2024-03-26",
     author: "RafikiHub",
@@ -342,6 +328,7 @@ export const articles: Article[] = [
   {
     url: "how-to-get-a-great-acting-headshot",
     title: "How to get an acting headshot that gets you called in",
+    genre: "Advice",
     excerpt: "What casting directors look for in a headshot, and how to choose the right photographer in Kenya.",
     publishedAt: "2026-09-01",
     author: "RafikiHub",
@@ -356,6 +343,7 @@ export const articles: Article[] = [
   {
     url: "how-casting-works-on-rafikihub",
     title: "How casting works on RafikiHub, step by step",
+    genre: "Advice",
     excerpt: "From breakdown to audition: what happens after a casting director posts a role, and how to submit well.",
     publishedAt: "2026-08-15",
     author: "RafikiHub",
@@ -366,6 +354,34 @@ export const articles: Article[] = [
       { heading: "2. You or your agent submit", text: "Submit through RafikiHub unless the breakdown says otherwise. Don't send printed CVs, call or email the casting director directly. Your profile, with headshots, credits, showreel and skills, is what they'll look at." },
       { heading: "3. The shortlist is invited to audition", text: "The casting director reviews submissions and invites a shortlist. If you don't hear back, you weren't picked this time. Keep your profile fresh and keep applying." },
       { heading: "Keep castings confidential", text: "Casting information on RafikiHub is private. Sharing it outside the platform breaks the production's copyright and our terms, and leads to membership being terminated." },
+    ],
+  },
+
+  /* Articles from the old blog. Summaries only: paste the full text from the old site into `content`. */
+  {
+    url: "lwanda-otero-the-musical-review", // TODO: match the old article's ?url= value so its link redirects here
+    title: "Lwanda Otero: The Musical, reviewed",
+    genre: "Review",
+    excerpt: "A modern musical retelling of a Kenyan folk tale, strong on music and dance but light on depth.",
+    publishedAt: "2024-09-09",
+    author: "RafikiHub",
+    image: "/images/legacy/lwanda-otero.jpg",
+    content: [
+      { text: "Our review of Lwanda Otero: The Musical, a new stage retelling of the Kenyan legend of Lwanda, performed in Nairobi by a cast of actors, dancers, singers and musicians." },
+      { text: "The production opens strongly with live music and choreography, and shows Nairobi's growing appetite for theatre. Our reviewer found the humour and energy enjoyable, but felt the lighter tone came at the cost of the story's depth." },
+    ],
+  },
+  {
+    url: "a-homage-to-the-film-actor",
+    title: "A homage to the film actor",
+    genre: "Article",
+    excerpt: "To be an artist or not to be: on choosing the actor's life, and how RafikiHub supports those who do.",
+    publishedAt: "2024-02-19",
+    author: "RafikiHub",
+    image: "/images/legacy/homage-to-the-film-actor.jpg",
+    content: [
+      { text: "Starting from Hamlet's famous question, this piece reframes it for performers: to be an artist or not to be one. It reflects on the courage it takes to choose acting over more traditional careers." },
+      { text: "It closes on RafikiHub's role: linking performers with credible theatre, TV and film productions, and restoring professionalism to the craft through training, mentorship and portfolios built to international standards." },
     ],
   },
 ];
@@ -433,21 +449,163 @@ export const castingSteps = [
 
 /* ─────────────────────────────────── FAQs ─────────────────────────────────── */
 
-export type Faq = { q: string; a: string };
+export type FaqCategory = "About RafikiHub" | "Membership" | "Castings and auditions" | "Profiles and headshots";
+export const faqCategories: FaqCategory[] = ["About RafikiHub", "Membership", "Castings and auditions", "Profiles and headshots"];
+export type Faq = { q: string; a: string; category: FaqCategory };
 
 export const faqs: Faq[] = [
-  { q: "What is RafikiHub?", a: "RafikiHub is a casting platform based in Nairobi, Kenya. It connects actors, models, performers and other creatives across Kenya, East Africa and Africa with casting directors, agents and producers working in film, television, theatre and commercials." },
-  { q: "How does casting work on RafikiHub?", a: "Casting directors post breakdowns for the roles they are casting. The breakdowns go to registered agents and talent. Agents submit their clients and performers submit themselves. The casting director reviews the submissions and invites a shortlist to audition." },
-  { q: "Who can join RafikiHub?", a: "Actors and performers, young performers aged 4 to 18, agents, casting directors, brands and event organisers, owners of trained pets and animals, studio spaces, and stylists, designers and make-up artists." },
-  { q: "What goes on a RafikiHub profile?", a: "Headshots, credits, showreels, voice-over reels, skills, playing age, height, appearance, voice attributes and measurements. Casting directors can search all of these, so the more complete your profile, the easier you are to find." },
-  { q: "Why do casting directors use RafikiHub?", a: "It is the quickest way to get casting and audition information straight to agents and talent. Every performer has a searchable profile with headshots, credits, showreels, voice clips and skills, so casting directors can find and shortlist people in one place." },
-  { q: "How do I start a career in acting in Kenya?", a: "Train and build experience first. Many actors begin in small, low-budget stage or film productions, then move to bigger jobs as their credits grow. Acting workshops sharpen your technique and connect you with people who can help your career." },
-  { q: "What makes a good acting headshot?", a: "A recent, natural head-and-shoulders photo that looks like you do today. Keep clothing simple, avoid props, hats and busy backgrounds, and make sure your eyes are clearly visible. Casting directors see headshots in a grid, so it must be sharp and professional, never blurry or pixelated." },
-  { q: "How do I choose a headshot photographer?", a: "Choose a photographer who shoots performers, not one who mainly photographs musicians or events. Ask to see previous headshots, ask other performers who they used, and get a full price and package breakdown before you book." },
-  { q: "How should I apply for a role?", a: "Unless the breakdown says otherwise, submit yourself through RafikiHub. Casting directors don't want printed CVs, phone calls or direct emails. Everything they need is on your profile and in the message you include with your submission." },
-  { q: "Why doesn't a casting breakdown show the casting director's details?", a: "This is normal. Many casting professionals leave their details out to avoid being flooded with messages, or because parts of the project aren't public yet. If you suit the role, submit as usual and you'll receive more information if you're invited to audition." },
-  { q: "Will I hear back if I'm not successful?", a: "Not always. Casting directors will contact you if they want you to audition. If you don't hear back, you weren't selected on that occasion. Some let unsuccessful applicants know, depending on their workload and the number of submissions." },
-  { q: "Can I share casting information with friends?", a: "No. Casting information on RafikiHub is private and confidential. Sharing it outside the platform breaches the production's copyright and RafikiHub's terms, and any member found circulating casting information will have their membership terminated." },
-  { q: "Can my pet be cast in a commercial or film?", a: "Yes. Productions sometimes need animals with a specific breed, look or temperament for shoots, commercials, TV and film. If your pet is well trained, you can register it as a pet model and submit it for castings." },
-  { q: "How do I contact RafikiHub?", a: "Email info@rafikihub.com or call +254 114 011 932. For agent representation, email talent@rafikihub.com." },
+  { category: "About RafikiHub", q: "What is RafikiHub?", a: "RafikiHub is a casting platform based in Nairobi, Kenya. It connects actors, models, performers and other creatives across Kenya, East Africa and Africa with casting directors, agents and producers working in film, television, theatre and commercials." },
+  { category: "Castings and auditions", q: "How does casting work on RafikiHub?", a: "Casting directors post breakdowns for the roles they are casting. The breakdowns go to registered agents and talent. Agents submit their clients and performers submit themselves. The casting director reviews the submissions and invites a shortlist to audition." },
+  { category: "Membership", q: "Who can join RafikiHub?", a: "Actors and performers, young performers aged 4 to 18, agents, casting directors, brands and event organisers, and stylists, designers and make-up artists." },
+  { category: "Profiles and headshots", q: "What goes on a RafikiHub profile?", a: "Headshots, credits, showreels, voice-over reels, skills, playing age, height, appearance, voice attributes and measurements. Casting directors can search all of these, so the more complete your profile, the easier you are to find." },
+  { category: "About RafikiHub", q: "Why do casting directors use RafikiHub?", a: "It is the quickest way to get casting and audition information straight to agents and talent. Every performer has a searchable profile with headshots, credits, showreels, voice clips and skills, so casting directors can find and shortlist people in one place." },
+  { category: "Profiles and headshots", q: "How do I start a career in acting in Kenya?", a: "Train and build experience first. Many actors begin in small, low-budget stage or film productions, then move to bigger jobs as their credits grow. Acting workshops sharpen your technique and connect you with people who can help your career." },
+  { category: "Profiles and headshots", q: "What makes a good acting headshot?", a: "A recent, natural head-and-shoulders photo that looks like you do today. Keep clothing simple, avoid props, hats and busy backgrounds, and make sure your eyes are clearly visible. Casting directors see headshots in a grid, so it must be sharp and professional, never blurry or pixelated." },
+  { category: "Profiles and headshots", q: "How do I choose a headshot photographer?", a: "Choose a photographer who shoots performers, not one who mainly photographs musicians or events. Ask to see previous headshots, ask other performers who they used, and get a full price and package breakdown before you book." },
+  { category: "Castings and auditions", q: "How should I apply for a role?", a: "Unless the breakdown says otherwise, submit yourself through RafikiHub. Casting directors don't want printed CVs, phone calls or direct emails. Everything they need is on your profile and in the message you include with your submission." },
+  { category: "Castings and auditions", q: "Why doesn't a casting breakdown show the casting director's details?", a: "This is normal. Many casting professionals leave their details out to avoid being flooded with messages, or because parts of the project aren't public yet. If you suit the role, submit as usual and you'll receive more information if you're invited to audition." },
+  { category: "Castings and auditions", q: "Will I hear back if I'm not successful?", a: "Not always. Casting directors will contact you if they want you to audition. If you don't hear back, you weren't selected on that occasion. Some let unsuccessful applicants know, depending on their workload and the number of submissions." },
+  { category: "Castings and auditions", q: "Can I share casting information with friends?", a: "No. Casting information on RafikiHub is private and confidential. Sharing it outside the platform breaches the production's copyright and RafikiHub's terms, and any member found circulating casting information will have their membership terminated." },
+  { category: "Membership", q: "How much does RafikiHub membership cost?", a: "Basic membership is Ksh 250 per month. Standard is Ksh 1,250 for 6 months and Premium is Ksh 2,500 for 12 months, which both work out at about Ksh 208 a month. Every plan includes a full profile and casting submissions." },
+  { category: "About RafikiHub", q: "How do I contact RafikiHub?", a: "Email info@rafikihub.com or call +254 (0) 114 011 932. Our office is at Park Place Business Centre, Park Place Building, 2nd Floor, Parklands, Nairobi. For agent representation, email talent@rafikihub.com." },
+];
+
+
+/* ─────────────────────────── Home: three ways in ──────────────────────────── */
+// Copy from the old rafikihub.com home page ("Our Services").
+export const homePaths = [
+  { title: "Performers", text: "Be seen by the industry and apply for professional work.", href: "/join" },
+  { title: "Casting Professionals", text: "Access a vast database of performers and use us to cast your projects with fluidity and ease.", href: "/casting" },
+  { title: "Crew", text: "Express yourself, boost your portfolio and build industry contacts.", href: "/join" },
+];
+
+/* ──────────────────────────────── Timeline ────────────────────────────────── */
+// "RafikiHub — Our Journey". Supplied in the Figma design. CHECK: the design said Kate
+// "returned to Kenya in 2021", but her bio says 2017; this version follows the bio.
+export type TimelineItem = { year: string; title: string; tagline: string; body: string[] };
+
+export const timeline: TimelineItem[] = [
+  { year: "2021", title: "RafikiHub launch", tagline: "RafikiHub is born in Kenya.", body: ["Kate Snow launches RafikiHub with a vision of creating opportunities and spaces for people to connect through the arts."] },
+  { year: "2021", title: "Building the creative community", tagline: "Growing the network.", body: ["RafikiHub begins connecting with actors, filmmakers, creatives and organisations, creating a growing community around the arts.", "Workshops launch with Charles J. Ouda on acting, Teddy Mungai on script supervising and Emmanuel Mugo on stunt coordination, alongside sessions led by Jazz Moll, Akinyi Oluoch and Martin Kigondu."] },
+  { year: "2022", title: "Major partnerships", tagline: "RafikiHub goes global.", body: ["RafikiHub partners with South African animation studio Triggerfish, UK production house Blink and US studio Disney on its first international project."] },
+  { year: "2023", title: "Deepening industry connections", tagline: "From projects to programmes.", body: ["RafikiHub strengthens relationships with artists, industry professionals, organisations and creative institutions, including the AFFC / Storytellers Film Lab."] },
+  { year: "2024", title: "Expanding our work", tagline: "Building bridges across the industry.", body: ["RafikiHub develops more structured opportunities for creatives to learn, collaborate and grow their careers, and brings more creatives into its community."] },
+  { year: "2025", title: "Investing in the next generation", tagline: "RafikiHub Kids is born.", body: ["A new branch of RafikiHub uses therapeutic drama and creative expression to support children's confidence, emotional development, creativity and connection."] },
+  { year: "2026", title: "Building the RafikiHub ecosystem", tagline: "Talent, training, opportunities, storytelling and community in one place.", body: ["Talent profiles, headshot days, industry opportunities, masterclasses, film labs, creative projects and RafikiHub Kids all come together."] },
+];
+
+export const timelineClosing =
+  "The story isn't finished. From one idea in 2017, to the platform's launch in 2021, to a growing community of creatives, storytellers and young people, RafikiHub keeps evolving, and this is only the beginning.";
+
+/* ──────────────────────── Partners ("Who we've worked with") ─────────────────── */
+// Taken from the timeline. CHECK before launch: confirm you can name each partner publicly.
+// Add `logo: "/images/partners/<file>.svg"` to show a logo instead of the name.
+export type Partner = { name: string; description?: string; url?: string; logo?: string };
+export const partners: Partner[] = [
+  { name: "Triggerfish", description: "Animation studio, South Africa" },
+  { name: "Blink", description: "Production house, UK" },
+  { name: "Disney", description: "Studio, US" },
+  { name: "AFFC / Storytellers Film Lab" },
+];
+
+/* ─────────────────────────── Sio Bahati Services ───────────────────────────── */
+// The three services listed under "Sio Bahati Services" in the old site's footer.
+// CHECK: the summaries and "includes" lists are written as a starting point. Edit them to match what each package really includes.
+// "Sio bahati" is Swahili for "it's not luck".
+export type Service = { id: string; name: string; summary: string; includes: string[]; image: Maybe<string> };
+export const services: Service[] = [
+  {
+    id: "headshots",
+    name: "Headshots",
+    summary: "Professional acting headshots shot for casting: natural, current and sharp enough to stand out in a casting director's grid.",
+    includes: ["A session with a photographer who shoots performers", "Guidance on wardrobe and looks before the shoot", "Edited images ready for your RafikiHub profile"],
+    image: "/images/legacy/service-headshots.jpg",
+  },
+  {
+    id: "showreels",
+    name: "Showreels",
+    summary: "A short, well-cut reel of your best screen work, or newly shot scenes if you don't have footage yet, so casting teams can see you act.",
+    includes: ["Help choosing and ordering your strongest clips", "Scene shooting for performers without footage", "A finished reel formatted for your profile"],
+    image: "/images/legacy/service-showreels.jpg",
+  },
+  {
+    id: "audition-preps",
+    name: "Audition Preps",
+    summary: "One-to-one preparation for a specific audition or self-tape, from reading the breakdown to working the scene.",
+    includes: ["Script and character work for the role", "Self-tape set-up and delivery tips", "Practice runs with feedback"],
+    image: "/images/legacy/service-audition-prep.jpg",
+  },
+];
+
+/* ─────────────────────────── Membership plans ─────────────────────────────── */
+// Prices from the old rafikihub.com join page.
+export type Plan = { id: "basic" | "standard" | "premium"; name: string; priceKsh: number; months: number; label: string; highlighted?: boolean };
+export const plans: Plan[] = [
+  { id: "basic", name: "Basic", priceKsh: 250, months: 1, label: "per month" },
+  { id: "standard", name: "Standard", priceKsh: 1250, months: 6, label: "for 6 months" },
+  { id: "premium", name: "Premium", priceKsh: 2500, months: 12, label: "for 12 months", highlighted: true },
+];
+export const perMonth = (p: Plan) => Math.round(p.priceKsh / p.months);
+export const savingVsBasic = (p: Plan) => plans[0].priceKsh * p.months - p.priceKsh;
+
+/** What every membership includes (from the old join page) */
+export const membershipIncludes = [
+  "A full profile with headshots, credits, showreels and voice clips",
+  "Seen by the industry professionals who use RafikiHub every day",
+  "Submit your RafikiHub link for roles instantly",
+  "Castings from directors across Kenya and Africa",
+  "Invitations to workshops, events and career advice",
+];
+
+/** "How RafikiHub works" benefits on the Join page */
+export const joinBenefits = [
+  { title: "Your professional profile", text: "Headshots, credits, showreel, voice reel, skills and measurements in one link you can send anywhere." },
+  { title: "Castings that match you", text: "Breakdowns from casting directors reach you when you fit the role. Submit in a couple of clicks." },
+  { title: "Searchable by casting teams", text: "Casting directors filter by playing age, look, skills, languages and accents, so the right roles find you." },
+  { title: "Workshops and masterclasses", text: "Train with working actors, directors and crew through RafikiHub workshops and the Video Library." },
+  { title: "Headshot days and showreels", text: "Book Sio Bahati Services for headshots, showreels and audition prep." },
+  { title: "A route to representation", text: "Members can be considered for RafikiHub Talent Management, our agency for a select group of actors." },
+];
+
+/* ─────────────────────────────── Video Library ────────────────────────────── */
+// Add videos from the RafikiHub YouTube channel. youtubeId is the part after "v=" in the link.
+export type Video = { youtubeId: string; title: string; category: string; instructor?: string; duration?: string };
+export const videos: Video[] = [
+  // { youtubeId: "xxxxxxxxxxx", title: "Self-tape auditions that get callbacks", category: "Acting", instructor: "Name", duration: "12 min" },
+];
+
+/* ───────────────────────────── Contact Listings ───────────────────────────── */
+// The directory of industry contacts ("Rafiki Data Bank") from the old site.
+export type ContactListing = {
+  name: string;
+  type: "Agent" | "Casting director" | "Production company" | "Photographer" | "Training" | "Service";
+  location: string;
+  description: string;
+  website?: string;
+  email?: string;
+  phone?: string;
+  /** Enhanced listings appear first and are highlighted */
+  enhanced?: boolean;
+};
+export const contactListingTypes: ContactListing["type"][] = ["Agent", "Casting director", "Production company", "Photographer", "Training", "Service"];
+export const contactListings: ContactListing[] = [
+  {
+    name: "RafikiHub Talent Management",
+    type: "Agent",
+    location: "Nairobi, Kenya",
+    description: "Agency representing a select group of actors across film, TV, theatre, radio and commercials.",
+    email: "talent@rafikihub.com",
+    enhanced: true,
+  },
+  // Add more listings here, or move them into the database when the directory grows.
+];
+
+/* ───────────────────────────────── Locations ──────────────────────────────── */
+// Where RafikiHub works. Add member counts only if you have real figures.
+export type Location = { city: string; country: string; note: string; image: Maybe<string>; isHq?: boolean };
+export const locations: Location[] = [
+  { city: "Nairobi", country: "Kenya", note: "Headquarters, workshops and headshot days at Park Place, Parklands.", image: "/images/legacy/nairobi.jpg", isHq: true },
+  { city: "East Africa", country: "Regional", note: "Performers, crew and productions across the region.", image: null },
+  { city: "Across Africa", country: "Continental", note: "Talent and castings from across the continent.", image: null },
+  { city: "International", country: "UK, US and more", note: "Projects with production companies from the UK, US and South Africa.", image: null },
 ];

@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 export type Field = {
   name: string;
   label: string;
   type?: "text" | "email" | "tel" | "textarea" | "select";
   options?: string[];
+  /** Display labels for options, if different from the submitted values */
+  optionLabels?: string[];
+  /** Pre-select this field from a URL query parameter, e.g. ?plan=premium */
+  defaultFromQuery?: string;
   required?: boolean;
   autoComplete?: string;
   hint?: string;
@@ -25,6 +29,16 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    for (const f of fields) {
+      const v = f.defaultFromQuery ? params.get(f.defaultFromQuery) : null;
+      const el = v ? formRef.current?.elements.namedItem(f.name) : null;
+      if (v && (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) && (!f.options || f.options.includes(v))) el.value = v;
+    }
+  }, [fields]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,7 +67,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   }
 
   return (
-    <form className={compact ? "form form--compact" : "form"} onSubmit={onSubmit} noValidate>
+    <form ref={formRef} className={compact ? "form form--compact" : "form"} onSubmit={onSubmit} noValidate>
       {fields.map((f) => {
         const id = `${endpoint.replace(/\W/g, "")}-${f.name}`;
         const err = fieldErrors[f.name];
@@ -75,7 +89,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
             ) : f.type === "select" ? (
               <select {...common} defaultValue="">
                 <option value="" disabled>Choose one</option>
-                {f.options?.map((o) => <option key={o}>{o}</option>)}
+                {f.options?.map((o, i) => <option key={o} value={o}>{f.optionLabels?.[i] ?? o}</option>)}
               </select>
             ) : (
               <input {...common} type={f.type ?? "text"} placeholder={compact ? f.label : undefined} />
