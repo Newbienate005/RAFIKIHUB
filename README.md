@@ -76,6 +76,22 @@ Want to use Supabase or another Postgres instead? Any Postgres connection string
 
 Every future `git push` redeploys automatically.
 
+## Dashboards and the master login
+
+There are two dashboards: **Performer** (`/dashboard/performer`) and **Casting** (`/dashboard/casting`).
+
+- **Members:** submitting the join form (`/join`) signs the person in and opens the dashboard for what they chose under "I'm joining as". Agents, casting directors and brands get the Casting dashboard; everyone else gets the Performer dashboard. Posting a breakdown on `/casting` opens the Casting dashboard. This only happens once the submission is saved, so the database (step 3) must be connected.
+- **Master login:** go to `/login` (it isn't linked in the menus, so bookmark it) and enter `MASTER_PASSWORD`. You can then switch between both dashboards. The session lasts 7 days; member sessions last 30 days.
+
+Set these in `.env.local` and in Vercel → Settings → Environment Variables, then redeploy:
+
+| Variable | What it does |
+|---|---|
+| `MASTER_PASSWORD` | The master login password. Without it, `/login` explains it isn't set up and members aren't signed in after the forms. |
+| `SESSION_SECRET` | Optional. A long random string that signs the session cookies (falls back to `MASTER_PASSWORD`). Changing it signs everyone out. |
+
+The member's own form details are real. Castings, submissions and the stats marked **Sample** are placeholders until the dashboards are connected to real data.
+
 ## 5. After launch: SEO checklist
 
 - Add the site to **Google Search Console** and **Bing Webmaster Tools**, then submit `https://rafikihub.com/sitemap.xml`.

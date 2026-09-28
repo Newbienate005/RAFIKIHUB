@@ -19,14 +19,15 @@ export default function TeamPage() {
       <PageHeader kicker="Our team" title={<>The team behind <em>RafikiHub</em></>} lead="Performers and industry people who know what it takes to build a career in the arts." crumbs={[{ name: "Team", path: "/team" }]} />
       <section className="section">
         <div className="wrap team-list">
-          {team.map((p) => (
+          {team.map((p, i) => (
             <article className="person" key={p.name} id={slugify(p.name)}>
               <div className="person__photo">
-                <Photo src={p.image ?? undefined} alt={`${p.name}, ${p.position} of RafikiHub`} label={p.name} sizes="320px" />
+                <Photo src={p.image ?? undefined} alt={`${p.name}, ${p.position} of RafikiHub`} label={p.name} sizes="(max-width: 760px) 80vw, 360px" />
               </div>
-              <div className="prose">
-                <h2 style={{ marginTop: 0 }}>{p.name}</h2>
+              <div className="prose person__body">
+                <span className="person__n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
                 <p className="person__role">{p.position}</p>
+                <h2>{p.name}</h2>
                 {p.bio.map((b) => <p key={b.slice(0, 20)}>{b}</p>)}
                 {p.linkedin ? <p><a className="link-strong" href={p.linkedin} target="_blank" rel="noopener">{p.name.split(" ")[0]} on LinkedIn →</a></p> : null}
               </div>
