@@ -157,7 +157,9 @@ export function personSchema(p: TeamMember) {
     description: p.bio[0],
     worksFor: { "@id": orgId },
     ...(p.alumniOf?.length ? { alumniOf: p.alumniOf.map((name) => ({ "@type": "EducationalOrganization", name })) } : {}),
-    ...(p.profileUrl ? { sameAs: [`${site.url}/profile/${p.profileUrl}`] } : {}),
+    ...(p.profileUrl || p.linkedin
+      ? { sameAs: [...(p.profileUrl ? [`${site.url}/profile/${p.profileUrl}`] : []), ...(p.linkedin ? [p.linkedin] : [])] }
+      : {}),
   };
 }
 

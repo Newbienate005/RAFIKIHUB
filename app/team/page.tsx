@@ -8,7 +8,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Our team",
-  description: "Meet the team behind RafikiHub: founder and CEO Kate Snow, director and talent manager Michael Scott, and software engineer Joe Nyamu.",
+  description: "Meet the team behind RafikiHub: founder and CEO Kate Snow, director and talent manager Michael Scott, software engineer Joe Nyamu and website consultant Nathan Obwaka.",
   path: "/team",
 });
 
@@ -28,6 +28,7 @@ export default function TeamPage() {
                 <h2 style={{ marginTop: 0 }}>{p.name}</h2>
                 <p className="person__role">{p.position}</p>
                 {p.bio.map((b) => <p key={b.slice(0, 20)}>{b}</p>)}
+                {p.linkedin ? <p><a className="link-strong" href={p.linkedin} target="_blank" rel="noopener">{p.name.split(" ")[0]} on LinkedIn →</a></p> : null}
               </div>
             </article>
           ))}

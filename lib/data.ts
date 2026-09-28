@@ -423,6 +423,7 @@ export type TeamMember = {
   /** Links the team member to their own talent profile, if they have one */
   profileUrl?: string;
   alumniOf?: string[];
+  linkedin?: string;
 };
 
 // From the old rafikihub.com/team page (full bios from its "Read more" pop-ups), lightly edited.
@@ -457,7 +458,18 @@ export const team: TeamMember[] = [
       "Joe's background is in computer science, and he has held a range of roles in the IT departments of well-known companies.",
       "When RafikiHub was first discussed with Joe, he loved the idea and bought into the project as more than just a developer. He built the original site from scratch in thousands of lines of his own code, since no ready-made template could handle a platform as large and complex as RafikiHub. He believes in the need RafikiHub addresses for the performing arts industry, and his contribution to so many parts of the platform has been invaluable.",
     ],
+  },  {
+    name: "Nathan Obwaka",
+    position: "Website Consultant",
+    image: "/images/people/nathan-obwaka.jpg",
+    alumniOf: ["South Eastern Kenya University"],
+    linkedin: "https://www.linkedin.com/in/nathan-obwaka/",
+    bio: [
+      "Nathan joined RafikiHub in 2026 as a website consultant, helping to rebuild and run rafikihub.com. He is studying for a BSc in Information Technology at South Eastern Kenya University, with a focus on networking, cloud computing, cybersecurity and artificial intelligence.",
+      "Alongside RafikiHub, he works in IT, AI and digital operations support at Nomad Africa Travel & Magazine, covering web development and digital marketing, and leads the AWS Student Builder Group at South Eastern Kenya University. He brings that technical curiosity to RafikiHub, making the platform faster, easier to find and simpler to use for performers and casting professionals.",
+    ],
   },
+
 ];
 
 /* ───────────────────────────── How casting works ──────────────────────────── */
