@@ -191,16 +191,15 @@ export default function Home() {
           <div className="wrap">
             <h2 id="partners" className="partners__title">Who we've worked with</h2>
             <ul className="partners__list">
-              {partners.map((p) => (
-                <li key={p.name}>
-                  {p.logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.logo} alt={p.name} height={40} />
-                  ) : (
-                    <span className="partners__name">{p.name}{p.description ? <span className="small">{p.description}</span> : null}</span>
-                  )}
-                </li>
-              ))}
+              {partners.map((p) => {
+                const mark = p.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.logo} alt={p.name} height={56} loading="lazy" />
+                ) : (
+                  <span className="partners__name">{p.name}{p.description ? <span className="small">{p.description}</span> : null}</span>
+                );
+                return <li key={p.name}>{p.url ? <a href={p.url} target="_blank" rel="noopener">{mark}</a> : mark}</li>;
+              })}
             </ul>
           </div>
         </section>

@@ -43,7 +43,8 @@ async function crawl(pagePath, depth = 0) {
     const alt = (tag.match(/alt=["']([^"']*)["']/i) || [])[1] || "";
     for (const attr of ["src", "data-src", "data-lazy-src"]) {
       const v = (tag.match(new RegExp(`${attr}=["']([^"']+)["']`, "i")) || [])[1];
-      if (v && !v.startsWith("data:")) imageUrls.set(abs(v, url), alt);
+      // "#" and data: placeholders would resolve to the page itself, not an image
+      if (v && v !== "#" && !v.startsWith("data:")) imageUrls.set(abs(v, url), alt);
     }
     const srcset = (tag.match(/srcset=["']([^"']+)["']/i) || [])[1];
     if (srcset) srcset.split(",").forEach((s) => imageUrls.set(abs(s.trim().split(" ")[0], url), alt));
@@ -87,7 +88,7 @@ for (const [u, alt] of imageUrls) {
   if (fs.existsSync(dest)) { saved.push({ name, u, alt }); continue; }
   try {
     const res = await fetch(u);
-    if (!res.ok) continue;
+    if (!res.ok || !(res.headers.get("content-type") ?? "").startsWith("image/")) continue;
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length < 1500) continue; // skip tracking pixels / tiny icons
     fs.writeFileSync(dest, buf);

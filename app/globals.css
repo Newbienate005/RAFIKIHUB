@@ -269,6 +269,8 @@ p { margin: 0 0 1em; }
 
 /* Team */
 .person { display: grid; grid-template-columns: 20rem 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+.team-list { display: grid; gap: clamp(3rem, 7vw, 5rem); }
+.person + .person { padding-top: clamp(3rem, 7vw, 5rem); border-top: 1px solid var(--line); }
 .person__photo { position: relative; aspect-ratio: 4 / 5; border-radius: 6px; overflow: hidden; background: var(--jacaranda-soft); }
 .person__role { color: var(--jacaranda); font-weight: 600; margin-top: -0.5rem; }
 @media (max-width: 760px) { .person { grid-template-columns: 1fr; } .person__photo { max-width: 20rem; } }
@@ -493,7 +495,9 @@ p { margin: 0 0 1em; }
 .partners__list { list-style: none; margin: 2rem 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem 3.5rem; }
 .partners__name { font-family: var(--display); font-weight: 600; font-size: 1.35rem; color: #8f86b8; text-align: center; display: block; }
 .partners__name .small { display: block; font-family: var(--body); font-size: 0.78rem; font-weight: 400; }
-.partners__list img { height: 40px; width: auto; filter: grayscale(1); opacity: .7; }
+.partners__list { align-items: center; }
+.partners__list img { height: 56px; width: auto; max-width: 11rem; object-fit: contain; border-radius: 4px; filter: grayscale(1); opacity: .75; transition: filter .2s, opacity .2s; }
+.partners__list a:hover img, .partners__list a:focus-visible img { filter: none; opacity: 1; }
 
 /* Services (Sio Bahati) */
 .service-list { list-style: none; padding: 0; margin: 0; display: grid; gap: clamp(3rem, 7vw, 5.5rem); }

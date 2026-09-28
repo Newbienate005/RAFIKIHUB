@@ -321,7 +321,7 @@ export const articles: Article[] = [
     excerpt: "Actress Lucy Maina on mentorship, headshots and workshops with RafikiHub Talent Management.",
     publishedAt: "2024-03-26",
     author: "RafikiHub",
-    image: "/images/people/lucy-maina.jpg",
+    image: "/images/blog/lucy-maina.jpg",
     content: [
       { text: "Talent management platforms like RafikiHub, founded by Kate Snow, are changing how Kenyan actors build careers in film and TV. Members get acting mentorship, help preparing headshots and reels, and networking events with working professionals." },
       { text: "Actress Lucy Maina is both a member and represented by RafikiHub Talent Management. She has taken part in several RafikiHub workshops and headshot sessions, and her most recent headshots were shot with Kate." },
@@ -334,7 +334,7 @@ export const articles: Article[] = [
     excerpt: "What casting directors look for in a headshot, and how to choose the right photographer in Kenya.",
     publishedAt: "2026-09-01",
     author: "RafikiHub",
-    image: null,
+    image: "/images/blog/acting-headshot.jpg",
     content: [
       { text: "Your headshot is the first thing a casting director sees when you apply for a role. On RafikiHub, profiles are viewed in a grid, so yours has a second or two to make someone click." },
       { heading: "What a good headshot looks like", text: "It is recent, natural and shows you as you look today. It is a head-and-shoulders shot with simple clothing and a plain background. No props, hats or heavy accessories. Your eyes are your most important feature, so they should be sharp and clearly visible." },
@@ -349,7 +349,7 @@ export const articles: Article[] = [
     excerpt: "From breakdown to audition: what happens after a casting director posts a role, and how to submit well.",
     publishedAt: "2026-08-15",
     author: "RafikiHub",
-    image: null,
+    image: "/images/blog/how-casting-works.jpg",
     content: [
       { text: "Casting directors across Africa use RafikiHub to send out breakdowns for the roles they're casting. Here's what happens next, and how to give yourself the best chance." },
       { heading: "1. The breakdown goes out", text: "Breakdowns go straight to registered agents and to talent who match. Some leave out the casting director's name. That's normal: it stops them being flooded with messages, or protects project details that aren't public yet." },
@@ -367,7 +367,7 @@ export const articles: Article[] = [
     excerpt: "A modern musical retelling of a Kenyan folk tale, strong on music and dance but light on depth.",
     publishedAt: "2024-09-09",
     author: "RafikiHub",
-    image: "/images/legacy/lwanda-otero.jpg",
+    image: "/images/blog/lwanda-otero.jpg",
     content: [
       { text: "Our review of Lwanda Otero: The Musical, a new stage retelling of the Kenyan legend of Lwanda, performed in Nairobi by a cast of actors, dancers, singers and musicians." },
       { text: "The production opens strongly with live music and choreography, and shows Nairobi's growing appetite for theatre. Our reviewer found the humour and energy enjoyable, but felt the lighter tone came at the cost of the story's depth." },
@@ -380,7 +380,7 @@ export const articles: Article[] = [
     excerpt: "To be an artist or not to be: on choosing the actor's life, and how RafikiHub supports those who do.",
     publishedAt: "2024-02-19",
     author: "RafikiHub",
-    image: "/images/legacy/homage-to-the-film-actor.jpg",
+    image: "/images/blog/homage-to-the-film-actor.jpg",
     content: [
       { text: "Starting from Hamlet's famous question, this piece reframes it for performers: to be an artist or not to be one. It reflects on the courage it takes to choose acting over more traditional careers." },
       { text: "It closes on RafikiHub's role: linking performers with credible theatre, TV and film productions, and restoring professionalism to the craft through training, mentorship and portfolios built to international standards." },
@@ -425,6 +425,7 @@ export type TeamMember = {
   alumniOf?: string[];
 };
 
+// From the old rafikihub.com/team page (full bios from its "Read more" pop-ups), lightly edited.
 export const team: TeamMember[] = [
   {
     name: "Kate Snow",
@@ -433,13 +434,30 @@ export const team: TeamMember[] = [
     profileUrl: "katesnow",
     alumniOf: ["Lewisham College", "Arts Educational Schools, London"],
     bio: [
-      "Kate studied at Lewisham College from 2009, earning a BTEC National Diploma in Performing Arts, then trained at Arts Educational Schools in Chiswick, London, graduating with a BA (Hons) in Acting for Film and Television.",
-      "She worked as an actress in London for several years, represented by John Doe Management, before returning home to Kenya in 2017 to continue her acting career, with roles including the film You Again and the short film Relationship Goals.",
-      "Kate founded RafikiHub to empower, educate and nurture Kenyan and African artists on their way to professional careers. Through training, mentoring, casting and talent management, RafikiHub has worked with production companies from the UK, US and South Africa.",
+      "Kate attended Lewisham College in 2009, leaving with a BTEC National Diploma in Performing Arts, then went on to drama school at Arts Educational Schools in Chiswick, London, graduating with a BA (Hons) in Acting for Film and Television.",
+      "After her studies she worked as an actress in London for a number of years, represented by John Doe Management, before returning home to Kenya in 2017 to continue her career as a professional actress. She has since been the force behind the creation and implementation of RafikiHub. Having been part of a similar platform in the UK industry, she is certain RafikiHub can be the catalyst that connects the Kenyan industry professionally and regulates its processes, so that the industry as a whole benefits and not just a few individuals.",
+      "Creating RafikiHub has been one of her greatest and most fulfilling achievements. She hopes artists will use the platform to empower and educate themselves and kick-start their careers in the performing arts.",
+      "Her vision is that through collaboration, accreditation and formalisation, the Kenyan industry can reach its full potential. She is determined to use everything she learned in the UK creative industry to elevate the performing arts in Kenya and beyond, welcoming anyone who shares RafikiHub's values: a platform for the arts and for artists.",
     ],
   },
-  // The old /team page has a second profile (the CEO's business partner). Add it here:
-  // { name: "", position: "", image: "/images/people/<name>.jpg", bio: [""] },
+  {
+    name: "Michael Scott",
+    position: "Director and Talent Manager",
+    image: "/images/people/michael-scott.jpg",
+    bio: [
+      "Michael's background is not in the performing arts, but he has always had an interest in music and performance. His partnership with the CEO deepened that interest, and when the idea of RafikiHub was first discussed it captivated him. Ever since, he has dedicated his time and resources to helping RafikiHub realise its potential as a tech platform that supports and strengthens the Kenyan arts industry, its processes and its goals.",
+      "Michael works closely with the CEO and the developer on business development and funding opportunities, so that RafikiHub keeps adding value for its members.",
+    ],
+  },
+  {
+    name: "Joe Nyamu",
+    position: "Software Engineer",
+    image: "/images/people/joe-nyamu.jpg",
+    bio: [
+      "Joe's background is in computer science, and he has held a range of roles in the IT departments of well-known companies.",
+      "When RafikiHub was first discussed with Joe, he loved the idea and bought into the project as more than just a developer. He built the original site from scratch in thousands of lines of his own code, since no ready-made template could handle a platform as large and complex as RafikiHub. He believes in the need RafikiHub addresses for the performing arts industry, and his contribution to so many parts of the platform has been invaluable.",
+    ],
+  },
 ];
 
 /* ───────────────────────────── How casting works ──────────────────────────── */
@@ -540,14 +558,19 @@ export const timelineClosing =
   "The story isn't finished. From one idea in 2017, to the platform's launch in 2021, to a growing community of creatives, storytellers and young people, RafikiHub keeps evolving, and this is only the beginning.";
 
 /* ──────────────────────── Partners ("Who we've worked with") ─────────────────── */
-// Taken from the timeline. CHECK before launch: confirm you can name each partner publicly.
-// Add `logo: "/images/partners/<file>.svg"` to show a logo instead of the name.
+// The logos and links shown on the old rafikihub.com home page ("Brands & Companies" and "Companies & Affiliates").
 export type Partner = { name: string; description?: string; url?: string; logo?: string };
 export const partners: Partner[] = [
-  { name: "Triggerfish", description: "Animation studio, South Africa" },
-  { name: "Blink", description: "Production house, UK" },
-  { name: "Disney", description: "Studio, US" },
-  { name: "AFFC / Storytellers Film Lab" },
+  { name: "Mau Mau Arts", url: "https://maumauarts.com", logo: "/images/partners/maumau-arts.png" },
+  { name: "National Youth Theatre of Kenya", url: "https://www.instagram.com/youththeatrekenya/", logo: "/images/partners/national-youth-theatre-kenya.png" },
+  { name: "Greenlight Films", logo: "/images/partners/greenlight-films.png" },
+  { name: "Redflash Films", url: "https://www.linkedin.com/company/redflash-films-limited/", logo: "/images/partners/redflash-films.png" },
+  { name: "Amitations Studio", url: "https://www.amitations.com/", logo: "/images/partners/amitations-studio.png" },
+  { name: "Triggerfish", url: "https://www.triggerfish.com/", logo: "/images/partners/triggerfish.png" },
+  { name: "Some Fine Day Pix", url: "https://www.somefinedaypix.org/", logo: "/images/partners/some-fine-day-pix.png" },
+  { name: "Backdrop", url: "https://www.backdropagency.com/", logo: "/images/partners/backdrop.png" },
+  { name: "Filamu International Students Film Festival", url: "https://filmfreeway.com/filamufestival", logo: "/images/partners/filamu-festival.png" },
+  { name: "African Female Filmmakers Collective (AFFC)", url: "https://www.affc.co.ke", logo: "/images/partners/affc.png" },
 ];
 
 /* ─────────────────────────── Sio Bahati Services ───────────────────────────── */
@@ -561,21 +584,21 @@ export const services: Service[] = [
     name: "Headshots",
     summary: "Professional acting headshots shot for casting: natural, current and sharp enough to stand out in a casting director's grid.",
     includes: ["A session with a photographer who shoots performers", "Guidance on wardrobe and looks before the shoot", "Edited images ready for your RafikiHub profile"],
-    image: "/images/legacy/service-headshots.jpg",
+    image: "/images/services/headshots.jpg",
   },
   {
     id: "showreels",
     name: "Showreels",
     summary: "A short, well-cut reel of your best screen work, or newly shot scenes if you don't have footage yet, so casting teams can see you act.",
     includes: ["Help choosing and ordering your strongest clips", "Scene shooting for performers without footage", "A finished reel formatted for your profile"],
-    image: "/images/legacy/service-showreels.jpg",
+    image: "/images/services/showreels.jpg",
   },
   {
     id: "audition-preps",
     name: "Audition Preps",
     summary: "One-to-one preparation for a specific audition or self-tape, from reading the breakdown to working the scene.",
     includes: ["Script and character work for the role", "Self-tape set-up and delivery tips", "Practice runs with feedback"],
-    image: "/images/legacy/service-audition-prep.jpg",
+    image: "/images/services/audition-prep.jpg",
   },
 ];
 
@@ -645,7 +668,7 @@ export const contactListings: ContactListing[] = [
 // Where RafikiHub works. Add member counts only if you have real figures.
 export type Location = { city: string; country: string; note: string; image: Maybe<string>; isHq?: boolean };
 export const locations: Location[] = [
-  { city: "Nairobi", country: "Kenya", note: "Headquarters, workshops and headshot days at Park Place, Parklands.", image: "/images/legacy/nairobi.jpg", isHq: true },
+  { city: "Nairobi", country: "Kenya", note: "Headquarters, workshops and headshot days at Park Place, Parklands.", image: "/images/sections/nairobi.jpg", isHq: true },
   { city: "East Africa", country: "Regional", note: "Performers, crew and productions across the region.", image: null },
   { city: "Across Africa", country: "Continental", note: "Talent and castings from across the continent.", image: null },
   { city: "International", country: "UK, US and more", note: "Projects with production companies from the UK, US and South Africa.", image: null },

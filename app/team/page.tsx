@@ -3,12 +3,12 @@ import { PageHeader } from "@/components/PageHeader";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
 import { team } from "@/lib/data";
-import { personSchema } from "@/lib/schema";
+import { personSchema, slugify } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Our team",
-  description: "Meet the team behind RafikiHub, led by founder and CEO Kate Snow, a London-trained actress working in Kenya.",
+  description: "Meet the team behind RafikiHub: founder and CEO Kate Snow, director and talent manager Michael Scott, and software engineer Joe Nyamu.",
   path: "/team",
 });
 
@@ -18,9 +18,9 @@ export default function TeamPage() {
       <JsonLd data={team.map(personSchema)} />
       <PageHeader kicker="Our team" title={<>The team behind <em>RafikiHub</em></>} lead="Performers and industry people who know what it takes to build a career in the arts." crumbs={[{ name: "Team", path: "/team" }]} />
       <section className="section">
-        <div className="wrap">
+        <div className="wrap team-list">
           {team.map((p) => (
-            <article className="person" key={p.name}>
+            <article className="person" key={p.name} id={slugify(p.name)}>
               <div className="person__photo">
                 <Photo src={p.image ?? undefined} alt={`${p.name}, ${p.position} of RafikiHub`} label={p.name} sizes="320px" />
               </div>

@@ -5,3 +5,7 @@ node_modules
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Raw downloads from the old site (npm run images:import); the resized copies live in public/images/*
+public/images/legacy/*
+!public/images/legacy/.gitkeep

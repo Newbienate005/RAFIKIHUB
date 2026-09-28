@@ -1,9 +1,9 @@
 /**
  * Every image on the site is referenced from here.
  *
- * 1. Run `npm run images:import` to download all images from the old rafikihub.com
- *    into /public/images/legacy (open public/images/legacy/index.html to browse them).
- * 2. Copy the paths you want into the slots below, e.g. "/images/legacy/kate-snow.jpg".
+ * The photos were migrated from the old rafikihub.com: `npm run images:import` downloads them
+ * into /public/images/legacy (not committed), then `node scripts/place-legacy-images.mjs`
+ * resizes them into /public/images/{people,blog,sections,services,partners}.
  *
  * Any slot whose file doesn't exist yet shows a tidy placeholder instead of a broken image.
  */
@@ -13,7 +13,7 @@ export const images = {
 
   // Hero contact sheet: six performer headshots
   hero: [
-    { src: "/images/people/june-wekesa.jpg", name: "June Wekesa", role: "Actress" },
+    { src: "/images/people/olivia-makena-makau.jpg", name: "Olivia Makena Makau", role: "Actress" },
     { src: "/images/people/sam-wachira.jpg", name: "Sam Wachira", role: "Independent performer" },
     { src: "/images/people/bob-zenga.jpg", name: "Bob Zenga", role: "Actor" },
     { src: "/images/people/lucy-maina.jpg", name: "Lucy Maina", role: "Actress" },
@@ -22,9 +22,11 @@ export const images = {
   ],
 
   sections: {
-    performers: "/images/legacy/performers.jpg",
-    casting: "/images/legacy/casting.jpg",
-    workshop: "/images/legacy/workshop.jpg",
-    talentManagement: "/images/legacy/talent-management.jpg",
+    performers: "/images/sections/performers.jpg",
+    casting: "/images/sections/casting.jpg",
+    workshop: "/images/sections/workshop.jpg",
+    // Lucy Maina is represented by RafikiHub Talent Management
+    talentManagement: "/images/people/lucy-maina.jpg",
+    community: "/images/sections/community.jpg",
   },
 } as const;

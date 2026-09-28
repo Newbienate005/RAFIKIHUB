@@ -1,4 +1,4 @@
-import { articles, castingSteps, faqs, memberTypes, membershipIncludes, pageFaqs, perMonth, plans, services, videos } from "./data";
+import { articles, castingSteps, faqs, memberTypes, membershipIncludes, pageFaqs, perMonth, plans, services, team, videos } from "./data";
 import { site } from "./site";
 
 const u = (p: string) => `${site.url}${p}`;
@@ -42,7 +42,7 @@ ${articles.map((x) => `- [${x.title}](${u(`/blog/${x.url}`)}): ${x.excerpt}`).jo
 
 ## Optional
 - [About](${u("/about")}): mission, history and timeline
-- [Team](${u("/team")}): founder and CEO ${site.founder}
+- [Team](${u("/team")}): ${team.map((m) => `${m.name} (${m.position})`).join(", ")}
 - [Locations](${u("/locations")}): Nairobi headquarters and where RafikiHub works
 - [Resources](${u("/resources")}): Resource Hub and free stage name checker
 ${videos.length ? `- [Video Library](${u("/videos")}): free workshops and masterclasses\n` : ""}- [Full text for LLMs](${u("/llms-full.txt")}): all FAQs, plans, services and articles in one file
