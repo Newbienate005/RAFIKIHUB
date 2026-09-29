@@ -52,4 +52,25 @@ export const bookingSchema = z.object({
   website: honeypot,
 });
 
+export const locationTypes = [
+  "Office space", "Village or town", "Housing (apartment, house, bungalow…)",
+  "In nature (forest, mountain, beach, river, lake, bush, savannah…)", "Sports facility", "Bars and restaurants",
+  "Farms", "Government facility", "Studio space or green screen", "Other",
+] as const;
+
+export const locationRequestSchema = z.object({
+  organization: req("organisation"),
+  email,
+  country: opt(80),
+  phone: opt(40),
+  nature: req("type of project or production"),
+  crew: opt(40),
+  fromDate: opt(40),
+  toDate: opt(40),
+  locationType: z.enum(locationTypes, { errorMap: () => ({ message: "Choose the kind of location you need." }) }),
+  services: opt(300),
+  details: opt(3000),
+  website: honeypot,
+});
+
 export const nameCheckSchema = z.object({ name: z.string().trim().min(2, "Enter at least two letters.").max(160) });

@@ -49,9 +49,22 @@ export default async function TalentManagementPage() {
             <h3>What representation means</h3>
             <ul>
               <li>A formal contract that sets out what each side can expect, including the commission on each job</li>
-              <li>Submissions to roles that suit you, through RafikiHub and our industry contacts</li>
-              <li>Negotiation of fees and terms on your behalf</li>
+              <li>Contracts in place for any and all work you do</li>
+              <li>Every agreement reviewed before you sign it, and someone on call if you're pressured on set to sign something you're uncomfortable with</li>
+              <li>Making sure all contractual obligations are met, especially by productions</li>
+              <li>Seeking out work opportunities and submitting you to roles that suit you</li>
               <li>Ongoing guidance on headshots, showreels, training and career direction</li>
+            </ul>
+            <h3>Who can apply</h3>
+            <p>
+              We're always on the lookout for fresh new faces, and we're excited by creatives who are hungry and passionate
+              about the arts. Only performers without an agency or representation can apply.
+            </p>
+            <h3>What you get</h3>
+            <ul>
+              <li>Discounts on <Link href="/services">Sio Bahati Services</Link>: professionally edited headshots that show your playing range, showreels, and audition preparation</li>
+              <li>Personalised career advice</li>
+              <li>Featured displays on our pages</li>
             </ul>
             <h3>Book a meeting</h3>
             <p>

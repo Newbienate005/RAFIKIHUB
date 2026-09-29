@@ -29,6 +29,30 @@ export default function ServicesPage() {
         at our office in Parklands, Nairobi. Book a session below and we'll confirm availability and price within two working days.
       </Answer>
 
+      <section className="section section--white" aria-labelledby="why">
+        <div className="wrap split">
+          <figure className="pull-quote">
+            <blockquote>“I say, luck is when an opportunity comes along and you're prepared for it.”</blockquote>
+            <figcaption>Denzel Washington</figcaption>
+          </figure>
+          <div className="prose">
+            <h2 id="why" style={{ marginTop: 0 }}>Why are we here?</h2>
+            <p>
+              So you want to be an actor? Acting is an exciting career path, but it can be a hard and challenging road.
+              Acting isn't only about feeling the character and being in the moment: if you can't get a job, it's not about
+              much at all. It can be lonely, with a lot of rejection to deal with, and many people underestimate the
+              obstacles every actor meets.
+            </p>
+            <p>
+              Most of the profession is out of work at any one time, while a small group of actors tends to work
+              continuously. The trick is to be in that group, which is hard as an up-and-coming actor, especially in a
+              growing industry like ours here in Kenya, because you may not have the tools to set you apart from the rest…
+              yet. <strong>That is why we're here.</strong>
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="section">
         <div className="wrap">
           <ol className="service-list">

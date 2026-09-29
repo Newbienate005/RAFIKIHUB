@@ -28,27 +28,35 @@ export default function AboutPage() {
           <div className="prose">
             <h2 style={{ marginTop: 0 }}>What we do</h2>
             <p>
-              RafikiHub connects performers with roles in theatre, television and film. Casting professionals use
-              RafikiHub because our members are known for being dedicated and committed to their careers.
+              RafikiHub serves as a central platform for the performing arts, focused on fostering talent by providing
+              educational and career development tools, while linking performers with opportunities in theatre,
+              television and film. We empower performers to showcase their abilities through dynamic profiles, reaching
+              a global network of casting directors and project creators. Our goal is to support talent discovery and
+              contribute to the ongoing vitality of stages and screens around Africa and beyond.
+            </p>
+            <h2>Who we are</h2>
+            <p>
+              "RafikiHubbers" are a diverse and passionate community, all united by a love for the creative arts.
+              There's nothing more rewarding than watching one of our members land their first job, seeing our youngest
+              members secure their first audition, or celebrating a long-time member receiving an award. These moments
+              are what drive us.
             </p>
             <p>
-              Alongside our partners in Africa, we believe in global casting, a fair chance for everyone, and finding
-              the right performer for the job wherever they are. We also run workshops, mentoring, headshot sessions
-              and talent management, and have worked with production companies from the UK, the US and South Africa.
+              With a deep understanding of the industry, we use our expertise to support and guide our members. We're
+              fuelled by the desire to bring people together, and we're always looking for new ways to help our community
+              connect and thrive. RafikiHub was founded by actress <Link href="/team">Kate Snow</Link> after she returned
+              to Kenya from London in 2017.
             </p>
-            <h2>The people behind it</h2>
+            <h2>Who we collaborate with</h2>
             <p>
-              "RafikiHubbers" are a diverse group, all passionate about television, film, theatre and the arts. Nothing
-              beats seeing a member land their first job, a young performer go to their first audition, or a
-              long-standing member book the role they've been working towards.
+              We partner with organisations that are truly making an impact in the performing arts. Some have been part of
+              the industry as long as we have, while others are newer to the scene. Whatever their journey, we take pride
+              in working with all of them to help shape and grow the industry. <Link href="/#partners">See who we've worked with</Link>.
             </p>
+            <h2>What can I expect when I join?</h2>
             <p>
-              RafikiHub was founded by actress <Link href="/team">Kate Snow</Link> after she returned to Kenya from
-              London in 2017.
-            </p>
-            <h2>Talk to us</h2>
-            <p>
-              Questions about membership? Call <a href={`tel:${site.phone}`}>{site.phoneDisplay}</a> or email{" "}
+              We're always here to help. Find out <Link href="/membership">what's included in your membership</Link>, or if
+              you have any questions, call <a href={`tel:${site.phone}`}>{site.phoneDisplay}</a> or email{" "}
               <a href={`mailto:${site.email}`}>{site.email}</a>.
             </p>
           </div>

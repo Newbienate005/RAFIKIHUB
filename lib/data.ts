@@ -232,9 +232,10 @@ export const memberTypes: MemberType[] = [
     tagline: "Film, TV, theatre, radio, commercials and live performance.",
     formLabel: "Actor or performer",
     benefits: [
-      "Showcase your professional portfolio to the industry professionals who use RafikiHub every day",
-      "Submit your RafikiHub link for upcoming work instantly",
-      "Support with events, career advice and training workshops",
+      "Build a full professional profile, headshots and multimedia included",
+      "Be seen by all the industry professionals who use RafikiHub every day",
+      "Submit your RafikiHub link for roles instantly",
+      "Support with events, career advice and training workshops, so you stay connected with the industry",
     ],
   },
   {
@@ -246,6 +247,7 @@ export const memberTypes: MemberType[] = [
       "Find the best roles available for young people",
       "A full professional profile, headshots and multimedia included",
       "A profile seen by the industry professionals who use RafikiHub daily",
+      "Advice and support for you and your parents as you pursue the performing arts",
     ],
   },
   {
@@ -254,8 +256,8 @@ export const memberTypes: MemberType[] = [
     tagline: "Submit your clients directly to live castings.",
     formLabel: "Agent",
     benefits: [
-      "Give your clients access to roles in television, film, theatre and commercials",
-      "Submit clients for roles and share their profiles, experience, skills and showreels",
+      "Give your clients access to the best roles in television, film, theatre and commercials",
+      "Simplify how you manage clients: submit them for roles and share their profiles, experience, skills and showreels to help them get the next audition",
     ],
   },
   {
@@ -285,9 +287,9 @@ export const memberTypes: MemberType[] = [
     tagline: "Camera, lighting, sound, styling, make-up and more.",
     formLabel: "Crew (camera, lighting, styling, make-up…)",
     benefits: [
-      "Express yourself and boost your portfolio",
-      "Build industry contacts with productions and brands",
-      "Get booked for shoots, sets and campaigns",
+      "Showcase your professional portfolio to the industry professionals who use RafikiHub every day",
+      "Submit your RafikiHub link for upcoming work instantly",
+      "Support with events, career advice and training workshops, so you stay connected with the industry",
     ],
   },
 ];

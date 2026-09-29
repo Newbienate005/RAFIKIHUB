@@ -695,3 +695,25 @@ a.resource:hover { border-color: var(--sun); }
 .status--shortlisted { background: var(--jacaranda-soft); color: var(--night); }
 .status--audition-booked { background: #dcefe3; color: var(--acacia); }
 .chip[aria-disabled="true"] { cursor: default; opacity: .75; }
+
+/* Pull quote (services) */
+.pull-quote { margin: 0; align-self: center; border-left: 4px solid var(--sun); padding-left: clamp(1.25rem, 3vw, 2rem); }
+.pull-quote blockquote { margin: 0 0 1rem; font: italic 500 clamp(1.5rem, 3vw, 2.2rem)/1.3 var(--display); }
+.pull-quote figcaption { font: 600 0.8rem var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--jacaranda); }
+
+/* Dashboard section tabs and extras */
+.dash-sections { background: var(--white); border-bottom: 1px solid var(--line); position: sticky; top: calc(76px + 5px); z-index: 20; }
+.dash-sections ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.25rem; overflow-x: auto; scrollbar-width: none; }
+.dash-sections a { display: block; padding: 1rem 1rem 0.9rem; font: 600 0.92rem var(--body); color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+.dash-sections a:hover { color: var(--ink); }
+.dash-sections a[aria-current] { color: var(--ink); border-bottom-color: var(--sun); }
+.status--open, .status--approved { background: #dcefe3; color: var(--acacia); }
+.status--closed { background: var(--sand); color: var(--muted); }
+.status--filled, .status--pending { background: #f7e3d8; color: var(--terracotta); }
+.cv-groups { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: 1.25rem; }
+.cv-groups h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+.cv-groups .plain li { font-size: 0.92rem; color: var(--muted); padding: 0.4rem 0; }
+.talent-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr)); gap: 1rem; align-items: end; margin: 1.25rem 0 1rem; }
+.talent-filters .field label { font-size: 0.85rem; }
+.talent-filters__actions { display: flex; align-items: center; gap: 1rem; }
+ul.cards--talent { list-style: none; padding: 0; }

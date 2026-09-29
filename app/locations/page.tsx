@@ -1,4 +1,6 @@
 import { CtaBand } from "@/components/CtaBand";
+import { LeadForm } from "@/components/LeadForm";
+import { locationTypes } from "@/lib/validation";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { PageFaq } from "@/components/PageFaq";
@@ -63,6 +65,46 @@ export default function LocationsPage() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+      <section className="section" id="scouting" aria-labelledby="scouting-title">
+        <div className="wrap form-wrap">
+          <div className="prose">
+            <p className="kicker">For productions</p>
+            <h2 id="scouting-title" style={{ marginTop: 0 }}>Filming in Kenya? We'll find your location.</h2>
+            <p>
+              RafikiHub and its partners share one vision: discovering Kenya's vast, untouched landscapes, unique properties
+              and distinctive culture, and bringing them to life through film, art and storytelling that's authentic to the
+              heritage and history of this spirited country and its people.
+            </p>
+            <p>
+              We want your location scouting to be smooth and stress free. RafikiHub can connect your production with venues,
+              lodges, restaurants, landscapes and traditional customs, and through our close relationship with a leading East
+              African travel partner, we can support the operations and logistics of filming in Kenya's most remarkable
+              destinations.
+            </p>
+            <p>Tell us what your project needs and we'll get to work for you.</p>
+          </div>
+          <div className="panel">
+            <LeadForm
+              endpoint="/api/location-request"
+              submitLabel="Send location request"
+              successMessage="Request received. We'll be in touch within two working days about locations for your production."
+              fields={[
+                { name: "organization", label: "Organisation", required: true, autoComplete: "organization" },
+                { name: "email", label: "Email", type: "email", required: true, autoComplete: "email", half: true },
+                { name: "phone", label: "Phone", type: "tel", autoComplete: "tel", half: true },
+                { name: "country", label: "Country", autoComplete: "country-name", half: true },
+                { name: "crew", label: "People on set (cast and crew)", half: true },
+                { name: "nature", label: "Type of project or production", required: true, hint: "e.g. feature film, commercial, documentary" },
+                { name: "fromDate", label: "Dates from", half: true },
+                { name: "toDate", label: "Dates to", half: true },
+                { name: "locationType", label: "Kind of location", type: "select", required: true, options: [...locationTypes] },
+                { name: "services", label: "Services needed", hint: "e.g. transport, catering, accommodation" },
+                { name: "details", label: "Anything else we should know?", type: "textarea" },
+              ]}
+            />
+          </div>
         </div>
       </section>
       <PageFaq title="Visiting and working with us" items={pageFaqs.locations} />
