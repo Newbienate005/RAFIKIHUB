@@ -43,9 +43,9 @@ ${articles.map((x) => `- [${x.title}](${u(`/blog/${x.url}`)}): ${x.excerpt}`).jo
 ## Optional
 - [About](${u("/about")}): mission, history and timeline
 - [Team](${u("/team")}): ${team.map((m) => `${m.name} (${m.position})`).join(", ")}
-- [Locations](${u("/locations")}): Nairobi headquarters and where RafikiHub works
+- [RafikiHub Locations](${u("/locations")}): Nairobi headquarters and where RafikiHub works
 - [Resources](${u("/resources")}): Resource Hub and free stage name checker
-${videos.length ? `- [Video Library](${u("/videos")}): free workshops and masterclasses\n` : ""}- [Full text for LLMs](${u("/llms-full.txt")}): all FAQs, plans, services and articles in one file
+${videos.length ? `- [RafikiHub Online](${u("/videos")}): video library of free workshops and masterclasses\n` : ""}- [Full text for LLMs](${u("/llms-full.txt")}): all FAQs, plans, services and articles in one file
 `;
 }
 
@@ -84,7 +84,7 @@ RafikiHub Talent Management represents a select group of actors of all ages in K
 - Submissions to roles that suit the artist, through RafikiHub and its industry contacts
 - Negotiation of fees and terms on the artist's behalf
 - Ongoing guidance on headshots, showreels, training and career direction
-Apply by emailing ${site.talentEmail} with a headshot, CV and showreel link.
+Apply by emailing ${site.talentEmail} with headshots, a showreel link if they have one, and their RafikiHub profile link.
 
 ## Articles
 

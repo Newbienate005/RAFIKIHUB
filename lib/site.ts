@@ -22,7 +22,7 @@ export const site = {
   region: "Nairobi County",
   country: "KE",
   founder: "Kate Snow",
-  memberCount: "65,000+",
+  memberCount: "2,000+",
   social: {
     instagram: "https://www.instagram.com/rafikihub/",
     facebook: "https://www.facebook.com/rafikihub.theplatform",
@@ -47,14 +47,14 @@ export const navRight: NavItem[] = [
   {
     label: "Resource Hub",
     items: [
-      { href: "/videos", label: "Video Library" },
-      { href: "/contact-listings", label: "Contact Listings" },
+      { href: "/videos", label: "RafikiHub Online" },
+      { href: "/contact-listings", label: "RafikiHub Connect" },
       { href: "/services", label: "Sio Bahati Services" },
       { href: "/locations", label: "RafikiHub Locations" },
-      { href: "/resources", label: "Resources" },
+      { href: "/resources", label: "RafikiHub Resources" },
     ],
   },
-  { href: "/membership", label: "Options" },
+  { href: "/membership", label: "Membership Options" },
 ];
 
 /** Grouped menu for the mobile drawer */

@@ -28,7 +28,7 @@ export default function LocationsPage() {
         kicker="RafikiHub Locations"
         title={<>Rooted in Nairobi, <em>working across Africa</em>.</>}
         lead="Our home is in Parklands, Nairobi. Our members and productions reach across the continent and beyond."
-        crumbs={[{ name: "Resource Hub", path: "/resources" }, { name: "Locations", path: "/locations" }]}
+        crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Locations", path: "/locations" }]}
       />
       <section className="section">
         <div className="wrap hq">

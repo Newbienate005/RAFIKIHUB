@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Figtree } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationSchema, websiteSchema } from "@/lib/schema";
+
+// Free geometric sans standing in for the proprietary type in DESIGN.md
+const figtree = Figtree({ subsets: ["latin", "latin-ext"], style: ["normal", "italic"], variable: "--font-figtree", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -44,19 +48,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#211F1C",
+  themeColor: "#121212",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-KE">
+    <html lang="en-KE" className={figtree.variable}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
-        />
         <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM summary" />
         <link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="RafikiHub Blog" />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />

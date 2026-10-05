@@ -11,7 +11,7 @@
  * Old profiles display "Not Available" for empty fields. Here that is `null`;
  * use `show()` to render it the same way.
  *
- * Real member profiles belong in the database (65,000+ members won't fit in a file).
+ * Real member profiles belong in the database, not in this file.
  * The TalentProfile type is the contract for that table and for any profile pages.
  */
 
@@ -453,14 +453,6 @@ export const team: TeamMember[] = [
     ],
   },
   {
-    name: "Joe Nyamu",
-    position: "Software Engineer",
-    image: "/images/people/joe-nyamu.jpg",
-    bio: [
-      "Joe's background is in computer science, and he has held a range of roles in the IT departments of well-known companies.",
-      "When RafikiHub was first discussed with Joe, he loved the idea and bought into the project as more than just a developer. He built the original site from scratch in thousands of lines of his own code, since no ready-made template could handle a platform as large and complex as RafikiHub. He believes in the need RafikiHub addresses for the performing arts industry, and his contribution to so many parts of the platform has been invaluable.",
-    ],
-  },  {
     name: "Nathan Obwaka",
     position: "Website Consultant",
     image: "/images/people/nathan-obwaka.jpg",
@@ -525,7 +517,7 @@ export const pageFaqs: Record<PageFaqKey, { q: string; a: string }[]> = {
   ],
   talentManagement: [
     { q: "What is RafikiHub Talent Management?", a: "RafikiHub's own talent agency. It represents a select group of actors of all ages in Kenya across film, television, theatre, radio and commercials." },
-    { q: "How do I apply for representation?", a: "Email talent@rafikihub.com with your headshot, CV and showreel link. Joining RafikiHub first means casting teams can already find your profile." },
+    { q: "How do I apply for representation?", a: "Email talent@rafikihub.com with your headshots, your showreel link if you have one, and your RafikiHub profile link. Joining RafikiHub first means casting teams can already find your profile." },
     { q: "What does representation include?", a: "A formal contract, submissions to roles that suit you, negotiation of fees and terms on your behalf, and ongoing guidance on headshots, showreels, training and career direction." },
     { q: "Does the agency take commission?", a: "Yes. The commission on each job is set out in the formal contract you sign before representation begins." },
     { q: "Is RafikiHub membership the same as representation?", a: "No. Membership gives you a profile and access to castings. Talent Management is a separate, selective agency service with a small roster." },
@@ -577,7 +569,6 @@ export type Partner = { name: string; description?: string; url?: string; logo?:
 export const partners: Partner[] = [
   { name: "Mau Mau Arts", url: "https://maumauarts.com", logo: "/images/partners/maumau-arts.png" },
   { name: "National Youth Theatre of Kenya", url: "https://www.instagram.com/youththeatrekenya/", logo: "/images/partners/national-youth-theatre-kenya.png" },
-  { name: "Greenlight Films", logo: "/images/partners/greenlight-films.png" },
   { name: "Redflash Films", url: "https://www.linkedin.com/company/redflash-films-limited/", logo: "/images/partners/redflash-films.png" },
   { name: "Amitations Studio", url: "https://www.amitations.com/", logo: "/images/partners/amitations-studio.png" },
   { name: "Triggerfish", url: "https://www.triggerfish.com/", logo: "/images/partners/triggerfish.png" },
@@ -647,10 +638,19 @@ export const joinBenefits = [
 ];
 
 /* ─────────────────────────────── Video Library ────────────────────────────── */
-// Add videos from the RafikiHub YouTube channel. youtubeId is the part after "v=" in the link.
-export type Video = { youtubeId: string; title: string; category: string; instructor?: string; duration?: string };
+// Videos from the RafikiHub YouTube channel; they play on the site in RafikiHub Online.
+// youtubeId is the part after "v=" in the link; published is the YouTube upload date.
+// The channel's 2021 "How to sign up / apply for castings" walkthroughs are left out: they show the old site.
+export type Video = { youtubeId: string; title: string; category: string; published: string; instructor?: string; duration?: string };
 export const videos: Video[] = [
-  // { youtubeId: "xxxxxxxxxxx", title: "Self-tape auditions that get callbacks", category: "Acting", instructor: "Name", duration: "12 min" },
+  { youtubeId: "GNomMlaVeyI", title: "RafikiHub August Workshop", category: "Workshops", published: "2022-12-19" },
+  { youtubeId: "Nyp_fquLgRY", title: "What is RafikiHub? An interview with founder and CEO Kate Snow", category: "About RafikiHub", instructor: "Kate Snow, interviewed by Creatives Garage", published: "2021-10-28" },
+  { youtubeId: "HopsDcJxFuA", title: "Masterclass in acting", category: "Acting", instructor: "Susan Goodwillie", published: "2021-10-20" },
+  { youtubeId: "jqCGJPPuaZY", title: "A tip on acting", category: "Acting", instructor: "Susan Goodwillie", published: "2021-10-20" },
+  { youtubeId: "5BHKCvPj89E", title: "Creative writing for film: webinar", category: "Filmmaking", published: "2021-10-20" },
+  { youtubeId: "6sjZJUThyfU", title: "Tips on genre and storyline", category: "Filmmaking", published: "2021-10-20" },
+  { youtubeId: "JqueRY79WyI", title: "Tips on style: consciousness, loops and twists", category: "Filmmaking", published: "2021-10-20" },
+  { youtubeId: "K2wGO74tRqo", title: "A tip on scoring", category: "Filmmaking", published: "2021-10-20" },
 ];
 
 /* ───────────────────────────── Contact Listings ───────────────────────────── */
