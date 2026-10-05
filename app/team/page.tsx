@@ -8,7 +8,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Our team",
-  description: "Meet the team behind RafikiHub: founder and CEO Kate Snow, director and talent manager Michael Scott, software engineer Joe Nyamu and website consultant Nathan Obwaka.",
+  description: "Meet the team behind RafikiHub: founder and CEO Kate Snow, director and talent manager Michael Scott and website consultant Nathan Obwaka.",
   path: "/team",
 });
 

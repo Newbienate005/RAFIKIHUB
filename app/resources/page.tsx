@@ -5,15 +5,15 @@ import { PageHeader } from "@/components/PageHeader";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
-  title: "Resource Hub: tools and guides for performers",
-  description: "RafikiHub's Resource Hub: industry contact listings, career guides, the Video Library, Sio Bahati Services and a free stage name checker.",
+  title: "RafikiHub Resources: tools and guides for performers",
+  description: "RafikiHub Resources: RafikiHub Connect contact listings, career guides, the RafikiHub Online video library, Sio Bahati Services and a free stage name checker.",
   path: "/resources",
 });
 
 const cards = [
-  { tag: "Directory", title: "Contact Listings", text: "Find agents, casting directors and the services performers rely on.", href: "/contact-listings", cta: "Browse contacts" },
+  { tag: "RafikiHub Connect", title: "Contact listings", text: "Find agents, casting directors and the services performers rely on.", href: "/contact-listings", cta: "Browse contacts" },
   { tag: "Guides", title: "Career and industry guides", text: "Headshots, auditions, how casting works, and building a career in the arts.", href: "/blog", cta: "Read the guides" },
-  { tag: "Video Library", title: "Workshops and masterclasses", text: "Learn from working actors, directors and crew.", href: "/videos", cta: "Watch now" },
+  { tag: "RafikiHub Online", title: "Video library: workshops and masterclasses", text: "Learn from working actors, directors and crew.", href: "/videos", cta: "Watch now" },
   { tag: "Sio Bahati", title: "Headshots, showreels, audition prep", text: "Book the services that get you seen.", href: "/services", cta: "See services" },
 ];
 
@@ -21,10 +21,10 @@ export default function ResourcesPage() {
   return (
     <>
       <PageHeader
-        kicker="Resource Hub"
+        kicker="RafikiHub Resources"
         title={<>Tools built for <em>working creatives</em>.</>}
         lead="Everything a RafikiHub member reaches for, in one place."
-        crumbs={[{ name: "Resource Hub", path: "/resources" }]}
+        crumbs={[{ name: "RafikiHub Resources", path: "/resources" }]}
       />
       <section className="section">
         <div className="wrap resource-grid">

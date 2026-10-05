@@ -32,7 +32,7 @@ export default async function TalentManagementPage() {
       />
       <Answer question="How do I get an acting agent in Kenya?">
         Apply to an agency that represents actors in your market. RafikiHub Talent Management represents a small roster of
-        Kenyan actors of all ages: email {site.talentEmail} with your headshot, CV and showreel link, and the team will be in touch.
+        Kenyan actors of all ages: email {site.talentEmail} with your headshots, your showreel link if you have one, and your RafikiHub profile link, and the team will be in touch.
       </Answer>
       <section className="section">
         <div className="wrap split">
@@ -69,8 +69,13 @@ export default async function TalentManagementPage() {
             <h3>Book a meeting</h3>
             <p>
               We'd like to understand how we can serve you. Email{" "}
-              <a href={`mailto:${site.talentEmail}`}>{site.talentEmail}</a> with your headshot, CV and showreel link.
+              <a href={`mailto:${site.talentEmail}`}>{site.talentEmail}</a> with:
             </p>
+            <ul>
+              <li>Your headshots</li>
+              <li>Your showreel link, if you have one</li>
+              <li>Your RafikiHub profile link</li>
+            </ul>
             <div className="btn-row">
               <a className="btn btn--ink" href={`mailto:${site.talentEmail}?subject=Representation%20enquiry`}>Email the talent team</a>
               <Link className="btn btn--ghost" href="/join">Join RafikiHub first</Link>

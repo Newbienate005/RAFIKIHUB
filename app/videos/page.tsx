@@ -2,12 +2,13 @@ import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { VideoPlayer } from "@/components/VideoPlayer";
 import { videos } from "@/lib/data";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata = pageMeta({
-  title: "Video Library: acting workshops and masterclasses",
+  title: "RafikiHub Online: video library of acting workshops and masterclasses",
   description: "Free workshops and masterclasses from RafikiHub: acting, self-tapes, auditions and crew skills, taught by working artists in Kenya.",
   path: "/videos",
   noindex: videos.length === 0,
@@ -22,16 +23,16 @@ export default function VideosPage() {
     thumbnailUrl: `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`,
     embedUrl: `https://www.youtube-nocookie.com/embed/${v.youtubeId}`,
     contentUrl: `https://www.youtube.com/watch?v=${v.youtubeId}`,
-    uploadDate: "2024-01-01",
+    uploadDate: v.published,
   }));
   return (
     <>
       {videos.length ? <JsonLd data={schema} /> : null}
       <PageHeader
-        kicker="Video Library"
+        kicker="RafikiHub Online · Video Library"
         title={<>Learn from <em>working artists</em>.</>}
         lead="Free workshops and masterclasses from the RafikiHub community of performers and crew."
-        crumbs={[{ name: "Resource Hub", path: "/resources" }, { name: "Video Library", path: "/videos" }]}
+        crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Online", path: "/videos" }]}
       />
       <section className="section">
         <div className="wrap">
@@ -41,19 +42,7 @@ export default function VideosPage() {
               items={videos.map((v) => ({
                 key: v.youtubeId,
                 group: v.category,
-                node: (
-                  <a className="video" href={`https://www.youtube.com/watch?v=${v.youtubeId}`} target="_blank" rel="noopener">
-                    <span className="video__thumb">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`} alt="" loading="lazy" />
-                      <span className="video__play" aria-hidden="true">▶</span>
-                      {v.duration ? <span className="video__dur">{v.duration}</span> : null}
-                    </span>
-                    <span className="card__genre">{v.category}</span>
-                    <span className="video__title">{v.title}</span>
-                    {v.instructor ? <span className="card__meta">with {v.instructor}</span> : null}
-                  </a>
-                ),
+                node: <VideoPlayer video={v} />,
               }))}
             />
           ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 export function LoginForm() {
   const [state, setState] = useState<"idle" | "sending">("idle");
@@ -22,8 +22,14 @@ export function LoginForm() {
     setState("idle");
   }
 
+  // A no-script form post that failed comes back as /login?error=1
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("error")) setError("That password isn't right.");
+  }, []);
+
+  // method/action matter if someone submits before this script loads: the password must never go in the URL.
   return (
-    <form className="form" onSubmit={onSubmit} noValidate>
+    <form className="form" method="post" action="/api/auth/login" onSubmit={onSubmit} noValidate>
       <div className="field">
         <label htmlFor="master-password">Master password</label>
         <input id="master-password" name="password" type="password" autoComplete="current-password" required aria-invalid={error ? true : undefined} aria-describedby={error ? "master-password-err" : undefined} />

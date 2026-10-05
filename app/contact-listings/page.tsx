@@ -7,7 +7,7 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Talent agents and casting directors in Kenya",
-  description: "The Rafiki Data Bank: a directory of talent agents, casting directors, production companies, photographers and training for performers in Kenya and Africa.",
+  description: "RafikiHub Connect: a directory of talent agents, casting directors, production companies, photographers and training for performers in Kenya and Africa.",
   path: "/contact-listings",
   // Keep the directory out of search results until it has enough listings to be useful
   noindex: contactListings.length <= 3,
@@ -18,17 +18,17 @@ export default function ContactListingsPage() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "RafikiHub Contact Listings",
+    name: "RafikiHub Connect contact listings",
     itemListElement: sorted.map((c, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Organization", name: c.name, description: c.description, ...(c.website ? { url: c.website } : {}), address: c.location } })),
   };
   return (
     <>
       <JsonLd data={schema} />
       <PageHeader
-        kicker="Rafiki Data Bank"
-        title={<>Contact <em>Listings</em></>}
+        kicker="RafikiHub Connect · Contact Listings"
+        title={<>RafikiHub <em>Connect</em></>}
         lead="A trusted directory of agents, casting directors and the services performers rely on."
-        crumbs={[{ name: "Resource Hub", path: "/resources" }, { name: "Contact Listings", path: "/contact-listings" }]}
+        crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Connect", path: "/contact-listings" }]}
       />
       <section className="section">
         <div className="wrap">

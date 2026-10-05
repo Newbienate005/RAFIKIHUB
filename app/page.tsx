@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ContactSheet } from "@/components/ContactSheet";
@@ -52,6 +53,18 @@ export default function Home() {
           <ContactSheet />
         </div>
       </section>
+
+      {/* Decorative: the same member types are listed as text under "Who can join" */}
+      <div className="ticker" aria-hidden="true">
+        <div className="ticker__track">
+          {[...memberTypes, ...memberTypes].map((c, i) => (
+            <Fragment key={`${c.key}-${i}`}>
+              <span>{c.name}</span>
+              <i />
+            </Fragment>
+          ))}
+        </div>
+      </div>
 
       <section className="section--tight section--white" aria-labelledby="what">
         <div className="wrap answer">
@@ -144,7 +157,7 @@ export default function Home() {
 
       <section className="kickoff" aria-labelledby="kickoff">
         <div className="kickoff__media">
-          <Photo src={images.sections.workshop} alt="Performers at a RafikiHub workshop in Nairobi" label="Workshop" sizes="(max-width: 860px) 100vw, 50vw" />
+          <Photo src={images.sections.community} alt="RafikiHub team members with fellow filmmakers at the African Female Filmmakers Collective stand" label="Community" sizes="(max-width: 860px) 100vw, 50vw" />
         </div>
         <div className="kickoff__body">
           <p className="kicker">Get noticed</p>
