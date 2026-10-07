@@ -1,7 +1,8 @@
 import { PageHeader } from "@/components/PageHeader";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
-import { faqCategories, faqs } from "@/lib/data";
+import { faqCategories } from "@/lib/data";
+import { getContent } from "@/lib/content";
 import { faqSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -13,7 +14,8 @@ export const metadata = pageMeta({
   path: "/faq",
 });
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const faqs = await getContent("faqs");
   return (
     <>
       <JsonLd data={faqSchema(faqs)} />

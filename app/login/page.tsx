@@ -13,7 +13,7 @@ export default async function LoginPage() {
   return (
     <section className="section">
       <div className="wrap" style={{ maxWidth: "30rem" }}>
-        <p className="kicker">RafikiHub dashboards</p>
+        <p className="kicker">RafikiHub admin</p>
         <h1 style={{ fontSize: "var(--step-3)" }}>Log in</h1>
         {session ? (
           <div className="panel">
@@ -29,7 +29,7 @@ export default async function LoginPage() {
           </div>
         ) : (
           <div className="panel">
-            <p className="small">The master login opens both the Performer and the Casting dashboards.</p>
+            <p className="small">The master login opens the admin, where you manage the website, inbox, members and castings, and both dashboards.</p>
             {setUp ? <LoginForm /> : (
               <p className="form-error">The master login isn't set up yet. Add a <code>MASTER_PASSWORD</code> environment variable (in Vercel: Settings → Environment Variables) and redeploy.</p>
             )}

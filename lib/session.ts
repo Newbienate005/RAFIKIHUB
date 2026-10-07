@@ -84,3 +84,16 @@ export function checkMasterPassword(input: string) {
   const h = (v: string) => createHmac("sha256", "rafikihub-master").update(v).digest();
   return timingSafeEqual(h(input), h(pw));
 }
+
+/** Guard for /admin pages: only the master login gets in. */
+export async function requireMaster() {
+  const s = await getSession();
+  if (s?.kind !== "master") redirect("/login?next=/admin");
+  return s;
+}
+
+/** The same check for server actions and admin API routes, which must never trust the page that called them. */
+export async function assertMaster() {
+  const s = await getSession();
+  if (s?.kind !== "master") throw new Error("Not signed in as admin.");
+}

@@ -2,7 +2,8 @@ import { ArticleCard } from "@/components/ArticleCard";
 import { BlogFilter } from "@/components/BlogFilter";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
-import { articleGenres, articles } from "@/lib/data";
+import { articleGenres } from "@/lib/data";
+import { getArticles } from "@/lib/content";
 import { blogSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
@@ -13,8 +14,8 @@ export const metadata = pageMeta({
   path: "/blog",
 });
 
-export default function BlogPage() {
-  const sorted = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+export default async function BlogPage() {
+  const sorted = await getArticles();
   const [latest, ...rest] = sorted;
   return (
     <>

@@ -7,7 +7,8 @@ import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { Testimonials } from "@/components/Testimonials";
 import { Photo } from "@/components/Photo";
-import { articles, castingSteps, faqs, homePaths, memberTypes, partners, testimonials, timeline } from "@/lib/data";
+import { castingSteps, homePaths, memberTypes, timeline } from "@/lib/data";
+import { getArticles, getContent } from "@/lib/content";
 import { images } from "@/lib/images";
 import { shortDate } from "@/lib/dates";
 import { faqSchema } from "@/lib/schema";
@@ -19,10 +20,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const homeFaqs = faqs.slice(0, 5);
-const latestArticles = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 4);
 
-export default function Home() {
+export default async function Home() {
+  const [articles, faqs, partners, testimonials] = await Promise.all([getArticles(), getContent("faqs"), getContent("partners"), getContent("testimonials")]);
+  const homeFaqs = faqs.slice(0, 5);
+  const latestArticles = articles.slice(0, 4);
   const quotes = testimonials.filter((t) => t.message.length > 20);
   const [lead, ...briefs] = latestArticles;
   return (

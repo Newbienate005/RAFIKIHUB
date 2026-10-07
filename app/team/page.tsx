@@ -2,7 +2,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { PageHeader } from "@/components/PageHeader";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
-import { team } from "@/lib/data";
+import { getContent } from "@/lib/content";
 import { personSchema, slugify } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
@@ -12,7 +12,8 @@ export const metadata = pageMeta({
   path: "/team",
 });
 
-export default function TeamPage() {
+export default async function TeamPage() {
+  const team = await getContent("team");
   return (
     <>
       <JsonLd data={team.map(personSchema)} />

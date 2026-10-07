@@ -2,18 +2,19 @@ import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
-import { contactListings } from "@/lib/data";
+import { getContent } from "@/lib/content";
 import { pageMeta } from "@/lib/seo";
 
-export const metadata = pageMeta({
+export const generateMetadata = async () => pageMeta({
   title: "Talent agents and casting directors in Kenya",
   description: "RafikiHub Connect: a directory of talent agents, casting directors, production companies, photographers and training for performers in Kenya and Africa.",
   path: "/contact-listings",
   // Keep the directory out of search results until it has enough listings to be useful
-  noindex: contactListings.length <= 3,
+  noindex: (await getContent("contactListings")).length <= 3,
 });
 
-export default function ContactListingsPage() {
+export default async function ContactListingsPage() {
+  const contactListings = await getContent("contactListings");
   const sorted = [...contactListings].sort((a, b) => Number(!!b.enhanced) - Number(!!a.enhanced) || a.name.localeCompare(b.name));
   const schema = {
     "@context": "https://schema.org",

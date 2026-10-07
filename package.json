@@ -12,10 +12,13 @@
     "start": "next start",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "import:old": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/import-old-db.mjs",
+    "test:import": "node --test \"scripts/lib/*.test.mjs\""
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@vercel/blob": "^1.1.1",
     "drizzle-orm": "^0.38.3",
     "next": "15.5.26",
     "react": "19.2.8",

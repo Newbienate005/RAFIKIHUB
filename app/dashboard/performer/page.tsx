@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell";
 import { plans } from "@/lib/data";
 import { castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
+import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { requireDashboard } from "@/lib/session";
 import { site } from "@/lib/site";
 
@@ -19,6 +20,9 @@ export default async function PerformerDashboard({ searchParams }: Props) {
   // New members haven't added photos, date of birth, skills or credits yet; the master preview shows a part-built profile
   const done = new Set<string>(member ? [] : ["photos", "dob"]);
   const progress = Math.round((done.size / completenessItems.length) * 100);
+  // Breakdowns published in the admin; the sample list only shows until the first one goes live
+  const live = tab === "opportunities" ? await getOpenBreakdowns() : [];
+  const closes = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
 
   return (
     <DashboardShell session={session} role="performer" welcome={welcome === "1"} tabs={performerTabs} tab={tab}>
@@ -91,13 +95,23 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           {tab === "opportunities" ? (
             <>
               <section aria-labelledby="postings">
-                <h2 id="postings">Talent postings <SampleTag /></h2>
+                <h2 id="postings">Talent postings {live.length ? null : <SampleTag />}</h2>
                 <p className="small">Live castings appear here once your membership is active. You can apply when the casting is open and you match its categories, countries and gender.</p>
                 <div className="table-scroll">
                   <table className="credits subs">
                     <thead><tr><th scope="col">Casting</th><th scope="col">Type</th><th scope="col">Gender</th><th scope="col">Closes</th><th scope="col">Status</th><th scope="col"><span className="sr-only">Action</span></th></tr></thead>
                     <tbody>
-                      {sampleCastings.map((c) => {
+                      {live.map((c) => (
+                        <tr key={c.id}>
+                          <td><strong>{c.title}</strong><br /><span className="small">{[c.ref, c.location, c.categories.length ? c.categories.join(", ") : "All categories"].filter(Boolean).join(" · ")}</span></td>
+                          <td>{c.type}</td>
+                          <td>{c.gender}</td>
+                          <td>{closes(c.closesOn)}</td>
+                          <td><span className={`status status--${c.filled ? "filled" : "open"}`}>{c.filled ? "Filled" : "Open"}</span></td>
+                          <td><button type="button" className="btn btn--ink btn--sm" disabled title="Applying opens with member logins">Apply</button></td>
+                        </tr>
+                      ))}
+                      {live.length ? null : sampleCastings.map((c) => {
                         const status = castingStatus(c);
                         return (
                           <tr key={c.id}>
