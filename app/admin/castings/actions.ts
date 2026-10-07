@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/admin/AdminForm";
 import { breakdownTypes, breakdownGenders, applicationStatuses } from "@/lib/admin/castings";
+import { nairobiToday } from "@/lib/content-kinds";
 import { profileCategories } from "@/lib/data";
 import { getDb } from "@/lib/db";
 import { auditionApplications, auditions, castingCalls } from "@/lib/db/schema";
@@ -39,7 +40,7 @@ export async function saveBreakdown(id: string, _prev: FormState, form: FormData
   if (body.length < 20) errors.body = "Describe the roles: at least a couple of sentences.";
   const closesOn = s("closesOn");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(closesOn)) errors.closesOn = "Pick the closing date.";
-  else if (id === "new" && closesOn < new Date().toISOString().slice(0, 10)) errors.closesOn = "The closing date has already passed.";
+  else if (id === "new" && closesOn < nairobiToday()) errors.closesOn = "The closing date has already passed.";
   const contactEmail = s("contactEmail");
   if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) errors.contactEmail = "Enter a valid email address.";
   const categories = form.getAll("categories").map(String).filter((c) => (profileCategories as readonly string[]).includes(c));

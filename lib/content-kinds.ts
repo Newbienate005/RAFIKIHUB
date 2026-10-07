@@ -55,6 +55,9 @@ type KindConfig<K extends ContentKind> = {
   seed: () => ContentTypes[K][];
 };
 
+/** Today in Nairobi as YYYY-MM-DD (toISOString would give the UTC date, a day behind after 9pm EAT) */
+export const nairobiToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Nairobi" });
+
 const listingTypes = ["Agent", "Casting director", "Production company", "Photographer", "Training", "Service"] as const;
 
 export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
@@ -78,7 +81,7 @@ export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
     ],
     title: (d) => d.title,
     subtitle: (d) => `${d.genre} · ${d.publishedAt}`,
-    defaults: () => ({ author: "RafikiHub", genre: "Article", publishedAt: new Date().toISOString().slice(0, 10) }),
+    defaults: () => ({ author: "RafikiHub", genre: "Article", publishedAt: nairobiToday() }),
     seed: () => articles,
   },
   videos: {
@@ -97,7 +100,7 @@ export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
     ],
     title: (d) => d.title,
     subtitle: (d) => [d.category, d.instructor].filter(Boolean).join(" · "),
-    defaults: () => ({ published: new Date().toISOString().slice(0, 10) }),
+    defaults: () => ({ published: nairobiToday() }),
     seed: () => videos,
   },
   team: {
