@@ -35,6 +35,7 @@ export const contactMessages = pgTable("contact_messages", {
   email: varchar("email", { length: 200 }).notNull(),
   topic: varchar("topic", { length: 80 }).notNull(),
   message: text("message").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("new"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -47,6 +48,7 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
 /** Sio Bahati Services bookings (headshots, showreels, audition preps) */
 export const serviceBookings = pgTable("service_bookings", {
   id: serial("id").primaryKey(),
+  legacyId: integer("legacy_id").unique(), // old services.id, set by the importer
   service: varchar("service", { length: 40 }).notNull(),
   fullName: varchar("full_name", { length: 160 }).notNull(),
   email: varchar("email", { length: 200 }).notNull(),
@@ -60,6 +62,7 @@ export const serviceBookings = pgTable("service_bookings", {
 /** Location scouting requests from productions filming in Kenya (/locations) */
 export const locationRequests = pgTable("location_requests", {
   id: serial("id").primaryKey(),
+  legacyId: integer("legacy_id").unique(), // old locations.id, set by the importer
   organization: varchar("organization", { length: 200 }).notNull(),
   email: varchar("email", { length: 200 }).notNull(),
   country: varchar("country", { length: 80 }),
@@ -89,9 +92,12 @@ export const talentProfiles = pgTable(
     published: boolean("published").notNull().default(false),
     represented: boolean("represented").notNull().default(false),
     data: jsonb("data").$type<TalentProfile>().notNull(),
+    // "legacy" rows came from the old-site import and may be refreshed by re-running it; "admin" rows were edited here
+    source: varchar("source", { length: 20 }).notNull().default("admin"),
+    completeness: integer("completeness").notNull().default(0), // 0–100, see lib/profile-completeness.ts
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("talent_profiles_name_idx").on(t.fullName), index("talent_profiles_category_idx").on(t.category)],
+  (t) => [index("talent_profiles_name_idx").on(t.fullName), index("talent_profiles_category_idx").on(t.category), index("talent_profiles_complete_idx").on(t.completeness)],
 );
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -124,15 +130,24 @@ export const accounts = pgTable(
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("accounts_email_idx").on(t.email), index("accounts_legacy_idx").on(t.legacyId)],
+  (t) => [uniqueIndex("accounts_email_idx").on(t.email), uniqueIndex("accounts_legacy_idx").on(t.legacyId)],
 );
 
 /** Castings posted by casting professionals (old `auditions`, plus its talent_categories and talent_countries lists). */
 export const auditions = pgTable("auditions", {
   id: serial("id").primaryKey(),
-  legacyId: integer("legacy_id"),
+  legacyId: integer("legacy_id").unique(),
   ref: varchar("ref", { length: 20 }).notNull(), // old random_id, shown to members
-  ownerId: integer("owner_id").notNull().references(() => accounts.id),
+  // The casting professional's account. Empty for breakdowns the RafikiHub team posts for a client.
+  ownerId: integer("owner_id").references(() => accounts.id),
+  castingCallId: integer("casting_call_id").references(() => castingCalls.id), // the "Post a casting" request it came from
+  company: varchar("company", { length: 200 }),
+  contactName: varchar("contact_name", { length: 160 }),
+  contactEmail: varchar("contact_email", { length: 200 }),
+  location: varchar("location", { length: 120 }),
+  shootDates: varchar("shoot_dates", { length: 120 }),
+  // draft → published (members can see it) → closed
+  status: varchar("status", { length: 20 }).notNull().default("draft"),
   title: varchar("title", { length: 200 }).notNull(),
   type: varchar("type", { length: 80 }).notNull(),
   gender: varchar("gender", { length: 20 }).notNull().default("Everybody"),
@@ -141,7 +156,9 @@ export const auditions = pgTable("auditions", {
   body: text("body").notNull(),
   closesOn: date("closes_on").notNull(),
   filled: boolean("filled").notNull().default(false),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /** Applications to castings (old `auditions_applications`), with the shortlist status the old site lacked. */
@@ -175,6 +192,7 @@ export const agentClients = pgTable(
 /** M-Pesa payments (old `billing` and `payment_history`). */
 export const payments = pgTable("payments", {
   id: serial("id").primaryKey(),
+  legacyKey: varchar("legacy_key", { length: 60 }).unique(), // "billing:<id>" or "history:<id>", set by the importer
   accountId: integer("account_id").notNull().references(() => accounts.id),
   planId: varchar("plan_id", { length: 20 }),
   amountKsh: integer("amount_ksh").notNull(),
@@ -184,4 +202,35 @@ export const payments = pgTable("payments", {
   status: varchar("status", { length: 20 }).notNull(), // success, rejected, pending
   paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Admin CMS
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Website content edited in /admin: blog posts, videos, team, partners, testimonials, FAQs, contact listings.
+ * `data` has the same shape as the matching type in lib/data.ts (Article, Video, TeamMember…), so pages
+ * render database rows and the built-in content the same way. `slug` is only used by blog posts.
+ */
+export const contentItems = pgTable(
+  "content_items",
+  {
+    id: serial("id").primaryKey(),
+    kind: varchar("kind", { length: 40 }).notNull(),
+    slug: varchar("slug", { length: 200 }),
+    data: jsonb("data").$type<Record<string, unknown>>().notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    published: boolean("published").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("content_kind_idx").on(t.kind, t.sortOrder), uniqueIndex("content_kind_slug_idx").on(t.kind, t.slug)],
+);
+
+/** Small key/value settings, e.g. "seeded:faqs" once a section's built-in content is copied in, or the last import report. */
+export const siteSettings = pgTable("site_settings", {
+  key: varchar("key", { length: 80 }).primaryKey(),
+  value: jsonb("value").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

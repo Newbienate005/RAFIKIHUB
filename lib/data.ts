@@ -53,8 +53,9 @@ export function ageFrom(dateOfBirth: Maybe<string>, today = new Date()) {
 // Values seen on existing profiles, plus common additions. Extend as needed.
 
 export const profileCategories = [
-  "Actor", "Young Performer", "Independent Performer", "Model", "Voice Over Artist",
-  "Dancer", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist",
+  "Actor", "Actress", "Young Performer", "Independent Performer", "Model", "Voice Over Artist",
+  "Dancer", "Musician", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist",
+  "Photographer", "Wardrobe", "Crew",
 ] as const;
 
 export const appearanceOptions = [
@@ -455,7 +456,7 @@ export const team: TeamMember[] = [
   {
     name: "Nathan Obwaka",
     position: "Website Consultant",
-    image: "/images/people/nathan-obwaka.jpg",
+    image: "/images/people/nathan-obwaka-2026.jpg",
     alumniOf: ["South Eastern Kenya University"],
     linkedin: "https://www.linkedin.com/in/nathan-obwaka/",
     bio: [

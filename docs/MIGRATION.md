@@ -1,5 +1,38 @@
 # Moving data from the old rafikihub.com database
 
+**The importer is built:** `scripts/import-old-db.mjs`. See "Running the import" below, or the
+Import page in the admin (`/admin/import`). Sections 2 and 3 describe what it does.
+
+## Running the import
+
+1. Export the old database from Hostinger: phpMyAdmin → the RafikiHub database → Export (Quick, SQL). Keep the file private.
+2. Check it, changing nothing: `npm run import:old -- path/to/export.sql --dry-run`
+3. Put a **Neon dev branch** connection string in `.env.local` as `DATABASE_URL`, run `npm run db:push`, then
+   `npm run import:old -- path/to/export.sql`. Check members and profiles in `/admin`.
+4. Repeat against the live database. Before rafikihub.com points at the new site, run once more with
+   `--copy-files` (needs `BLOB_READ_WRITE_TOKEN`) so photos, reels and blog images are copied from the old
+   site into Vercel Blob. `--assets-dir <folder>` reads them from a downloaded copy of the old `assets/` folder instead.
+
+Re-running is safe: accounts and castings are updated, profiles are refreshed only while `source = 'legacy'`
+(editing a profile in the admin sets it to `admin`), and everything else is inserted once (legacy ids and keys).
+Tests: `npm run test:import` (runs against `scripts/lib/fixtures/old-sample.sql`, a fictional export).
+
+### Corrections found in the old PHP code
+
+- The comma-joined copies on `users` (skills, cities, nationalities) are actually **space-joined**. The importer uses the child tables.
+- `agent_bio` is plain text for performers, crew and pets; only casting accounts (role 2) have HTML. The importer strips HTML from all of them.
+- Castings store **"All Categories" / "All Countries" as literal rows**. The importer turns them into empty lists (= everyone).
+- The main photo is the one with `photos.profile = 1`, else the lowest id. Photos with `status = 0` were hidden and stay out.
+- Deleting a user on the old site never deleted their child rows, so the export has orphans. The importer skips them and counts them.
+- The code writes the text `"NULL"` for empty values in places; it's treated as empty.
+- For casting and rooms accounts, `date_of_birth` holds the signup time, not a birthday.
+- `payment_history` amounts were shown with a `$` sign; they're imported as Ksh, so check a few.
+- Old profile links (`link_url`) are random strings with capitals. They're kept exactly, so old links keep working.
+- Not imported: rooms and studio accounts (role 6), pet *profiles* (their accounts are imported), every row in `files`, and the
+  content tables (`classes`, `testimonials`, `partners`, `faqs`), which are curated in the admin.
+- **Security:** the old `.env` holds an Elastic Email API key, and `data/files/payment.php` has a Pesawise API key and secret
+  hard-coded. Rotate all three, and never copy them into this repo.
+
 The old site (PHP + MySQL) keeps its data in a MySQL database. The code (`master-main.zip`) holds no data export, so the
 first step is an export from the old host. This document maps the old tables to the new Postgres schema in
 `lib/db/schema.ts` and lists what the migration script has to handle.
@@ -21,6 +54,9 @@ Also copy the uploaded files. The database only stores bare filenames, and the f
 | Showreels (`videos`) and voice clips (`voices`) | `assets/videos/`, `assets/voices/` |
 | Documents (`files`) and invoices | `assets/files/`, `assets/pdf/files/` |
 | Room and studio photos (`rooms_photos`) | `assets/images/rooms/` |
+| Casting and email inline images | `assets/images/talents/` |
+| Video library thumbnails (`classes`) | `assets/images/classes/` |
+| Partner logos | `assets/images/partners/` |
 
 **Treat the export as sensitive.** It contains ID/passport numbers, KRA PINs and weak password hashes.
 

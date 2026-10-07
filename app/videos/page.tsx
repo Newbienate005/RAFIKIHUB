@@ -3,18 +3,19 @@ import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
 import { VideoPlayer } from "@/components/VideoPlayer";
-import { videos } from "@/lib/data";
+import { getContent } from "@/lib/content";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const metadata = pageMeta({
+export const generateMetadata = async () => pageMeta({
   title: "RafikiHub Online: video library of acting workshops and masterclasses",
   description: "Free workshops and masterclasses from RafikiHub: acting, self-tapes, auditions and crew skills, taught by working artists in Kenya.",
   path: "/videos",
-  noindex: videos.length === 0,
+  noindex: (await getContent("videos")).length === 0,
 });
 
-export default function VideosPage() {
+export default async function VideosPage() {
+  const videos = await getContent("videos");
   const schema = videos.map((v) => ({
     "@context": "https://schema.org",
     "@type": "VideoObject",

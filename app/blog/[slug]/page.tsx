@@ -4,22 +4,23 @@ import type { Metadata } from "next";
 import { ArticleCard } from "@/components/ArticleCard";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
-import { articles } from "@/lib/data";
+import { getArticles } from "@/lib/content";
 import { longDate, readMinutes } from "@/lib/dates";
 import { articleSchema, breadcrumbSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
 
-const find = (slug: string) => articles.find((a) => a.url === slug);
+const find = async (slug: string) => (await getArticles()).find((a) => a.url === slug);
 
-export function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.url }));
+// Posts added in the admin later are rendered on first visit (dynamicParams is on by default)
+export async function generateStaticParams() {
+  return (await getArticles()).map((a) => ({ slug: a.url }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const article = find(slug);
+  const article = await find(slug);
   if (!article) return {};
   const meta = pageMeta({ title: article.title, description: article.excerpt, path: `/blog/${article.url}` });
   return {
@@ -30,7 +31,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Params) {
   const { slug } = await params;
-  const article = find(slug);
+  const articles = await getArticles();
+  const article = articles.find((a) => a.url === slug);
   if (!article) notFound();
 
   const more = articles

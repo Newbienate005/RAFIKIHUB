@@ -1,13 +1,12 @@
-import { articles } from "@/lib/data";
+import { getArticles } from "@/lib/content";
 import { site } from "@/lib/site";
 
-export const dynamic = "force-static";
+export const revalidate = 3600;
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export function GET() {
-  const items = [...articles]
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+export async function GET() {
+  const items = (await getArticles())
     .map((a) => {
       const url = `${site.url}/blog/${a.url}`;
       return `<item><title>${esc(a.title)}</title><link>${url}</link><guid isPermaLink="true">${url}</guid><pubDate>${new Date(a.publishedAt).toUTCString()}</pubDate><category>${esc(a.genre)}</category><description>${esc(a.excerpt)}</description></item>`;

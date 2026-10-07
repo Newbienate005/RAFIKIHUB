@@ -5,7 +5,16 @@ import { fileURLToPath } from "node:url";
 const nextConfig = {
   // Pin the project root (a stray package-lock.json higher up the folder tree otherwise confuses Next.js)
   outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
-  images: { formats: ["image/avif", "image/webp"] },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      // Uploads from the admin (Vercel Blob)
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      // Photos still on the old site, for imported profiles until they're copied to Blob
+      { protocol: "https", hostname: "rafikihub.com", pathname: "/assets/**" },
+      { protocol: "https", hostname: "www.rafikihub.com", pathname: "/assets/**" },
+    ],
+  },
   async redirects() {
     // Keep old rafikihub.com URLs working so Google rankings carry over.
     return [

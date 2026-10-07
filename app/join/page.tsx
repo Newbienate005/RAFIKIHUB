@@ -3,7 +3,8 @@ import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
-import { joinBenefits, memberTypes, faqs, plans } from "@/lib/data";
+import { joinBenefits, memberTypes, plans } from "@/lib/data";
+import { getContent } from "@/lib/content";
 import { PlanCards } from "@/components/PlanCards";
 import { faqSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
@@ -15,11 +16,10 @@ export const metadata = pageMeta({
   path: "/join",
 });
 
-const joinFaqs = faqs.filter((f) =>
-  ["Who can join RafikiHub?", "What goes on a RafikiHub profile?", "What makes a good acting headshot?", "How should I apply for a role?", "How much does RafikiHub membership cost?"].includes(f.q),
-);
+const joinFaqQuestions = ["Who can join RafikiHub?", "What goes on a RafikiHub profile?", "What makes a good acting headshot?", "How should I apply for a role?", "How much does RafikiHub membership cost?"];
 
-export default function JoinPage() {
+export default async function JoinPage() {
+  const joinFaqs = (await getContent("faqs")).filter((f) => joinFaqQuestions.includes(f.q));
   return (
     <>
       <JsonLd data={faqSchema(joinFaqs)} />

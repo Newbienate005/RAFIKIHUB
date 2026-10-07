@@ -21,7 +21,11 @@ export async function POST(req: Request) {
     await new Promise((r) => setTimeout(r, 800)); // slow down guessing
     return fail("That password isn't right.", 401);
   }
-  const res = isForm ? NextResponse.redirect(new URL("/dashboard", req.url), 303) : NextResponse.json({ ok: true, redirect: "/dashboard" });
+  // The master login opens the admin; ?next= is only honoured for paths on this site
+  const next = new URL(req.headers.get("referer") ?? req.url).searchParams.get("next");
+  // No "//" or backslashes: browsers read "/\evil.com" as another site
+  const dest = next && /^\/(?![/\\])[^\\]*$/.test(next) ? next : "/admin";
+  const res = isForm ? NextResponse.redirect(new URL(dest, req.url), 303) : NextResponse.json({ ok: true, redirect: dest });
   res.cookies.set(SESSION_COOKIE, encodeSession({ kind: "master" }, MASTER_DAYS)!, cookieOptions(MASTER_DAYS));
   return res;
 }

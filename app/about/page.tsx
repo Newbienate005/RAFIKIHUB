@@ -3,7 +3,8 @@ import { CtaBand } from "@/components/CtaBand";
 import { PageHeader } from "@/components/PageHeader";
 import { Photo } from "@/components/Photo";
 import { images } from "@/lib/images";
-import { team, timeline, timelineClosing } from "@/lib/data";
+import { timeline, timelineClosing } from "@/lib/data";
+import { getContent } from "@/lib/content";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -14,7 +15,8 @@ export const metadata = pageMeta({
   path: "/about",
 });
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const team = await getContent("team");
   return (
     <>
       <PageHeader

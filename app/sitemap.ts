@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { articles, contactListings, exampleProfile, videos } from "@/lib/data";
+import { exampleProfile } from "@/lib/data";
+import { getArticles, getContent } from "@/lib/content";
 import { getPublishedProfileUrls } from "@/lib/profiles";
 import { site } from "@/lib/site";
 
@@ -8,7 +9,7 @@ export const revalidate = 3600;
 type Freq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
 // Bump `updated` when a page's content really changes, so crawlers trust lastModified.
-const pages: { path: string; updated: string; priority: number; freq: Freq; include?: boolean }[] = [
+const staticPages = (videoCount: number, listingCount: number): { path: string; updated: string; priority: number; freq: Freq; include?: boolean }[] => [
   { path: "/join", updated: "2026-09-26", priority: 0.9, freq: "monthly" },
   { path: "/casting", updated: "2026-09-26", priority: 0.9, freq: "monthly" },
   { path: "/membership", updated: "2026-09-26", priority: 0.9, freq: "monthly" },
@@ -21,11 +22,13 @@ const pages: { path: string; updated: string; priority: number; freq: Freq; incl
   { path: "/locations", updated: "2026-09-26", priority: 0.6, freq: "yearly" },
   { path: "/resources", updated: "2026-09-26", priority: 0.6, freq: "monthly" },
   // Thin pages stay out until they have content (they're noindexed until then too)
-  { path: "/videos", updated: "2026-09-26", priority: 0.6, freq: "weekly", include: videos.length > 0 },
-  { path: "/contact-listings", updated: "2026-09-26", priority: 0.6, freq: "monthly", include: contactListings.length > 3 },
+  { path: "/videos", updated: "2026-09-26", priority: 0.6, freq: "weekly", include: videoCount > 0 },
+  { path: "/contact-listings", updated: "2026-09-26", priority: 0.6, freq: "monthly", include: listingCount > 3 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [articles, videos, contactListings] = await Promise.all([getArticles(), getContent("videos"), getContent("contactListings")]);
+  const pages = staticPages(videos.length, contactListings.length);
   const latestPost = articles.map((a) => a.updatedAt ?? a.publishedAt).sort().at(-1) ?? pages[0].updated;
   const profiles = await getPublishedProfileUrls();
   return [

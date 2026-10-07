@@ -1,4 +1,5 @@
-import { articles, castingSteps, faqs, memberTypes, membershipIncludes, pageFaqs, perMonth, plans, services, team, videos } from "./data";
+import { castingSteps, memberTypes, membershipIncludes, pageFaqs, perMonth, plans, services } from "./data";
+import { getArticles, getContent } from "./content";
 import { site } from "./site";
 
 const u = (p: string) => `${site.url}${p}`;
@@ -20,7 +21,8 @@ RafikiHub (${site.legalName}) was founded by actress ${site.founder} and has ${s
 `;
 }
 
-export function llmsTxt() {
+export async function llmsTxt() {
+  const [articles, team, videos] = await Promise.all([getArticles(), getContent("team"), getContent("videos")]);
   return `${header()}
 ## For performers
 - [Join as talent](${u("/join")}): apply for membership and build a profile with headshots, credits, showreels and skills
@@ -49,7 +51,8 @@ ${videos.length ? `- [RafikiHub Online](${u("/videos")}): video library of free 
 `;
 }
 
-export function llmsFullTxt() {
+export async function llmsFullTxt() {
+  const [articles, faqs] = await Promise.all([getArticles(), getContent("faqs")]);
   const qa = [...faqs, ...Object.values(pageFaqs).flat()];
   const seen = new Set<string>();
   const uniqueQa = qa.filter((f) => (seen.has(f.q) ? false : (seen.add(f.q), true)));
