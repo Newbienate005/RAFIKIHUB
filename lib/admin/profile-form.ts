@@ -80,7 +80,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
   if (!fullName) errors.fullName = "Add their name.";
   // Not lower-cased: old-site links are random strings with capitals, and they must keep working
   const profileUrl = str(f, "profileUrl");
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{1,119}$/.test(profileUrl)) errors.profileUrl = "Use 2 or more letters, numbers, dots, dashes or underscores, with no spaces.";
+  if (!/^(?!\.{1,2}$)[A-Za-z0-9._-]{1,120}$/.test(profileUrl)) errors.profileUrl = "Use letters, numbers, dots, dashes or underscores, with no spaces.";
   const category = pick(f, "category", profileCategories, errors);
   if (!category) errors.category ??= "Choose a category.";
 

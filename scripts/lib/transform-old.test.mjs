@@ -26,7 +26,7 @@ test("helpers", () => {
 test("accounts: roles, duplicates, passwords and sensitive fields", () => {
   const ids = out.accounts.map((a) => a.legacy_id).sort((a, b) => a - b);
   // 1 admin, 7 rooms/studio and 8 (no email) are left out; 4 is a duplicate of 3's email
-  assert.deepEqual(ids, [2, 3, 5, 6]);
+  assert.deepEqual(ids, [2, 3, 5, 6, 9, 10, 11]);
   assert.equal(out.report.skipped["duplicate emails (kept the active or most recent account)"], 1);
   assert.equal(byLegacy(2).email, "casting@example.test");
   assert.equal(byLegacy(2).role, "casting");
@@ -42,7 +42,10 @@ test("accounts: roles, duplicates, passwords and sensitive fields", () => {
 });
 
 test("profiles: fields, media order and publishing", () => {
-  assert.deepEqual(out.profiles.map((p) => p.profile_url).sort(), ["Wanj3AbCdE", "otie5QwErT"]);
+  // 9 had no link name and 10's had an @, so theirs come from their names; 11's old link is kept as it was
+  assert.deepEqual(out.profiles.map((p) => p.profile_url).sort(), ["-baraka_ke", "Wanj3AbCdE", "achieng-otieno", "otie5QwErT", "wanjiru-mwangi"]);
+  assert.equal(byLegacy(10).profile_url, "wanjiru-mwangi", "the account points at the generated link name");
+  assert.ok(out.report.notes.some((n) => n.startsWith("2 profiles had no usable link name")));
   const w = out.profiles.find((p) => p.profile_url === "Wanj3AbCdE");
   assert.equal(w.published, true);
   assert.equal(w.category, "Actress");
@@ -93,7 +96,8 @@ test("inbox items and blog posts", () => {
   assert.equal(out.bookings[0].full_name, "Amina Hassan");
   assert.equal(out.locationRequests[0].services, "Permits, Local crew");
   assert.equal(out.locationRequests[0].details, "Need power & water.");
-  const [post, draft] = out.articles;
+  const [untitled, post, draft] = out.articles;
+  assert.equal(untitled.slug, "untitled-slug-post", "a post with no slug gets one from its title");
   assert.equal(post.slug, "conversations-with-the-collective");
   assert.equal(post.published, true);
   assert.equal(post.data.image, "https://rafikihub.com/assets/images/blog/1685700000001.png");

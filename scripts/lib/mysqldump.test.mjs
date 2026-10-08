@@ -37,3 +37,10 @@ INSERT INTO ${"`blog`"} (${"`id`"}, ${"`title`"}) VALUES (7, 'Hello "world"');
 test("an INSERT with no column list and no CREATE TABLE is an error, not a silent skip", () => {
   assert.throws(() => parseDump("INSERT INTO `x` VALUES (1);"), /CREATE TABLE/);
 });
+
+test("only reads the tables it's asked for, and reports the rest as skipped", () => {
+  const sql = "CREATE TABLE `a` (\n  `id` int\n);\nCREATE TABLE `emails` (\n  `id` int\n);\nINSERT INTO `a` VALUES (1);\nINSERT INTO `emails` VALUES (1),(2);";
+  const t = parseDump(sql, { only: new Set(["a"]) });
+  assert.deepEqual([...t.keys()], ["a"]);
+  assert.ok(t.skipped.get("emails") > 0);
+});
