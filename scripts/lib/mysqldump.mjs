@@ -135,9 +135,15 @@ function createColumns(stmt) {
   return cols;
 }
 
-export function parseDump(sql) {
+/**
+ * @param {string} sql
+ * @param {{ only?: Set<string> }} [opts] only read the rows of these tables; others are listed in `skipped`
+ *   with their size in bytes, without parsing (the old site's `emails` log alone is ~400 MB)
+ */
+export function parseDump(sql, { only } = {}) {
   const columns = new Map();
   const tables = new Map();
+  const skipped = new Map();
   for (const stmt of statements(sql)) {
     const create = /^CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(`[^`]+`|\w+)/i.exec(stmt);
     if (create) {
@@ -147,6 +153,10 @@ export function parseDump(sql) {
     const ins = /^(?:INSERT|REPLACE)\s+(?:IGNORE\s+)?INTO\s+(`[^`]+`|\w+)\s*(\(([^)]*)\))?\s*VALUES\s*/i.exec(stmt);
     if (!ins) continue;
     const table = unquote(ins[1]);
+    if (only && !only.has(table)) {
+      skipped.set(table, (skipped.get(table) ?? 0) + stmt.length);
+      continue;
+    }
     const cols = ins[3] ? ins[3].split(",").map(unquote) : columns.get(table);
     if (!cols) throw new Error(`No column list for table "${table}": the export needs its CREATE TABLE statements.`);
     const list = tables.get(table) ?? [];
@@ -156,6 +166,7 @@ export function parseDump(sql) {
     }
     tables.set(table, list);
   }
-  for (const t of columns.keys()) if (!tables.has(t)) tables.set(t, []);
+  for (const t of columns.keys()) if (!tables.has(t) && !(only && !only.has(t))) tables.set(t, []);
+  if (only) Object.defineProperty(tables, "skipped", { value: skipped });
   return tables;
 }

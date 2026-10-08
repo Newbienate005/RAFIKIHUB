@@ -110,6 +110,15 @@ const groupBy = (rows = [], key) => {
   return map;
 };
 
+/* ───────────── profile link names ───────────── */
+
+/** URL-safe link names; "." and ".." alone aren't allowed. Mirrors lib/admin/profile-form.ts. */
+export const LINK_NAME = /^(?!\.{1,2}$)[A-Za-z0-9._-]{1,120}$/;
+
+/** "Wanjirũ Mwangi" → "wanjiru-mwangi" */
+export const slugify = (s) =>
+  String(s ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+
 /* ───────────── option lists (mirror lib/data.ts) ───────────── */
 
 export const lists = {
@@ -219,6 +228,24 @@ export function transform(t, { assetsBase }) {
   const kept = [...byEmail.values()];
   const keptIds = new Set(kept.map((u) => int(u.id)));
 
+  // Link names: keep the old one so old links keep working; members who never had a usable one get one from their name
+  const linkFor = new Map();
+  const taken = new Set();
+  let generated = 0;
+  for (const u of kept) if (ROLE[int(u.roles_id)] === "performer" && int(u.roles_id) !== 5) {
+    const raw = clean(u.link_url);
+    if (raw && LINK_NAME.test(raw) && !taken.has(raw.toLowerCase())) { linkFor.set(u.id, raw); taken.add(raw.toLowerCase()); }
+  }
+  for (const u of kept) if (ROLE[int(u.roles_id)] === "performer" && int(u.roles_id) !== 5 && !linkFor.has(u.id)) {
+    const base = slugify(fixText(u.name)) || "member";
+    let link = base;
+    for (let n = 2; taken.has(link.toLowerCase()); n++) link = `${base}-${n}`;
+    linkFor.set(u.id, link);
+    taken.add(link.toLowerCase());
+    generated++;
+  }
+  if (generated) report.notes.push(`${generated} profiles had no usable link name on the old site, so one was made from the member's name.`);
+
   const accounts = kept.map((u) => {
     const role = ROLE[int(u.roles_id)];
     const code = clean(u.code);
@@ -237,7 +264,7 @@ export function transform(t, { assetsBase }) {
       phone: phone ? (code && code !== "0" ? `${code} ${phone}` : phone) : null,
       country: fixText(u.country),
       // Performers, crew and pets have public profiles; casting accounts don't
-      profile_url: role === "performer" && int(u.roles_id) !== 5 ? clean(u.link_url) : null,
+      profile_url: linkFor.get(u.id) ?? null,
       plan_id: planFor(u.billtime),
       last_login_at: timestamp(u.last_login),
       created_at: timestamp(u.created_at),
@@ -246,15 +273,11 @@ export function transform(t, { assetsBase }) {
 
   /* talent profiles: performers and crew (pets have no profile type on the new site) */
   const profiles = [];
-  const seenUrls = new Set();
   for (const u of kept) {
     const roleId = int(u.roles_id);
     if (roleId === 2) continue;
     if (roleId === 5) { skip("pet profiles (account imported, profile not: no pet profile type yet)"); continue; }
-    const url = clean(u.link_url);
-    if (!url || !/^[A-Za-z0-9][A-Za-z0-9._-]{1,119}$/.test(url)) { skip("profiles without a usable link name"); continue; }
-    if (seenUrls.has(url.toLowerCase())) { skip("profiles whose link name was already taken"); continue; }
-    seenUrls.add(url.toLowerCase());
+    const url = linkFor.get(u.id);
     const id = u.id;
     const sk = skills.get(id) ?? [];
     const skillNames = (types) => [...new Set(sk.filter((s) => types.includes((clean(s.type) ?? "").toLowerCase())).map((s) => fixText(s.name)).filter(Boolean))];
@@ -401,8 +424,8 @@ export function transform(t, { assetsBase }) {
   /* blog posts → content_items (kind "articles"), same shape as Article in lib/data.ts */
   const genre = (c) => ({ talent: "Member story", training: "Advice", review: "Review" })[(clean(c) ?? "").toLowerCase()] ?? "Article";
   const articles = (t.get("blog") ?? []).flatMap((b) => {
-    const slug = clean(b.slug)?.toLowerCase();
-    if (!slug) { skip("blog posts without a slug"); return []; }
+    const slug = clean(b.slug)?.toLowerCase() || slugify(fixText(b.title));
+    if (!slug) { skip("blog posts without a slug or title"); return []; }
     const content = htmlToBlocks(b.body);
     const text = content.map((c) => c.text).join(" ");
     return [{

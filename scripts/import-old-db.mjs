@@ -41,9 +41,20 @@ if (!file) {
 
 const log = (...m) => console.log(...m);
 
+// The only tables the import reads; everything else (e.g. the huge `emails` log) is skipped unparsed
+const USED = new Set([
+  "users", "cities", "nationalities", "traits", "skills", "credits", "training", "photos", "videos", "voices", "files",
+  "auditions", "talent_categories", "talent_countries", "auditions_applications", "agents", "billing", "payment_history",
+  "services", "locations", "location_services", "blog", "classes", "testimonials", "partners", "faqs",
+]);
+
 log(`Reading ${path.basename(file)}…`);
-const tables = parseDump(await readFile(file, "utf8"));
-log(`Found ${tables.size} tables: ${[...tables].map(([t, r]) => `${t} (${r.length})`).join(", ")}`);
+const tables = parseDump(await readFile(file, "utf8"), { only: USED });
+log(`Read ${tables.size} tables: ${[...tables].map(([t, r]) => `${t} (${r.length})`).join(", ")}`);
+if (tables.skipped?.size) {
+  const mb = (b) => `${(b / 1048576).toFixed(1)} MB`;
+  log(`Not needed, skipped: ${[...tables.skipped].sort((a, b) => b[1] - a[1]).map(([t, b]) => `${t} (${mb(b)})`).join(", ")}`);
+}
 if (!tables.has("users")) {
   console.error("This export has no `users` table. Export the whole RafikiHub database from phpMyAdmin.");
   process.exit(1);
