@@ -37,6 +37,11 @@
   --terracotta: #C4623A;
   --acacia: #3F8A5F;
   --indigo: #3D6FB0;
+  /* Maasai beadwork: deep red, green and blue bars strung between white beads (patterns only, never UI) */
+  --bead-red: #A6392D;
+  --bead-green: #1F6E43;
+  --bead-blue: #1B3F6B;
+  --bead-white: #FFFFFF;
 
   --negative: #f3727f;
   --warning: #ffa42b;
@@ -79,9 +84,10 @@
   --acacia-tree: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'%3E%3Cg fill='%230a0a0a'%3E%3Cpath d='M40 52c30-16 80-22 118-14 20-10 58-12 88-2 26-4 56 2 70 14-24 10-62 12-92 8-30 8-80 8-112 2-30 4-60 2-72-8z'/%3E%3Cpath d='M170 58c4 14 6 34 4 60l-6 42h18l-4-42c-2-22 0-40 8-56l6-6-8 2-8 10-4-12z'/%3E%3Cpath d='M176 88c-18-10-38-22-52-32l6-2c14 10 32 20 48 28zM186 84c14-10 32-20 46-26l4 4c-14 6-32 16-48 26z'/%3E%3Cpath d='M0 150c60-10 130-14 200-10s140 6 200-2v22H0z'/%3E%3C/g%3E%3C/svg%3E");
   /* Film grain, so the dark never feels like flat vector */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --kente: repeating-linear-gradient(90deg,
-    var(--accent) 0 30px, var(--bg) 30px 34px, var(--acacia) 34px 54px, var(--bg) 54px 58px,
-    var(--terracotta) 58px 78px, var(--bg) 78px 82px, var(--indigo) 82px 102px, var(--bg) 102px 106px);
+  /* The beaded strip: white bead, red, white bead, green, white bead, blue, white bead, then a gap */
+  --bead-seq: var(--bead-white) 0 9px, var(--bead-red) 9px 69px, var(--bead-white) 69px 78px, var(--bead-green) 78px 138px,
+    var(--bead-white) 138px 147px, var(--bead-blue) 147px 207px, var(--bead-white) 207px 216px, transparent 216px 276px;
+  --kente: repeating-linear-gradient(90deg, var(--bead-seq));
   /* Concentric rings of a low sun, used as decoration in headers and bands */
   --sun-rings: repeating-radial-gradient(circle, transparent 0 22px, rgba(255,128,51,.10) 22px 24px);
 
@@ -589,11 +595,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 
 /* African accents: a kente-woven stripe (header, footer, CTA bands) and a
    bògòlanfini mudcloth watermark (page headers, profiles). Low-contrast texture only. */
-.beadband {
-  height: 4px;
-  /* a woven thread line across the middle of the kente stripe */
-  background: repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 3px, transparent 3px 7px) 0 50% / 100% 1px no-repeat, var(--kente);
-}
+.beadband { height: 5px; background: var(--kente); }
 .beadband--thick { height: 8px; }
 .pattern { background-image: var(--mudcloth-light); }
 
@@ -719,7 +721,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .kickoff { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); }
 .kickoff__media { position: relative; min-height: 30rem; background: var(--surface-2); overflow: hidden; }
 .kickoff__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 60%, var(--surface)); pointer-events: none; }
-.kickoff__media::before { content: ""; position: absolute; z-index: 1; left: 0; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(180deg, var(--accent) 0 30px, var(--bg) 30px 34px, var(--acacia) 34px 54px, var(--bg) 54px 58px, var(--terracotta) 58px 78px, var(--bg) 78px 82px, var(--indigo) 82px 102px, var(--bg) 102px 106px); }
+.kickoff__media::before { content: ""; position: absolute; z-index: 1; left: 0; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(180deg, var(--bead-seq)); }
 .kickoff__body { padding: clamp(3rem, 7vw, 6rem) clamp(1.25rem, 5vw, 5rem); display: flex; flex-direction: column; justify-content: center; max-width: 40rem; }
 .kickoff__body p:not(.kicker) { color: var(--muted); }
 @media (max-width: 860px) {
