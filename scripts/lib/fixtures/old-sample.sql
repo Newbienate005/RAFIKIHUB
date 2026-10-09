@@ -90,8 +90,9 @@ INSERT INTO `training` VALUES (1,'Diploma in Theatre','Kenya National Theatre','
 CREATE TABLE `photos` (`id` int(11) NOT NULL, `name` varchar(100), `user_id` int(11), `box_id` varchar(100), `status` int(11), `taker` varchar(100), `profile` int(11) DEFAULT 0);
 INSERT INTO `photos` VALUES (10,'1700000001003.png',3,'myCheckbox1',1,'Photographer A',0),(11,'1700000002003.png',3,'myCheckbox2',1,'Photographer A',1),(12,'1700000003003.png',3,'myCheckbox3',0,'Photographer B',0);
 CREATE TABLE `videos` (`id` int(11) NOT NULL, `name` varchar(100), `title` varchar(100), `user_id` int(11), `box_id` varchar(100), `extension` varchar(10));
-INSERT INTO `videos` VALUES (1,'1700000004003.mp4','Showreel 2024',3,'myReel1','mp4');
+INSERT INTO `videos` VALUES (1,'1700000004003.mp4','Showreel 2024',3,'myReel1','mp4'),(5,'1700000006003.MOV','Monologues ',3,'myReel5','mp4'),(4,'',NULL,3,'myReel4','mp4');
 CREATE TABLE `voices` (`id` int(11) NOT NULL, `name` varchar(100), `title` varchar(100), `user_id` int(11), `box_id` varchar(100), `extension` varchar(10));
+INSERT INTO `voices` VALUES (7,'1700000007003.mp3','Radio ad, Swahili',3,'myVoice7','mp3');
 CREATE TABLE `files` (`id` int(11) NOT NULL, `name` varchar(100), `name_without_extension` varchar(100), `type` varchar(50), `extension` varchar(10), `status` varchar(20), `user_id` int(11), `updated_at` varchar(30), `created_at` varchar(30));
 INSERT INTO `files` VALUES (1,'abc.pdf','abc.pdf','User ID/Passport','pdf','Approved',3,NULL,NULL);
 

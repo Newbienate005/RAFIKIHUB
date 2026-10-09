@@ -2,7 +2,7 @@ import {
   appearanceOptions, appearanceTraitOptions, eyeColorOptions, facialHairOptions, hairColorOptions, hairLengthOptions,
   petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions,
   profileCategories, voiceCharacterOptions, voiceQualityOptions,
-  type Measurement, type PetDetails, type TalentProfile,
+  type MediaClip, type Measurement, type PetDetails, type TalentProfile,
 } from "@/lib/data";
 
 /**
@@ -66,6 +66,21 @@ function int(f: FormData, k: string, errors: Errors, min: number, max: number): 
   const n = Number(v);
   if (!Number.isInteger(n) || n < min || n > max) { errors[k] = `Enter a whole number from ${min} to ${max}.`; return null; }
   return n;
+}
+
+/** Showreels or voice clips: the editor sends them as one hidden JSON field. Null when the form didn't have the field. */
+function clips(f: FormData, k: string, errors: Errors): MediaClip[] | null {
+  if (!f.has(k)) return null;
+  let raw: unknown;
+  try { raw = JSON.parse(str(f, k) || "[]"); } catch { raw = null; }
+  if (!Array.isArray(raw)) { errors[k] = "Something went wrong with this list. Reload the page and try again."; return []; }
+  const out: MediaClip[] = [];
+  for (const c of raw.slice(0, 20)) {
+    const link = String((c as MediaClip)?.url ?? "").trim();
+    if (!/^https?:\/\/\S+$/i.test(link)) { errors[k] = "Each one needs a full link starting with https://"; continue; }
+    out.push({ url: link, title: String((c as MediaClip)?.title ?? "").trim().slice(0, 120) || null });
+  }
+  return out;
 }
 
 function url(f: FormData, k: string, errors: Errors) {
@@ -146,8 +161,8 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
 
   // Everything that can add an error is worked out before the check below
   const website = url(f, "website", errors);
-  const showreelUrl = url(f, "showreelUrl", errors);
-  const voiceoverReelUrl = url(f, "voiceoverReelUrl", errors);
+  const reels = clips(f, "reels", errors) ?? [];
+  const voiceClips = clips(f, "voiceClips", errors) ?? [];
   const appearance = {
     appearance: pick(f, "appearance", appearanceOptions, errors), eyeColor: pick(f, "eyeColor", eyeColorOptions, errors),
     hairColor: pick(f, "hairColor", hairColorOptions, errors), hairLength: pick(f, "hairLength", hairLengthOptions, errors),
@@ -195,7 +210,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
       skills: lines(f, "skills"), languages: lines(f, "languages"), accents: lines(f, "accents"),
       credits: credits.sort((a, b) => b.year - a.year),
       training,
-      media: { headshots, showreelUrl, voiceoverReelUrl, documents },
+      media: { headshots, showreelUrl: reels[0]?.url ?? null, voiceoverReelUrl: voiceClips[0]?.url ?? null, documents, reels, voiceClips },
       isEnhanced: f.get("isEnhanced") === "on",
       representedByRafikiHub: f.get("represented") === "on",
       ...(pet ? { pet } : {}),
@@ -229,7 +244,10 @@ function keepMissing(f: FormData, base: TalentProfile, p: TalentProfile): Talent
     training: on("training") ? p.training : base.training,
     media: {
       ...p.media,
-      voiceoverReelUrl: on("voiceoverReelUrl") ? p.media.voiceoverReelUrl : base.media.voiceoverReelUrl,
+      showreelUrl: on("reels") ? p.media.showreelUrl : base.media.showreelUrl,
+      reels: on("reels") ? p.media.reels : base.media.reels,
+      voiceoverReelUrl: on("voiceClips") ? p.media.voiceoverReelUrl : base.media.voiceoverReelUrl,
+      voiceClips: on("voiceClips") ? p.media.voiceClips : base.media.voiceClips,
       documents: on("documents") ? p.media.documents : base.media.documents,
     },
     // Checkboxes send nothing when unticked, so the admin form marks itself with _adminFields

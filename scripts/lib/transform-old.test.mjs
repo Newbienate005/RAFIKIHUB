@@ -67,6 +67,13 @@ test("profiles: fields, media order and publishing", () => {
   // the photo flagged as profile comes first; hidden photos (status 0) are dropped
   assert.deepEqual(d.media.headshots, ["https://rafikihub.com/assets/images/gallery/1700000002003.png", "https://rafikihub.com/assets/images/gallery/1700000001003.png"]);
   assert.equal(d.media.showreelUrl, "https://rafikihub.com/assets/videos/1700000004003.mp4");
+  // every reel and voice clip comes across in upload order with its title; rows without a file are dropped
+  assert.deepEqual(d.media.reels, [
+    { url: "https://rafikihub.com/assets/videos/1700000004003.mp4", title: "Showreel 2024" },
+    { url: "https://rafikihub.com/assets/videos/1700000006003.MOV", title: "Monologues" },
+  ]);
+  assert.deepEqual(d.media.voiceClips, [{ url: "https://rafikihub.com/assets/voices/1700000007003.mp3", title: "Radio ad, Swahili" }]);
+  assert.equal(d.media.voiceoverReelUrl, "https://rafikihub.com/assets/voices/1700000007003.mp3");
   assert.deepEqual(d.media.documents, []);
   assert.deepEqual(d.furtherMeasurements.bustChest, { value: 34, unit: "inches" });
   assert.equal(d.furtherMeasurements.weightKg, 58);

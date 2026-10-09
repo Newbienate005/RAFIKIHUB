@@ -1,7 +1,9 @@
 import { ImageListField } from "@/components/admin/ImageField";
+import { ClipListField } from "@/components/profile/ClipListField";
 import {
   creditsText, documentsText, linesOf, measurementKeys, measurementLabels, profileOptions, trainingText, traitsText,
 } from "@/lib/admin/profile-form";
+import { reelsOf, voiceClipsOf } from "@/lib/media";
 import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions, type TalentProfile } from "@/lib/data";
 
 /**
@@ -13,7 +15,7 @@ import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrain
 export const profileFieldLabels: Record<string, string> = {
   fullName: "Name", profileUrl: "Link name", category: "Category", ageMax: "Playing age", heightFeet: "Height", dateOfBirth: "Date of birth",
   credits: "Credits", training: "Training", traits: "Appearance traits", documents: "Documents", weightKg: "Weight", email: "Email",
-  website: "Website", showreelUrl: "Showreel", voiceoverReelUrl: "Voice-over reel", petType: "Type of animal", petSize: "Size",
+  website: "Website", reels: "Showreels", voiceClips: "Voice clips", petType: "Type of animal", petSize: "Size",
   petTrainingLevel: "Training level", petPersonality: "Personality",
 };
 
@@ -52,6 +54,8 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
   const pet = isPet(p);
   const m = p.furtherMeasurements;
   const isAdmin = mode === "admin";
+  // Members upload into their own folder; the admin keeps reels together
+  const clipFolder = isAdmin ? "profiles" : uploadFolder;
   return (
     <>
       <section className="admin-card form" aria-labelledby="s-basics">
@@ -83,8 +87,8 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
       <section className="admin-card form" aria-labelledby="s-media">
         <h2 id="s-media" className="admin-card__title">{pet ? "Photos and reel" : "Headshots and reels"}</h2>
         <ImageListField name="headshots" label={pet ? "Photos" : "Headshots"} defaultValue={p.media.headshots} folder={uploadFolder} hint="The first one is the main photo, used in search results and link previews." />
-        <Text name="showreelUrl" label="Showreel link" value={p.media.showreelUrl} type="url" half hint="A YouTube or Vimeo link works best." />
-        {pet ? null : <Text name="voiceoverReelUrl" label="Voice-over reel link" value={p.media.voiceoverReelUrl} type="url" half />}
+        <ClipListField name="reels" label={pet ? "Showreels" : "Showreels and video clips"} kind="video" defaultValue={reelsOf(p)} folder={clipFolder} />
+        {pet ? null : <ClipListField name="voiceClips" label="Voice clips and voice-over reels" kind="audio" defaultValue={voiceClipsOf(p)} folder={clipFolder} />}
         {isAdmin && !pet ? <Area name="documents" label="Documents" value={documentsText(p)} rows={2} hint="Public: anyone viewing the profile can open them. One per line, as Name | https://link. Never add ID or passport scans." /> : null}
       </section>
 

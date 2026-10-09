@@ -4,6 +4,7 @@ import { plans } from "@/lib/data";
 import { castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
+import { MyMedia } from "@/components/profile/MyMedia";
 import { requireDashboard } from "@/lib/session";
 import { site } from "@/lib/site";
 
@@ -165,30 +166,29 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           ) : null}
 
           {tab === "media" ? (
+            real ? <MyMedia profile={real.profile?.data ?? null} published={real.profile?.published ?? false} /> : (
             <section aria-labelledby="media">
-              <h2 id="media">My media</h2>
-              <p className="small">Uploads open once your membership is active. Until then, <Link href="/services">Sio Bahati Services</Link> can shoot your headshots and cut your showreel.</p>
+              <h2 id="media">My media <SampleTag /></h2>
+              <p className="small">Members see their photos, showreels and voice clips here, including everything from their old RafikiHub profile.</p>
               <ul className="opps">
                 <li className="opp">
-                  <p className="card__genre">Photos · 0 of 12</p>
+                  <p className="card__genre">Photos · up to 12</p>
                   <h3>Headshots and gallery</h3>
-                  <p className="small">Up to 12 photos. Credit the photographer on each, and choose one as your main headshot.</p>
-                  <button type="button" className="btn btn--ink btn--sm" disabled>Upload photos</button>
+                  <p className="small">Choose one as the main headshot. It&apos;s used in search results and link previews.</p>
                 </li>
                 <li className="opp">
                   <p className="card__genre">Video · MP4, WebM or MOV, up to 150MB</p>
-                  <h3>Showreel</h3>
-                  <p className="small">A short, well-cut reel of your best screen work, with a title.</p>
-                  <button type="button" className="btn btn--ink btn--sm" disabled>Upload showreel</button>
+                  <h3>Showreels</h3>
+                  <p className="small">Upload a reel, or paste a YouTube or Vimeo link, each with a title.</p>
                 </li>
                 <li className="opp">
-                  <p className="card__genre">Audio · MP3 or WAV, up to 100MB</p>
+                  <p className="card__genre">Audio · MP3, M4A or WAV, up to 100MB</p>
                   <h3>Voice clips</h3>
                   <p className="small">Voice-over reels and clips that show your range.</p>
-                  <button type="button" className="btn btn--ink btn--sm" disabled>Upload voice clip</button>
                 </li>
               </ul>
             </section>
+            )
           ) : null}
 
           {tab === "cv" ? (

@@ -819,6 +819,8 @@ a.resource:hover { background: var(--card-hover); color: var(--text); box-shadow
 .tags { list-style: none; padding: 0; margin: 0 0 1.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .tags li { background: var(--surface-3); color: var(--text); padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
 .profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem 3rem; }
+.profile-block--wide { grid-column: 1 / -1; scroll-margin-top: 6rem; }
+.profile-clips { margin-top: 1rem; }
 .profile-block h2 { font-family: var(--body); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); border-bottom: 2px solid var(--text); padding-bottom: 0.6rem; margin-bottom: 0.25rem; }
 .facts { display: grid; grid-template-columns: auto 1fr; margin: 0; }
 .facts dt, .facts dd { padding: 0.65rem 0; border-bottom: 1px solid var(--line); margin: 0; font-size: 0.93rem; }
@@ -1036,6 +1038,43 @@ a.admin-list__title:hover { color: var(--accent); }
 .img-list__tools button { width: 1.75rem; height: 1.75rem; border-radius: 50%; border: 0; background: rgba(255,255,255,.15); color: #fff; cursor: pointer; font-size: 0.8rem; }
 .img-list__tools button:hover { background: rgba(255,255,255,.3); }
 .img-list__tools button:disabled { opacity: .35; cursor: default; }
+
+/* Showreels and voice clips in the profile editor */
+.clip-list { list-style: none; margin: 0 0 0.6rem; padding: 0; display: grid; gap: 0.5rem; }
+.clip-list li { background: var(--surface-2); border-radius: 6px; padding: 0.6rem 0.75rem; }
+.clip-list__head { display: flex; align-items: center; gap: 0.6rem; }
+.clip-list__icon { flex: none; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; background: var(--surface-4); color: var(--text); font-size: 0.75rem; }
+.clip-list__head input { flex: 1; min-width: 0; font: inherit; font-size: 0.875rem; padding: 0.5rem 0.7rem; border: 0; border-radius: 4px; background: var(--surface); color: var(--text); box-shadow: var(--inset); }
+.clip-list .img-list__tools { position: static; background: none; padding: 0; flex: none; }
+.clip-list__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.45rem 0 0 2.6rem; font-size: 0.75rem; }
+.clip-list__meta a { color: var(--muted); }
+.clip-list .img-list__main, .clip__meta .img-list__main, .my-media__tags .img-list__main { position: static; }
+
+/* Where a photo or clip came from */
+.origin { display: inline-block; font-size: 0.66rem; font-weight: 600; line-height: 1.33; padding: 0.15rem 0.45rem; border-radius: 2px; background: rgba(0,0,0,.55); color: var(--text-soft); }
+.origin--uploaded { color: var(--positive); }
+.origin--link { color: var(--info); }
+
+/* Dashboard → My media */
+.my-media .section-head { align-items: center; }
+.my-media__group { margin-top: 2rem; }
+.my-media__group h3 { display: flex; align-items: center; gap: 0.5rem; font-size: var(--step-1); font-weight: 600; margin: 0 0 0.75rem; }
+.my-media__count { font-size: 0.75rem; font-weight: 700; color: var(--muted); background: var(--surface-3); padding: 0.1rem 0.5rem; border-radius: 999px; }
+.my-media__photos { grid-template-columns: repeat(auto-fill, minmax(min(45%, 10rem), 1fr)); }
+.my-media__photos a { position: absolute; inset: 0; display: block; }
+.my-media__tags { position: absolute; left: 0.35rem; right: 0.35rem; top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.25rem; pointer-events: none; }
+.my-media__empty { background: var(--surface); border-radius: 8px; padding: 1rem 1.25rem; }
+
+/* Showreels and voice clips: dashboard and public profile */
+.clips { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 1rem; }
+.clips--audio { grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
+.clip { background: var(--surface); border-radius: 8px; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.clip__video, .clip__frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; background: #000; display: block; }
+.clip__frame iframe { width: 100%; height: 100%; border: 0; border-radius: 6px; }
+.clip__audio { width: 100%; height: 2.5rem; color-scheme: dark; }
+.clip__title { margin: 0; font-weight: 700; font-size: 0.875rem; }
+.clip__meta { margin: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.clip__fallback { margin: 0; font-size: 0.875rem; color: var(--muted); background: var(--surface-2); border-radius: 6px; padding: 1rem; }
 
 /* status colours for the admin workflows */
 .status--draft { background: var(--surface-3); color: var(--text-soft); }

@@ -106,7 +106,7 @@ if (copyFiles) {
   const prefix = `${assetsBase.replace(/\/$/, "")}/assets/`;
   const urls = new Set();
   const collect = (u) => { if (typeof u === "string" && u.startsWith(prefix)) urls.add(u); };
-  for (const p of out.profiles) { p.data.media.headshots.forEach(collect); collect(p.data.media.showreelUrl); collect(p.data.media.voiceoverReelUrl); }
+  for (const p of out.profiles) { p.data.media.headshots.forEach(collect); [...p.data.media.reels, ...p.data.media.voiceClips].forEach((c) => collect(c.url)); }
   for (const a of out.articles) collect(a.data.image);
   log(`\nCopying ${urls.size} files to Vercel Blob…`);
   const moved = new Map();
@@ -144,6 +144,8 @@ if (copyFiles) {
     p.data.media.headshots = p.data.media.headshots.map(swap);
     p.data.media.showreelUrl = swap(p.data.media.showreelUrl);
     p.data.media.voiceoverReelUrl = swap(p.data.media.voiceoverReelUrl);
+    p.data.media.reels = p.data.media.reels.map((c) => ({ ...c, url: swap(c.url) }));
+    p.data.media.voiceClips = p.data.media.voiceClips.map((c) => ({ ...c, url: swap(c.url) }));
   }
   for (const a of out.articles) a.data.image = swap(a.data.image);
   log(`  Copied ${moved.size}, failed ${failed}${failed ? " (those keep their old link; re-run to retry)" : ""}.`);

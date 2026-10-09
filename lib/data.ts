@@ -65,6 +65,9 @@ export const petTrainingOptions = ["Basic", "Intermediate", "Expert"] as const;
 export const petSkillOptions = ["Chase", "Fetch", "Fly", "Growl", "Jump", "Lie Down", "Retrieve", "Roll Over", "Run", "Shake Hand", "Sit"] as const;
 export const petPersonalityOptions = ["Calm", "Playful", "Energetic", "Aggressive"] as const;
 
+/** A showreel or voice clip: a video/audio file (uploaded, or still on the old site) or a YouTube/Vimeo link */
+export type MediaClip = { url: string; title: string | null };
+
 export type PetDetails = {
   type: Maybe<(typeof petTypeOptions)[number]>;
   breed: Maybe<string>;
@@ -182,6 +185,9 @@ export type TalentProfile = {
     showreelUrl: Maybe<string>;
     voiceoverReelUrl: Maybe<string>;
     documents: { name: string; url: string }[];
+    /** Every showreel / voice clip, in order. The first one is also showreelUrl / voiceoverReelUrl. */
+    reels?: MediaClip[];
+    voiceClips?: MediaClip[];
   };
 
   /** Only on pet profiles (category "Pet"). The owner is the contact; human sections stay empty. */
