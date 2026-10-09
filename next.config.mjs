@@ -61,6 +61,12 @@ const nextConfig = {
       // Old activation and password-reset email links: the tokens no longer work, so send people to log in
       { source: "/", has: [{ type: "query", key: "activate" }], destination: "/login", permanent: false },
       { source: "/", has: [{ type: "query", key: "reset" }], destination: "/login", permanent: false },
+      // The old site's uploads (photos, reels, voice clips) stay on Hostinger. When this site replaces the old one at
+      // rafikihub.com, serve the old files from a subdomain and set LEGACY_ASSETS_URL (e.g. https://media.rafikihub.com)
+      // so the old /assets/ links stored on profiles keep working.
+      ...(process.env.LEGACY_ASSETS_URL
+        ? [{ source: "/assets/:path*", destination: `${process.env.LEGACY_ASSETS_URL.replace(/\/$/, "")}/assets/:path*`, permanent: false }]
+        : []),
     ];
   },
   async headers() {
