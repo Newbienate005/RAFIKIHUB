@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { ProfileCard } from "@/components/ProfileCard";
 import { Photo } from "@/components/Photo";
-import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, show, type TalentProfile } from "@/lib/data";
+import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, isPet, show, type TalentProfile } from "@/lib/data";
 import { getProfile, getSimilarProfiles } from "@/lib/profiles";
 import { breadcrumbSchema, profilePageSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
@@ -56,14 +56,14 @@ export default async function ProfilePage({ params }: Params) {
           </div>
           <div>
             <nav aria-label="Breadcrumb" className="crumbs"><ol><li><Link href="/">Home</Link></li><li><Link href="/talent-management">Talent</Link></li><li><span aria-current="page">{p.fullName}</span></li></ol></nav>
-            <p className="kicker">{p.category}{p.representedByRafikiHub ? " · RafikiHub Talent Management" : ""}</p>
+            <p className="kicker">{isPet(p) && p.pet?.type ? `${p.pet.type} · Animal performer` : p.category}{p.representedByRafikiHub ? " · RafikiHub Talent Management" : ""}</p>
             <h1>{p.fullName}</h1>
             <p className="lead">{[p.cities[0], p.personalData.country].filter(Boolean).join(" · ")}</p>
             {p.bio ? <p>{p.bio}</p> : null}
-            {p.skills.length ? <ul className="tags">{p.skills.map((s) => <li key={s}>{s}</li>)}</ul> : null}
+            {(isPet(p) ? p.pet?.skills ?? [] : p.skills).length ? <ul className="tags">{(isPet(p) ? p.pet?.skills ?? [] : p.skills).map((s) => <li key={s}>{s}</li>)}</ul> : null}
             <div className="btn-row">
               {p.media.showreelUrl ? <a className="btn btn--sun" href={p.media.showreelUrl} target="_blank" rel="noopener">Watch showreel</a> : null}
-              <Link className="btn btn--ink" href={p.representedByRafikiHub ? "/talent-management" : "/contact"}>{p.representedByRafikiHub ? "Contact the agent" : "Get in touch"}</Link>
+              <Link className="btn btn--ink" href={p.representedByRafikiHub ? "/talent-management" : "/contact"}>{p.representedByRafikiHub ? "Contact the agent" : isPet(p) ? "Contact the owner" : "Get in touch"}</Link>
             </div>
           </div>
         </div>
@@ -71,6 +71,21 @@ export default async function ProfilePage({ params }: Params) {
 
       <div className="section">
         <div className="wrap profile-grid">
+          {isPet(p) ? (
+            <Section title="About the animal">
+              <dl className="facts">
+                <Row label="Type" value={show(p.pet?.type)} />
+                <Row label="Breed" value={show(p.pet?.breed)} />
+                <Row label="Size" value={show(p.pet?.size)} />
+                <Row label="Age" value={age ? `${age} ${age === 1 ? "year" : "years"}` : "Not available"} />
+                <Row label="Trained" value={p.pet?.trained ? `Yes${p.pet.trainingLevel ? `, ${p.pet.trainingLevel.toLowerCase()}` : ""}` : "Not available"} />
+                <Row label="Personality" value={show(p.pet?.personality)} />
+                <Row label="Skills" value={show(p.pet?.skills.join(", "))} />
+                <Row label="Cities" value={show(p.cities.join(", "))} />
+              </dl>
+            </Section>
+          ) : null}
+          {isPet(p) ? null : <>
           <Section title="Personal data">
             <dl className="facts">
               <Row label="Playing age" value={formatPlayingAge(p.personalData.playingAge)} />
@@ -113,6 +128,7 @@ export default async function ProfilePage({ params }: Params) {
               <Row label="Dress size" value={show(m.dressSize)} />
             </dl>
           </Section>
+          </>}
           {p.credits.length ? (
             <Section title="Credits">
               <table className="credits">
@@ -127,7 +143,7 @@ export default async function ProfilePage({ params }: Params) {
             </Section>
           ) : null}
           {p.media.headshots.length > 1 ? (
-            <Section title="Headshots">
+            <Section title={isPet(p) ? "Photos" : "Headshots"}>
               <ul className="gallery">{p.media.headshots.slice(1).map((h, i) => <li key={h}><Photo src={h} alt={`${p.fullName} headshot ${i + 2}`} label={p.fullName} sizes="200px" /></li>)}</ul>
             </Section>
           ) : null}

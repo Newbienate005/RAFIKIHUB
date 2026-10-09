@@ -1,7 +1,8 @@
 import {
   appearanceOptions, appearanceTraitOptions, eyeColorOptions, facialHairOptions, hairColorOptions, hairLengthOptions,
+  petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions,
   profileCategories, voiceCharacterOptions, voiceQualityOptions,
-  type Measurement, type TalentProfile,
+  type Measurement, type PetDetails, type TalentProfile,
 } from "@/lib/data";
 
 /**
@@ -159,9 +160,21 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
     weightKg, shoeSize: opt(f, "shoeSize"), dressSize: opt(f, "dressSize"),
   };
 
+  // Pet details, only when the form has the pet section
+  const pet: PetDetails | undefined = f.has("petType")
+    ? {
+        type: pick(f, "petType", petTypeOptions, errors),
+        breed: opt(f, "petBreed"),
+        size: pick(f, "petSize", petSizeOptions, errors),
+        trained: f.get("petTrained") === "on",
+        trainingLevel: pick(f, "petTrainingLevel", petTrainingOptions, errors),
+        skills: f.getAll("petSkills").map(String).filter((v): v is PetDetails["skills"][number] => (petSkillOptions as readonly string[]).includes(v)),
+        personality: pick(f, "petPersonality", petPersonalityOptions, errors),
+      }
+    : base.pet;
+
   if (Object.keys(errors).length) return { errors };
-  return {
-    profile: {
+  return { profile: keepMissing(f, base, {
       ...base,
       profileUrl, fullName, category: category!,
       contactDetails: { country: str(f, "contactCountry") || "Kenya", website, phone: opt(f, "phone"), email, address: opt(f, "address") },
@@ -185,6 +198,42 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
       media: { headshots, showreelUrl, voiceoverReelUrl, documents },
       isEnhanced: f.get("isEnhanced") === "on",
       representedByRafikiHub: f.get("represented") === "on",
+      ...(pet ? { pet } : {}),
+  }) };
+}
+
+/**
+ * Sections that weren't on the form keep their saved values: members don't see contact details or
+ * documents, pet profiles have no human sections, and only the admin form sets the admin flags.
+ */
+function keepMissing(f: FormData, base: TalentProfile, p: TalentProfile): TalentProfile {
+  const on = (k: string) => f.has(k);
+  return {
+    ...p,
+    contactDetails: on("email") ? p.contactDetails : base.contactDetails,
+    personalData: {
+      ...p.personalData,
+      playingAge: on("ageMin") ? p.personalData.playingAge : base.personalData.playingAge,
+      height: on("heightFeet") ? p.personalData.height : base.personalData.height,
     },
+    nationalities: on("nationalities") ? p.nationalities : base.nationalities,
+    appearance: on("appearance") ? p.appearance : base.appearance,
+    voiceAttributes: on("voiceQuality") ? p.voiceAttributes : base.voiceAttributes,
+    voiceRange: on("lowVoice") ? p.voiceRange : base.voiceRange,
+    furtherMeasurements: on("m_waist") ? p.furtherMeasurements : base.furtherMeasurements,
+    appearanceTraits: on("traits") ? p.appearanceTraits : base.appearanceTraits,
+    skills: on("skills") ? p.skills : base.skills,
+    languages: on("languages") ? p.languages : base.languages,
+    accents: on("accents") ? p.accents : base.accents,
+    credits: on("credits") ? p.credits : base.credits,
+    training: on("training") ? p.training : base.training,
+    media: {
+      ...p.media,
+      voiceoverReelUrl: on("voiceoverReelUrl") ? p.media.voiceoverReelUrl : base.media.voiceoverReelUrl,
+      documents: on("documents") ? p.media.documents : base.media.documents,
+    },
+    // Checkboxes send nothing when unticked, so the admin form marks itself with _adminFields
+    isEnhanced: on("_adminFields") ? p.isEnhanced : base.isEnhanced,
+    representedByRafikiHub: on("_adminFields") ? p.representedByRafikiHub : base.representedByRafikiHub,
   };
 }

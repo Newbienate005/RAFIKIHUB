@@ -73,6 +73,7 @@ export const drawerGroups: NavGroup[] = [
   {
     label: "Get started",
     items: [
+      { href: "/login", label: "Log in" },
       { href: "/join", label: "Join Now" },
       { href: "/membership", label: "Membership Options" },
       { href: "/casting", label: "Post a Casting" },

@@ -51,6 +51,13 @@ CREATE TABLE `users` (
   `tax_pin` varchar(50) DEFAULT NULL,
   `physical_add` varchar(255) DEFAULT NULL,
   `last_login` varchar(30) DEFAULT NULL,
+  `pet_type` varchar(30) DEFAULT NULL,
+  `pet_breed` varchar(60) DEFAULT NULL,
+  `pet_size` varchar(20) DEFAULT NULL,
+  `pet_trained` varchar(5) DEFAULT NULL,
+  `pet_trained_level` varchar(20) DEFAULT NULL,
+  `pet_skills` varchar(200) DEFAULT NULL,
+  `pet_personality` varchar(20) DEFAULT NULL,
   `created_at` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -60,7 +67,7 @@ INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `
 INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `gender`, `date_of_birth`, `status`, `visible`, `link_url`, `billtime`, `website`, `agent_bio`, `age_from`, `age_to`, `first_height`, `second_height`, `appearance`, `eye_color`, `hair_color`, `hair_length`, `facial_hair`, `voice_quality`, `voice_character`, `low_note`, `medium_note`, `high_note`, `chest`, `waist`, `hips`, `inside_leg`, `inside_arm`, `collar`, `hat`, `weight`, `shoe_size`, `dress_size`, `id_passport`, `tax_pin`, `physical_add`, `last_login`, `created_at`) VALUES (3,3,'WanjirÅ© Mwangi','wanjiru@example.test','25d55ad283aa400af464c76d713c07ad','Kenya','+254','722222222','Actress','Female','1995-06-15 00:00:00','Active','Yes','Wanj3AbCdE',6,'NULL','Actress and dancer based in Nairobi.',22,30,'5 feet','6 inches','Black-African','dark brown','Black','Locs','NULL','Warm','Friendly','Alto F3 - D5','','','34 inches','26 inches','36 inches','30 inches','NULL','','','58','5','10','12345678','A00TAXPIN','Ngong Road','2024-06-01 12:00:00','2022-02-02 10:00:00');
 INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `date_of_birth`, `status`, `visible`, `link_url`, `created_at`) VALUES (4,3,'Wanjiru Mwangi (old)','WANJIRU@example.test','25d55ad283aa400af464c76d713c07ad','Kenya','+254','722222222','Actress','1995-06-15','Unverified','Yes','oldwanj4zz','2021-01-01 10:00:00');
 INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `gender`, `date_of_birth`, `status`, `visible`, `link_url`, `billtime`, `age_from`, `age_to`, `first_height`, `second_height`, `created_at`) VALUES (5,4,'Otieno Grip','otieno@example.test','d8578edf8458ce06fbc5bb76a58c5ca4','Kenya','0','733333333','Make-Up Artist','Male','0000-00-00','Active','NO','otie5QwErT',1,25,35,'175 cm','','2023-03-03 10:00:00');
-INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `date_of_birth`, `status`, `visible`, `link_url`, `agent_bio`, `created_at`) VALUES (6,5,'Simba the Dog','simba@example.test','d8578edf8458ce06fbc5bb76a58c5ca4','Kenya','+254','744444444','Pet','2019-01-01 00:00:00','Active','Yes','simba6PeTs','Good boy.','2023-04-04 10:00:00');
+INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `date_of_birth`, `status`, `visible`, `link_url`, `agent_bio`, `pet_type`, `pet_breed`, `pet_size`, `pet_trained`, `pet_trained_level`, `pet_skills`, `pet_personality`, `created_at`) VALUES (6,5,'Simba the Dog','simba@example.test','d8578edf8458ce06fbc5bb76a58c5ca4','Kenya','+254','744444444','Pet','2019-01-01 00:00:00','Active','Yes','simba6PeTs','Good boy.','Dog','Rhodesian Ridgeback','Large','Yes','Intermediate','Fetch Roll Over Retreive Sit Down ','Calm','2023-04-04 10:00:00');
 INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `status`, `visible`, `link_url`, `created_at`) VALUES (7,6,'Studio Space Ltd','studio@example.test','d8578edf8458ce06fbc5bb76a58c5ca4','Kenya','+254','755555555','Rooms and Studio','Active','Yes','studio7aaa','2023-05-05 10:00:00');
 INSERT INTO `users` (`id`, `roles_id`, `name`, `email`, `password`, `country`, `code`, `phone`, `membership_category`, `status`, `visible`, `link_url`, `created_at`) VALUES (8,3,'No Email Person','','d8578edf8458ce06fbc5bb76a58c5ca4','Kenya','+254','766666666','Actor','Active','Yes','noemail8xx','2023-06-06 10:00:00');
 

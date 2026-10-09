@@ -3,6 +3,7 @@ import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell"
 import { plans } from "@/lib/data";
 import { castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
+import { getMember } from "@/lib/member";
 import { requireDashboard } from "@/lib/session";
 import { site } from "@/lib/site";
 
@@ -13,9 +14,14 @@ export default async function PerformerDashboard({ searchParams }: Props) {
   const { welcome, tab: requested } = await searchParams;
   const tab = pickTab(performerTabs, requested);
   const member = session.kind === "member" ? session : null;
+  // Signed in with email and password: the member's real account and profile
+  const real = member?.accountId ? await getMember(member.accountId) : null;
+  const statusText = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
   // The master login previews the dashboard with sample details
-  const details = member ?? { name: "Sample Performer", email: "performer@example.com", category: "Actor or performer", plan: "premium", location: "Nairobi" };
+  const details = real
+    ? { name: real.account.name, email: real.account.email, category: real.account.category ?? undefined, plan: real.account.planId ?? undefined, location: real.account.country ?? undefined }
+    : member ?? { name: "Sample Performer", email: "performer@example.com", category: "Actor or performer", plan: "premium", location: "Nairobi" };
   const plan = plans.find((p) => p.id === details.plan);
   // New members haven't added photos, date of birth, skills or credits yet; the master preview shows a part-built profile
   const done = new Set<string>(member ? [] : ["photos", "dob"]);
@@ -38,17 +44,39 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                 </li>
                 <li className="stat">
                   <span className="stat__label">Status</span>
-                  <span className="stat__value">{member ? "Application received" : "Active"}</span>
-                  <span className="stat__note">{member ? "We'll email you within two working days" : "Master preview"}</span>
+                  <span className="stat__value">{real ? statusText(real.account.status) : member ? "Application received" : "Active"}</span>
+                  <span className="stat__note">{real ? (real.account.status === "active" ? "Your membership is live" : "Email info@rafikihub.com if this looks wrong") : member ? "We'll email you within two working days" : "Master preview"}</span>
                 </li>
                 <li className="stat">
                   <span className="stat__label">Profile</span>
-                  <span className="stat__value">{progress}% complete</span>
-                  <span className="meter" aria-hidden="true"><span style={{ width: `${progress}%` }} /></span>
+                  <span className="stat__value">{real?.completeness ? real.completeness.percent : progress}% complete</span>
+                  <span className="meter" aria-hidden="true"><span style={{ width: `${real?.completeness ? real.completeness.percent : progress}%` }} /></span>
+                  {real ? <Link href="/dashboard/profile" className="stat__note">Edit my profile →</Link> : null}
                 </li>
               </ul>
 
               <div className="dash-grid">
+                {real ? (
+                  <section className="panel" aria-labelledby="checklist">
+                    <h2 id="checklist">{real.completeness?.missing.length ? "Finish your profile" : "Your profile"}</h2>
+                    {real.profile ? (
+                      <>
+                        <p className="small">{real.completeness?.missing.length ? "Complete profiles are the ones casting directors find first. Still to add:" : "Every section is filled in. Keep your photos and credits up to date."}</p>
+                        {real.completeness?.missing.length ? <ul className="checklist">{real.completeness.missing.map((m) => <li key={m}><span className="checklist__mark" aria-hidden="true" /><span className="checklist__label">{m}</span><Link href="/dashboard/profile" className="checklist__action">Add</Link></li>)}</ul> : null}
+                        <div className="btn-row dash-actions">
+                          <Link href="/dashboard/profile" className="btn btn--sun btn--sm">Edit my profile</Link>
+                          {real.profile.published ? <Link href={`/profile/${real.account.profileUrl}`} className="btn btn--ink btn--sm">View my public profile</Link> : null}
+                        </div>
+                        {!real.profile.published ? <p className="small">Your profile isn&apos;t public yet. The RafikiHub team publishes it once your membership is active.</p> : null}
+                      </>
+                    ) : (
+                      <>
+                        <p className="small">You don&apos;t have a profile yet. Create one so casting directors can find you.</p>
+                        <Link href="/dashboard/profile" className="btn btn--sun btn--sm">Create my profile</Link>
+                      </>
+                    )}
+                  </section>
+                ) : (
                 <section className="panel" aria-labelledby="checklist">
                   <h2 id="checklist">Finish your profile</h2>
                   <p className="small">Photos, date of birth, skills and credits each make up a quarter of a complete profile. Complete profiles are the ones casting directors find first.</p>
@@ -67,6 +95,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                     })}
                   </ul>
                 </section>
+                )}
 
                 <section className="panel" aria-labelledby="details">
                   <h2 id="details">Your details {member ? null : <SampleTag />}</h2>

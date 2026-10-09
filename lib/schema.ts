@@ -192,6 +192,19 @@ export function localBusinessSchema() {
 export function profilePageSchema(p: TalentProfile, updatedAt?: Date) {
   const url = `${site.url}/profile/${p.profileUrl}`;
   const image = absImage(p.media.headshots[0]);
+  // A pet isn't a Person (ProfilePage's mainEntity must be one), so its page is a plain WebPage about the animal
+  if (p.category === "Pet") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": url,
+      url,
+      name: `${p.fullName}, ${p.pet?.type ?? "animal"} performer`,
+      inLanguage: "en-KE",
+      isPartOf: { "@id": `${site.url}/#website` },
+      about: { "@type": "Thing", name: p.fullName, ...(p.bio ? { description: p.bio } : {}), ...(image ? { image } : {}) },
+    };
+  }
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",

@@ -130,7 +130,13 @@ export const lists = {
   voiceQuality: ["Husky", "Strong", "Warm", "Bright", "Deep", "Soft", "Gravelly", "Breathy"],
   voiceCharacter: ["Sincere", "Authoritative", "Friendly", "Conversational", "Energetic", "Calm", "Playful"],
   traits: ["Tatoo", "Piercing", "Birthmark", "Scar"],
-  categories: ["Actor", "Actress", "Young Performer", "Independent Performer", "Model", "Voice Over Artist", "Dancer", "Musician", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist", "Photographer", "Wardrobe", "Crew"],
+  categories: ["Actor", "Actress", "Young Performer", "Independent Performer", "Model", "Voice Over Artist", "Dancer", "Musician", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist", "Photographer", "Wardrobe", "Crew", "Pet"],
+  // Pet options from the old pets-body.php (mirrors lib/data.ts)
+  petType: ["Dog", "Cat", "Bird", "Parrot", "Horse", "Fish", "Hamster", "Mouse", "Lizard", "Snake", "Other"],
+  petSize: ["Very Small", "Small", "Medium", "Large"],
+  petTraining: ["Basic", "Intermediate", "Expert"],
+  petSkills: ["Chase", "Fetch", "Fly", "Growl", "Jump", "Lie Down", "Retrieve", "Roll Over", "Run", "Shake Hand", "Sit"],
+  petPersonality: ["Calm", "Playful", "Energetic", "Aggressive"],
 };
 
 /** Old membership_category → new profile category. */
@@ -172,6 +178,25 @@ export function measurement(v) {
   const value = Number(m[1]);
   if (!(value > 0 && value < 300)) return null;
   return { value, unit: /cm/i.test(m[2] ?? "") ? "cm" : "inches" };
+}
+
+/**
+ * The old pet columns → the new pet details. Skills were stored as one string of picks ("Fetch Roll Over Sit"),
+ * so known skills are matched inside it; "Retreive" was misspelt on the old form, and "Sit Down" folds into "Sit".
+ */
+export function petDetails(u) {
+  const raw = (fixText(u.pet_skills) ?? "").toLowerCase().replace(/retreive/g, "retrieve").replace(/sit down/g, "sit");
+  const skills = lists.petSkills.filter((k) => new RegExp(`(^|[^a-z])${k.toLowerCase()}([^a-z]|$)`).test(raw));
+  const trained = /^yes$/i.test(clean(u.pet_trained) ?? "");
+  return {
+    type: option(u.pet_type, lists.petType) ?? (clean(u.pet_type) ? "Other" : null),
+    breed: fixText(u.pet_breed),
+    size: option(u.pet_size, lists.petSize),
+    trained,
+    trainingLevel: trained ? option(u.pet_trained_level, lists.petTraining) : null,
+    skills,
+    personality: option(u.pet_personality, lists.petPersonality),
+  };
 }
 
 const creditType = (t) => {
@@ -232,11 +257,11 @@ export function transform(t, { assetsBase }) {
   const linkFor = new Map();
   const taken = new Set();
   let generated = 0;
-  for (const u of kept) if (ROLE[int(u.roles_id)] === "performer" && int(u.roles_id) !== 5) {
+  for (const u of kept) if (ROLE[int(u.roles_id)] === "performer") {
     const raw = clean(u.link_url);
     if (raw && LINK_NAME.test(raw) && !taken.has(raw.toLowerCase())) { linkFor.set(u.id, raw); taken.add(raw.toLowerCase()); }
   }
-  for (const u of kept) if (ROLE[int(u.roles_id)] === "performer" && int(u.roles_id) !== 5 && !linkFor.has(u.id)) {
+  for (const u of kept) if (ROLE[int(u.roles_id)] === "performer" && !linkFor.has(u.id)) {
     const base = slugify(fixText(u.name)) || "member";
     let link = base;
     for (let n = 2; taken.has(link.toLowerCase()); n++) link = `${base}-${n}`;
@@ -271,19 +296,18 @@ export function transform(t, { assetsBase }) {
     };
   });
 
-  /* talent profiles: performers and crew (pets have no profile type on the new site) */
+  /* talent profiles: performers, crew and pets */
   const profiles = [];
   for (const u of kept) {
     const roleId = int(u.roles_id);
     if (roleId === 2) continue;
-    if (roleId === 5) { skip("pet profiles (account imported, profile not: no pet profile type yet)"); continue; }
     const url = linkFor.get(u.id);
     const id = u.id;
     const sk = skills.get(id) ?? [];
     const skillNames = (types) => [...new Set(sk.filter((s) => types.includes((clean(s.type) ?? "").toLowerCase())).map((s) => fixText(s.name)).filter(Boolean))];
     const pics = (photos.get(id) ?? []).filter((p) => int(p.status) !== 0).sort((a, b) => (int(b.profile) ?? 0) - (int(a.profile) ?? 0) || int(a.id) - int(b.id));
     const ageFrom = int(u.age_from), ageTo = int(u.age_to);
-    const category = profileCategory(u.membership_category, roleId);
+    const category = roleId === 5 ? "Pet" : profileCategory(u.membership_category, roleId);
     const data = {
       profileUrl: url,
       fullName: fixText(u.name) ?? "RafikiHub member",
@@ -327,6 +351,7 @@ export function transform(t, { assetsBase }) {
         voiceoverReelUrl: asset("voices", (voices.get(id) ?? []).sort((a, b) => int(a.id) - int(b.id))[0]?.name),
         documents: [],
       },
+      ...(roleId === 5 ? { pet: petDetails(u) } : {}),
       isEnhanced: false,
       representedByRafikiHub: false,
       createdAt: dateOnly(u.created_at) ?? new Date().toISOString().slice(0, 10),

@@ -55,8 +55,27 @@ export function ageFrom(dateOfBirth: Maybe<string>, today = new Date()) {
 export const profileCategories = [
   "Actor", "Actress", "Young Performer", "Independent Performer", "Model", "Voice Over Artist",
   "Dancer", "Musician", "Presenter", "Fashion Stylist", "Fashion Designer", "Make-up Artist",
-  "Photographer", "Wardrobe", "Crew",
+  "Photographer", "Wardrobe", "Crew", "Pet",
 ] as const;
+
+/* Pet profiles: the old site's pet options (pets-body.php) */
+export const petTypeOptions = ["Dog", "Cat", "Bird", "Parrot", "Horse", "Fish", "Hamster", "Mouse", "Lizard", "Snake", "Other"] as const;
+export const petSizeOptions = ["Very Small", "Small", "Medium", "Large"] as const;
+export const petTrainingOptions = ["Basic", "Intermediate", "Expert"] as const;
+export const petSkillOptions = ["Chase", "Fetch", "Fly", "Growl", "Jump", "Lie Down", "Retrieve", "Roll Over", "Run", "Shake Hand", "Sit"] as const;
+export const petPersonalityOptions = ["Calm", "Playful", "Energetic", "Aggressive"] as const;
+
+export type PetDetails = {
+  type: Maybe<(typeof petTypeOptions)[number]>;
+  breed: Maybe<string>;
+  size: Maybe<(typeof petSizeOptions)[number]>;
+  trained: boolean;
+  trainingLevel: Maybe<(typeof petTrainingOptions)[number]>;
+  skills: (typeof petSkillOptions)[number][];
+  personality: Maybe<(typeof petPersonalityOptions)[number]>;
+};
+
+export const isPet = (p: { category: string }) => p.category === "Pet";
 
 export const appearanceOptions = [
   "Black-African", "Mixed Race", "East Asian", "South Asian", "Arab", "White", "Other",
@@ -165,6 +184,9 @@ export type TalentProfile = {
     documents: { name: string; url: string }[];
   };
 
+  /** Only on pet profiles (category "Pet"). The owner is the contact; human sections stay empty. */
+  pet?: PetDetails;
+
   /** Enhanced listing (old "take an enhanced listing" upgrade) */
   isEnhanced: boolean;
   representedByRafikiHub: boolean;
@@ -216,7 +238,7 @@ export const exampleProfile: TalentProfile = {
 /* ──────────────────────────── Member types (join) ──────────────────────────── */
 
 export type MemberType = {
-  key: "talent" | "young-performer" | "agent" | "casting-professional" | "industry-client" | "crew";
+  key: "talent" | "young-performer" | "agent" | "casting-professional" | "industry-client" | "crew" | "pet";
   name: string;
   /** Short line used in lists */
   tagline: string;
@@ -291,6 +313,17 @@ export const memberTypes: MemberType[] = [
       "Showcase your professional portfolio to the industry professionals who use RafikiHub every day",
       "Submit your RafikiHub link for upcoming work instantly",
       "Support with events, career advice and training workshops, so you stay connected with the industry",
+    ],
+  },
+  {
+    key: "pet",
+    name: "Pets and animal performers",
+    tagline: "Trained dogs, cats, horses, birds and more, registered by their owner.",
+    formLabel: "Pet or animal performer (owner)",
+    benefits: [
+      "A profile for your animal with photos, showreel, training level and skills",
+      "Be found by productions casting animals for film, TV and commercials",
+      "You stay the contact: castings come to you, the owner",
     ],
   },
 ];
