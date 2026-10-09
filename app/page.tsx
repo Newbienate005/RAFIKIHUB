@@ -161,7 +161,7 @@ export default async function Home() {
 
       <section className="kickoff" aria-labelledby="kickoff">
         <div className="kickoff__media">
-          <Photo src={images.sections.community} alt="RafikiHub team members with fellow filmmakers at the African Female Filmmakers Collective stand" label="Community" sizes="(max-width: 860px) 100vw, 50vw" />
+          <Photo src={images.sections.kickoff} alt="Illustrated portrait of a woman with a headwrap and hoop earrings" label="Kick-off" sizes="(max-width: 860px) 100vw, 50vw" />
         </div>
         <div className="kickoff__body">
           <p className="kicker">Get noticed</p>
