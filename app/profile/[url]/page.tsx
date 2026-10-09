@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { ProfileCard } from "@/components/ProfileCard";
 import { Photo } from "@/components/Photo";
+import { ClipPlayer } from "@/components/profile/ClipPlayer";
 import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, isPet, show, type TalentProfile } from "@/lib/data";
+import { reelsOf, voiceClipsOf } from "@/lib/media";
 import { getProfile, getSimilarProfiles } from "@/lib/profiles";
 import { breadcrumbSchema, profilePageSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
@@ -32,8 +34,8 @@ function Row({ label, value }: { label: string; value: string }) {
   return (<><dt>{label}</dt><dd>{value}</dd></>);
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (<section className="profile-block"><h2>{title}</h2>{children}</section>);
+function Section({ title, children, wide, id }: { title: string; children: React.ReactNode; wide?: boolean; id?: string }) {
+  return (<section id={id} className={wide ? "profile-block profile-block--wide" : "profile-block"}><h2>{title}</h2>{children}</section>);
 }
 
 export default async function ProfilePage({ params }: Params) {
@@ -43,6 +45,8 @@ export default async function ProfilePage({ params }: Params) {
   const similar = await getSimilarProfiles(p);
   const m = p.furtherMeasurements;
   const age = ageFrom(p.personalData.dateOfBirth);
+  const reels = reelsOf(p);
+  const voices = isPet(p) ? [] : voiceClipsOf(p);
 
   const person = profilePageSchema(p);
 
@@ -62,7 +66,7 @@ export default async function ProfilePage({ params }: Params) {
             {p.bio ? <p>{p.bio}</p> : null}
             {(isPet(p) ? p.pet?.skills ?? [] : p.skills).length ? <ul className="tags">{(isPet(p) ? p.pet?.skills ?? [] : p.skills).map((s) => <li key={s}>{s}</li>)}</ul> : null}
             <div className="btn-row">
-              {p.media.showreelUrl ? <a className="btn btn--sun" href={p.media.showreelUrl} target="_blank" rel="noopener">Watch showreel</a> : null}
+              {reels.length ? <a className="btn btn--sun" href="#showreels">{reels.length > 1 ? "Watch showreels" : "Watch showreel"}</a> : null}
               <Link className="btn btn--ink" href={p.representedByRafikiHub ? "/talent-management" : "/contact"}>{p.representedByRafikiHub ? "Contact the agent" : isPet(p) ? "Contact the owner" : "Get in touch"}</Link>
             </div>
           </div>
@@ -147,12 +151,19 @@ export default async function ProfilePage({ params }: Params) {
               <ul className="gallery">{p.media.headshots.slice(1).map((h, i) => <li key={h}><Photo src={h} alt={`${p.fullName} headshot ${i + 2}`} label={p.fullName} sizes="200px" /></li>)}</ul>
             </Section>
           ) : null}
-          {p.media.voiceoverReelUrl || p.media.documents.length ? (
-            <Section title="Voiceover reel and documents">
-              <ul className="plain">
-                {p.media.voiceoverReelUrl ? <li><a href={p.media.voiceoverReelUrl} target="_blank" rel="noopener">Listen to voiceover reel</a></li> : null}
-                {p.media.documents.map((d) => <li key={d.url}><a href={d.url} target="_blank" rel="noopener">{d.name}</a></li>)}
-              </ul>
+          {reels.length ? (
+            <Section title={reels.length > 1 ? "Showreels" : "Showreel"} wide id="showreels">
+              <ul className="clips profile-clips">{reels.map((r, i) => <li key={r.url + i} className="clip"><ClipPlayer clip={r} fallbackTitle={`${p.fullName}, showreel ${i + 1}`} />{r.title ? <p className="clip__title">{r.title}</p> : null}</li>)}</ul>
+            </Section>
+          ) : null}
+          {voices.length ? (
+            <Section title={voices.length > 1 ? "Voice clips" : "Voice clip"} wide>
+              <ul className="clips clips--audio profile-clips">{voices.map((v, i) => <li key={v.url + i} className="clip"><p className="clip__title">{v.title || `Voice clip ${i + 1}`}</p><ClipPlayer clip={v} fallbackTitle={`${p.fullName}, voice clip ${i + 1}`} /></li>)}</ul>
+            </Section>
+          ) : null}
+          {p.media.documents.length ? (
+            <Section title="Documents">
+              <ul className="plain">{p.media.documents.map((d) => <li key={d.url}><a href={d.url} target="_blank" rel="noopener">{d.name}</a></li>)}</ul>
             </Section>
           ) : null}
         </div>

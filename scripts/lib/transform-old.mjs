@@ -306,6 +306,10 @@ export function transform(t, { assetsBase }) {
     const sk = skills.get(id) ?? [];
     const skillNames = (types) => [...new Set(sk.filter((s) => types.includes((clean(s.type) ?? "").toLowerCase())).map((s) => fixText(s.name)).filter(Boolean))];
     const pics = (photos.get(id) ?? []).filter((p) => int(p.status) !== 0).sort((a, b) => (int(b.profile) ?? 0) - (int(a.profile) ?? 0) || int(a.id) - int(b.id));
+    // Every showreel and voice clip, oldest first, with the title the member gave it
+    const clipsFrom = (rows, folder) => (rows ?? []).slice().sort((a, b) => int(a.id) - int(b.id))
+      .map((r) => ({ url: asset(folder, r.name), title: fixText(r.title)?.slice(0, 120) ?? null })).filter((c) => c.url);
+    const reels = clipsFrom(videos.get(id), "videos"), voiceClips = clipsFrom(voices.get(id), "voices");
     const ageFrom = int(u.age_from), ageTo = int(u.age_to);
     const category = roleId === 5 ? "Pet" : profileCategory(u.membership_category, roleId);
     const data = {
@@ -347,9 +351,11 @@ export function transform(t, { assetsBase }) {
         .filter((x) => x.institution && x.course),
       media: {
         headshots: pics.map((p) => asset("images/gallery", p.name)).filter(Boolean),
-        showreelUrl: asset("videos", (videos.get(id) ?? []).sort((a, b) => int(a.id) - int(b.id))[0]?.name),
-        voiceoverReelUrl: asset("voices", (voices.get(id) ?? []).sort((a, b) => int(a.id) - int(b.id))[0]?.name),
+        showreelUrl: reels[0]?.url ?? null,
+        voiceoverReelUrl: voiceClips[0]?.url ?? null,
         documents: [],
+        reels,
+        voiceClips,
       },
       ...(roleId === 5 ? { pet: petDetails(u) } : {}),
       isEnhanced: false,
