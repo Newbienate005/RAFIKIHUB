@@ -2,6 +2,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { JsonLd } from "@/components/JsonLd";
 import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { Photo } from "@/components/Photo";
 import { Answer } from "@/components/Answer";
 import { PageFaq } from "@/components/PageFaq";
@@ -18,7 +19,7 @@ export default function ServicesPage() {
   return (
     <>
       <JsonLd data={services.map((s) => serviceSchema(`${s.name} (Sio Bahati Services)`, s.summary, `/services#${s.id}`))} />
-      <PageHeader
+      <PageHeader image={images.headers.services}
         kicker="Sio Bahati Services"
         title={<>It's not luck. It's <em>preparation</em>.</>}
         lead="Sio bahati means 'it's not luck' in Swahili. Headshots, showreels and audition prep to give casting directors every reason to call you in."

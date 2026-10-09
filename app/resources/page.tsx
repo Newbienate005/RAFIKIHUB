@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CtaBand } from "@/components/CtaBand";
 import { NameChecker } from "@/components/NameChecker";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
@@ -20,7 +21,7 @@ const cards = [
 export default function ResourcesPage() {
   return (
     <>
-      <PageHeader
+      <PageHeader image={images.headers.resources}
         kicker="RafikiHub Resources"
         title={<>Tools built for <em>working creatives</em>.</>}
         lead="Everything a RafikiHub member reaches for, in one place."

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { PageFaq } from "@/components/PageFaq";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { localBusinessSchema } from "@/lib/schema";
 import { Photo } from "@/components/Photo";
 import { locations, pageFaqs } from "@/lib/data";
@@ -24,7 +25,7 @@ export default function LocationsPage() {
   return (
     <>
       <JsonLd data={localBusinessSchema()} />
-      <PageHeader
+      <PageHeader image={images.headers.locations}
         kicker="RafikiHub Locations"
         title={<>Rooted in Nairobi, <em>working across Africa</em>.</>}
         lead="Our home is in Parklands, Nairobi. Our members and productions reach across the continent and beyond."

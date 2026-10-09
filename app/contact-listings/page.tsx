@@ -2,6 +2,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { getContent } from "@/lib/content";
 import { pageMeta } from "@/lib/seo";
 
@@ -25,7 +26,7 @@ export default async function ContactListingsPage() {
   return (
     <>
       <JsonLd data={schema} />
-      <PageHeader
+      <PageHeader image={images.headers.contactListings}
         kicker="RafikiHub Connect · Contact Listings"
         title={<>RafikiHub <em>Connect</em></>}
         lead="A trusted directory of agents, casting directors and the services performers rely on."

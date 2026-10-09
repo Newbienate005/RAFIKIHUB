@@ -448,11 +448,14 @@ export const testimonials: Testimonial[] = [
   { name: "Amani Mwasera", category: "Independent Performer", image: "/images/people/amani-mwasera.jpg", message: "Awesome website." },
   { name: "Bob Zenga", category: "Actor", image: "/images/people/bob-zenga.jpg", message: "RafikiHub is one of the best platforms an artist needs to be on. Getting an opportunity here as a puppeteer is always an experience." },
   { name: "Olivia Makena Makau", category: "Actress", image: "/images/people/olivia-makena-makau.jpg", message: "To describe RafikiHub in three words: friendly, nurturing, peak professionalism. That's four words." },
-  { name: "Tasiana Kalimbo", category: "Actress", image: "/images/people/tasiana-kalimbo.jpg", message: "RafikiHub has been nurturing people with skills all over the world. You are free to join." },
+  // Her photo on the old site is a plain green square, so she's shown with her initials
+  { name: "Tasiana Kalimbo", category: "Actress", image: null, message: "RafikiHub has been nurturing people with skills all over the world. You are free to join." },
   { name: "Mirell Nazi", category: "Independent Performer", image: "/images/people/mirell-nazi.jpg", message: "I found RafikiHub at a time in my life when I was going through a journey of self-discovery. Their workshops have definitely been an important part of it." },
   { name: "Derrick Kinyanjui", category: "Actor", image: "/images/people/derrick-kinyanjui.jpg", message: "The profile setup that lets you package yourself fully as an artist really stands out to me." },
   { name: "Seda Nigel", category: "Actor", image: "/images/people/seda-nigel.jpg", message: "Rafiki… Rafiki… Rafiki. This is the place to be. I came across RafikiHub way back and it didn't take long for me to be noticed." },
   { name: "Lucy Maina", category: "Actress", image: "/images/people/lucy-maina.jpg", message: "RafikiHub offers plenty of opportunities for creatives to hone their skills. Working with Kate Snow has honestly been a game changer." },
+  { name: "Mitch", category: "Actress", image: "/images/people/mitch.jpg", message: "I've been on RafikiHub for only a few months, but I can genuinely say I like the platform. I've applied to a number of auditions and even secured an acting job through it." },
+  { name: "Chrispine Okoth (Koyoti)", category: "Actor", image: "/images/people/chrispine-okoth.jpg", message: "It's an interesting and an awesome platform." },
 ];
 
 /* ─────────────────────────────────── Team ─────────────────────────────────── */

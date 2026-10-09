@@ -1,5 +1,6 @@
 import { CtaBand } from "@/components/CtaBand";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
 import { getContent } from "@/lib/content";
@@ -17,7 +18,7 @@ export default async function TeamPage() {
   return (
     <>
       <JsonLd data={team.map(personSchema)} />
-      <PageHeader kicker="Our team" title={<>The team behind <em>RafikiHub</em></>} lead="Performers and industry people who know what it takes to build a career in the arts." crumbs={[{ name: "Team", path: "/team" }]} />
+      <PageHeader image={images.headers.team} kicker="Our team" title={<>The team behind <em>RafikiHub</em></>} lead="Performers and industry people who know what it takes to build a career in the arts." crumbs={[{ name: "Team", path: "/team" }]} />
       <section className="section">
         <div className="wrap team-list">
           {team.map((p, i) => (

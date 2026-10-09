@@ -2,6 +2,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { getContent } from "@/lib/content";
 import { pageMeta } from "@/lib/seo";
@@ -29,7 +30,7 @@ export default async function VideosPage() {
   return (
     <>
       {videos.length ? <JsonLd data={schema} /> : null}
-      <PageHeader
+      <PageHeader image={images.headers.videos}
         kicker="RafikiHub Online · Video Library"
         title={<>Learn from <em>working artists</em>.</>}
         lead="Free workshops and masterclasses from the RafikiHub community of performers and crew."
