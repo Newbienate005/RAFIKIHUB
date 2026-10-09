@@ -3,12 +3,13 @@ import { isGroup, navLeft, navRight, type NavItem } from "@/lib/site";
 import { Logo } from "./Logo";
 import { MobileDrawer } from "./MobileDrawer";
 import { NavDropdown } from "./NavDropdown";
+import { NavLink } from "./NavLink";
 
 function NavList({ items }: { items: NavItem[] }) {
   return (
     <ul>
       {items.map((n) => (
-        <li key={n.label}>{isGroup(n) ? <NavDropdown group={n} /> : <Link href={n.href}>{n.label}</Link>}</li>
+        <li key={n.label}>{isGroup(n) ? <NavDropdown group={n} /> : <NavLink href={n.href}>{n.label}</NavLink>}</li>
       ))}
     </ul>
   );

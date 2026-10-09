@@ -175,7 +175,12 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .nav-desktop ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.5rem; align-items: center; }
 .nav-desktop a, .dropdown__toggle { color: var(--muted); text-decoration: none; font: 700 0.875rem var(--body); white-space: nowrap; transition: color .2s; }
 .nav-desktop a:hover, .dropdown__toggle:hover { color: var(--text); }
+/* Current page: bold white with a small orange bead under it (Where am I?) */
 .nav-desktop a[aria-current], .dropdown__toggle.is-active { color: var(--text); }
+.nav-desktop > ul > li > a, .dropdown__toggle { position: relative; }
+.nav-desktop > ul > li > a[aria-current]::after, .dropdown__toggle.is-active::after {
+  content: ""; position: absolute; left: 50%; bottom: -0.55rem; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent);
+}
 .nav-mobile { display: none; }
 @media (max-width: 1100px) {
   .nav-desktop { display: none; }
@@ -636,9 +641,17 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 /* Rotating testimonial */
 .rotator { position: relative; }
 .rotator::before { content: "“"; position: absolute; top: -0.35em; right: 0; font: 900 clamp(10rem, 22vw, 18rem)/1 var(--display); color: var(--accent); opacity: .14; pointer-events: none; }
-.rotator__stage { display: grid; position: relative; }
-.rotator__item { grid-area: 1 / 1; margin: 0; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .5s ease, transform .5s ease, visibility .5s; }
-.rotator__item.is-active { opacity: 1; visibility: visible; transform: none; }
+/* Swipeable: the stage tracks a horizontal drag 1:1 and leaves vertical scrolling to the browser */
+.rotator__stage { display: grid; position: relative; touch-action: pan-y; cursor: grab; }
+.rotator__stage.is-dragging { cursor: grabbing; user-select: none; }
+.rotator__stage.is-dragging .rotator__item, .rotator__stage.is-repositioning .rotator__item:not(.is-active) { transition: none !important; }
+/* Quotes wait on the side the next one arrives from (--dir: 1 = from the right), and leave the other way */
+.rotator__item {
+  grid-area: 1 / 1; margin: 0; opacity: 0; visibility: hidden; transform: translateX(calc(var(--dir, 1) * 56px));
+  transition: opacity .45s ease-out, transform .5s var(--ease-settle), visibility 0s .5s;
+}
+.rotator__item.is-active { opacity: 1; visibility: visible; transform: none; transition: opacity .45s ease-out, transform .5s var(--ease-settle), visibility 0s; }
+.rotator__item.is-leaving { visibility: visible; transform: translateX(calc(var(--dir, 1) * -56px)); transition: opacity .35s ease-out, transform .5s var(--ease-settle), visibility 0s .5s; }
 .rotator blockquote { margin: 0 0 2rem; font-family: var(--display); font-style: italic; font-weight: 700; font-size: clamp(1.7rem, 4.2vw, 3.2rem); line-height: 1.15; letter-spacing: -0.03em; max-width: 24ch; }
 .rotator figcaption { display: flex; align-items: center; gap: 0.9rem; }
 .rotator .quote__face { width: 56px; height: 56px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent); }
@@ -648,7 +661,12 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .rotator__dots button { width: 10px; height: 10px; border-radius: 999px; border: 0; padding: 0; background: var(--line-strong); cursor: pointer; transition: width .3s, background-color .3s; }
 .rotator__dots button:hover { background: var(--subtle); }
 .rotator__dots button[aria-pressed="true"] { width: 32px; background: var(--accent); }
-@media (prefers-reduced-motion: reduce) { .rotator__item, .rotator__dots button { transition: none; transform: none; } }
+/* Reduced motion: quotes cross-fade in place instead of sliding */
+@media (prefers-reduced-motion: reduce) {
+  .rotator__item, .rotator__item.is-active, .rotator__item.is-leaving { transform: none; transition: opacity .25s ease, visibility 0s .25s; }
+  .rotator__item.is-active { transition: opacity .25s ease, visibility 0s; }
+  .rotator__dots button { transition: none; }
+}
 
 /* Kick-off: edge-to-edge photo beside copy */
 .kickoff { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); }
@@ -1090,3 +1108,22 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
   .field input, .field select, .field textarea { box-shadow: inset 0 0 0 1px var(--muted); }
   body::after { display: none; }
 }
+
+/* Filter changes (blog, videos, RafikiHub Connect) glide cards to their new places: View Transitions.
+   Only the cards move; the page itself doesn't cross-fade. */
+::view-transition-group(*) { animation-duration: .38s; animation-timing-function: var(--ease-settle); }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+
+/* Large quotes: let the opening quotation mark hang into the margin so the text block stays aligned (Safari) */
+.rotator blockquote, .pull-quote blockquote, .quote--big blockquote { hanging-punctuation: first; }
+
+/* Admin buttons show they're working while a save or move is in flight */
+.btn[aria-busy="true"], .icon-btn[aria-busy="true"] { opacity: .6; cursor: progress; }
+
+/* Inline form errors arrive gently rather than snapping in */
+.field-error { animation: field-error-in .2s var(--ease-settle); }
+@keyframes field-error-in { from { opacity: 0; transform: translateY(-3px); } }
+.form-success { animation: form-done-in .35s var(--ease-settle); }
+@keyframes form-done-in { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .field-error, .form-success { animation: none; } }
+.dropdown__toggle.is-active::after { bottom: -0.05rem; } /* the toggle has its own padding */

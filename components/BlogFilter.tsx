@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
+import { withViewTransition } from "@/lib/view-transition";
 import type { Article } from "@/lib/data";
 import { ArticleCard } from "./ArticleCard";
 
@@ -14,15 +15,15 @@ export function BlogFilter({ articles, genres }: { articles: Article[]; genres: 
     <>
       <div className="filter" role="group" aria-label="Filter articles by genre">
         {options.map((g) => (
-          <button key={g} type="button" className="chip" aria-pressed={genre === g} onClick={() => setGenre(g)}>
+          <button key={g} type="button" className="chip" aria-pressed={genre === g} onClick={() => withViewTransition(() => setGenre(g))}>
             {g}
           </button>
         ))}
       </div>
       <p className="sr-only" aria-live="polite">{count} articles shown</p>
       <div className="cards">
-        {articles.map((a) => (
-          <div key={a.url} hidden={genre !== "All genres" && a.genre !== genre}>
+        {articles.map((a, n) => (
+          <div key={a.url} hidden={genre !== "All genres" && a.genre !== genre} className="vt-card" style={{ viewTransitionName: `post-${n}` } as CSSProperties}>
             <ArticleCard article={a} headingLevel={2} />
           </div>
         ))}

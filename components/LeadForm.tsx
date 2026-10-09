@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from "react";
 
 export type Field = {
   name: string;
@@ -16,6 +16,15 @@ export type Field = {
   hint?: string;
   half?: boolean;
 };
+
+/** The same checks the server makes, run as people fill the form in, so problems show up where they are. */
+function check(f: Field, raw: string): string {
+  const v = raw.trim();
+  if (!v) return f.required ? (f.type === "select" ? "Choose one." : `Add your ${f.label.toLowerCase().replace(/^your /, "")}.`) : "";
+  if (f.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter a valid email address, like name@example.com.";
+  if (f.type === "tel" && v.replace(/\D/g, "").length < 7) return "Enter a phone number, with the country code if it's not Kenyan.";
+  return "";
+}
 
 type Props = {
   endpoint: string;
@@ -40,8 +49,40 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
     }
   }, [fields]);
 
+  const fieldFor = (name: string) => fields.find((f) => f.name === name);
+
+  /** Validate a field when the person leaves it; once it has an error, re-check as they type so it clears straight away. */
+  const onBlur = (e: FocusEvent<HTMLFormElement>) => {
+    const el = e.target as EventTarget as HTMLInputElement; // the field inside the form that fired it
+    const f = fieldFor(el.name);
+    if (!f) return;
+    const msg = check(f, el.value);
+    setFieldErrors((prev) => (prev[f.name] === msg || (!msg && !prev[f.name]) ? prev : { ...prev, [f.name]: msg }));
+  };
+  const onInput = (e: FormEvent<HTMLFormElement>) => {
+    const el = e.target as EventTarget as HTMLInputElement; // the field inside the form that fired it
+    const f = fieldFor(el.name);
+    if (!f || !fieldErrors[f.name]) return;
+    const msg = check(f, el.value);
+    if (msg !== fieldErrors[f.name]) setFieldErrors((prev) => ({ ...prev, [f.name]: msg }));
+  };
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Check everything first: nothing is sent while a field still needs attention
+    const form = e.currentTarget;
+    const local: Record<string, string> = {};
+    for (const f of fields) {
+      const el = form.elements.namedItem(f.name) as HTMLInputElement | null;
+      const msg = check(f, el?.value ?? "");
+      if (msg) local[f.name] = msg;
+    }
+    if (Object.keys(local).length) {
+      setFieldErrors(local);
+      setError("");
+      (form.elements.namedItem(Object.keys(local)[0]) as HTMLElement | null)?.focus();
+      return;
+    }
     setState("sending");
     setError("");
     setFieldErrors({});
@@ -56,6 +97,8 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
       if (json.ok && json.redirect) return window.location.assign(json.redirect); // signed in: open the dashboard
       if (json.ok) return setState("done");
       setFieldErrors(json.fields ?? {});
+      const firstBad = Object.keys(json.fields ?? {})[0];
+      if (firstBad) (formRef.current?.elements.namedItem(firstBad) as HTMLElement | null)?.focus();
       setError(json.error ?? "That didn't go through. Try again.");
     } catch {
       setError("You appear to be offline. Check your connection and try again.");
@@ -68,7 +111,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   }
 
   return (
-    <form ref={formRef} className={compact ? "form form--compact" : "form"} onSubmit={onSubmit} noValidate>
+    <form ref={formRef} className={compact ? "form form--compact" : "form"} onSubmit={onSubmit} onBlur={onBlur} onInput={onInput} onChange={onInput} noValidate>
       {fields.map((f) => {
         const id = `${endpoint.replace(/\W/g, "")}-${f.name}`;
         const err = fieldErrors[f.name];
