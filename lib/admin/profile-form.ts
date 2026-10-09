@@ -39,10 +39,6 @@ export function emptyProfile(): TalentProfile {
 }
 
 /* ── to the form ── */
-export const linesOf = (a: string[]) => a.join("\n");
-export const creditsText = (p: TalentProfile) => p.credits.map((c) => [c.year, c.production, c.role, c.type, c.director ?? ""].join(" | ").replace(/ \| $/, "")).join("\n");
-export const trainingText = (p: TalentProfile) => p.training.map((t) => [t.institution, t.course, t.year ?? ""].join(" | ").replace(/ \| $/, "")).join("\n");
-export const traitsText = (p: TalentProfile) => p.appearanceTraits.map((t) => `${t.trait} | ${t.location}`).join("\n");
 export const documentsText = (p: TalentProfile) => p.media.documents.map((d) => `${d.name} | ${d.url}`).join("\n");
 
 /* ── from the form ── */
@@ -92,12 +88,14 @@ function url(f: FormData, k: string, errors: Errors) {
 
 export function parseProfileForm(f: FormData, base: TalentProfile): { profile: TalentProfile } | { errors: Errors } {
   const errors: Errors = {};
-  const fullName = str(f, "fullName");
+  // The dashboard's Edit CV form has no basics section: name and category stay as saved
+  const hasBasics = f.has("fullName");
+  const fullName = hasBasics ? str(f, "fullName") : base.fullName;
   if (!fullName) errors.fullName = "Add their name.";
   // Not lower-cased: old-site links are random strings with capitals, and they must keep working
   const profileUrl = str(f, "profileUrl");
   if (!/^(?!\.{1,2}$)[A-Za-z0-9._-]{1,120}$/.test(profileUrl)) errors.profileUrl = "Use letters, numbers, dots, dashes or underscores, with no spaces.";
-  const category = pick(f, "category", profileCategories, errors);
+  const category = hasBasics ? pick(f, "category", profileCategories, errors) : base.category;
   if (!category) errors.category ??= "Choose a category.";
 
   const ageMin = int(f, "ageMin", errors, 1, 99);
@@ -123,7 +121,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
   lines(f, "credits").forEach((line, i) => {
     const [year, production, role, type, director] = cols(line);
     const y = Number(year);
-    if (!(y >= 1950 && y <= 2100) || !production || !role) { errors.credits = `Line ${i + 1}: use Year | Production | Role | Type | Director (director optional).`; return; }
+    if (!(y >= 1950 && y <= 2100) || !production || !role) { errors.credits = `Credit ${i + 1}${production ? ` (${production})` : ""}: add the year (1950 to 2100), the production and the role.`; return; }
     const t = creditTypes.find((c) => c.toLowerCase() === (type ?? "").toLowerCase()) ?? "Other";
     credits.push({ year: y, production, role, type: t, ...(director ? { director } : {}) });
   });
@@ -131,7 +129,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
   const training: TalentProfile["training"] = [];
   lines(f, "training").forEach((line, i) => {
     const [institution, course, year] = cols(line);
-    if (!institution || !course) { errors.training = `Line ${i + 1}: use Institution | Course | Year (year optional).`; return; }
+    if (!institution || !course) { errors.training = `Course ${i + 1}: add the school or teacher and the course.`; return; }
     const y = Number(year);
     training.push({ institution, course, ...(year && y > 1900 ? { year: y } : {}) });
   });
@@ -140,7 +138,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
   lines(f, "traits").forEach((line, i) => {
     const [trait, location = ""] = cols(line);
     const t = appearanceTraitOptions.find((o) => o.toLowerCase() === trait.toLowerCase());
-    if (!t) { errors.traits = `Line ${i + 1}: the trait must be one of ${appearanceTraitOptions.join(", ")}.`; return; }
+    if (!t) { errors.traits = `Trait ${i + 1}: choose one of ${appearanceTraitOptions.join(", ")}.`; return; }
     appearanceTraits.push({ trait: t, location });
   });
 
@@ -225,9 +223,13 @@ function keepMissing(f: FormData, base: TalentProfile, p: TalentProfile): Talent
   const on = (k: string) => f.has(k);
   return {
     ...p,
+    bio: on("bio") ? p.bio : base.bio,
+    cities: on("cities") ? p.cities : base.cities,
     contactDetails: on("email") ? p.contactDetails : base.contactDetails,
     personalData: {
       ...p.personalData,
+      dateOfBirth: on("dateOfBirth") ? p.personalData.dateOfBirth : base.personalData.dateOfBirth,
+      country: on("country") ? p.personalData.country : base.personalData.country,
       playingAge: on("ageMin") ? p.personalData.playingAge : base.personalData.playingAge,
       height: on("heightFeet") ? p.personalData.height : base.personalData.height,
     },
@@ -244,6 +246,7 @@ function keepMissing(f: FormData, base: TalentProfile, p: TalentProfile): Talent
     training: on("training") ? p.training : base.training,
     media: {
       ...p.media,
+      headshots: on("headshots") ? p.media.headshots : base.media.headshots,
       showreelUrl: on("reels") ? p.media.showreelUrl : base.media.showreelUrl,
       reels: on("reels") ? p.media.reels : base.media.reels,
       voiceoverReelUrl: on("voiceClips") ? p.media.voiceoverReelUrl : base.media.voiceoverReelUrl,

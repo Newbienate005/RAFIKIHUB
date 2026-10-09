@@ -1,7 +1,8 @@
 import { ImageListField } from "@/components/admin/ImageField";
 import { ClipListField } from "@/components/profile/ClipListField";
+import { CreditsField, TagsField, TraitsField, TrainingField } from "@/components/profile/CvFields";
 import {
-  creditsText, documentsText, linesOf, measurementKeys, measurementLabels, profileOptions, trainingText, traitsText,
+  creditTypes, documentsText, measurementKeys, measurementLabels, profileOptions,
 } from "@/lib/admin/profile-form";
 import { reelsOf, voiceClipsOf } from "@/lib/media";
 import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions, type TalentProfile } from "@/lib/data";
@@ -50,14 +51,20 @@ function Choice({ name, label, value, options, hint }: { name: string; label: st
   );
 }
 
-export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentProfile; mode: "admin" | "member"; published?: boolean; uploadFolder: string }) {
+/**
+ * `only="cv"` shows just the CV sections (personal details, appearance, measurements, credits and skills,
+ * or a pet's details) for the dashboard's Edit CV tab; the form keeps everything else as saved.
+ */
+export function ProfileFields({ p, mode, published, uploadFolder, only }: { p: TalentProfile; mode: "admin" | "member"; published?: boolean; uploadFolder: string; only?: "cv" }) {
   const pet = isPet(p);
   const m = p.furtherMeasurements;
   const isAdmin = mode === "admin";
+  const cvOnly = only === "cv";
   // Members upload into their own folder; the admin keeps reels together
   const clipFolder = isAdmin ? "profiles" : uploadFolder;
   return (
     <>
+      {cvOnly ? null : <>
       <section className="admin-card form" aria-labelledby="s-basics">
         <h2 id="s-basics" className="admin-card__title">The basics</h2>
         <Text name="fullName" label={pet ? "Animal's name" : "Name"} value={p.fullName} half />
@@ -91,6 +98,7 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
         {pet ? null : <ClipListField name="voiceClips" label="Voice clips and voice-over reels" kind="audio" defaultValue={voiceClipsOf(p)} folder={clipFolder} />}
         {isAdmin && !pet ? <Area name="documents" label="Documents" value={documentsText(p)} rows={2} hint="Public: anyone viewing the profile can open them. One per line, as Name | https://link. Never add ID or passport scans." /> : null}
       </section>
+      </>}
 
       {pet ? (
         <section className="admin-card form" aria-labelledby="s-pet">
@@ -108,7 +116,7 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
               <label key={s}><input type="checkbox" name="petSkills" value={s} defaultChecked={p.pet?.skills.includes(s)} /> {s}</label>
             ))}
           </fieldset>
-          <Area name="cities" label="Cities they can work in" value={linesOf(p.cities)} rows={2} hint="One per line." />
+          <TagsField name="cities" label="Cities they can work in" initial={p.cities} placeholder="e.g. Nairobi" />
           <Text name="country" label="Country" value={p.personalData.country} half />
         </section>
       ) : (
@@ -121,8 +129,8 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
             <Text name="heightInches" label="Height (inches)" value={p.personalData.height?.inches} type="number" half />
             <Text name="dateOfBirth" label="Date of birth" value={p.personalData.dateOfBirth} type="date" half hint="Only the age is shown on the profile." />
             <Text name="country" label="Country" value={p.personalData.country} half />
-            <Area name="cities" label="Cities you work in" value={linesOf(p.cities)} rows={3} hint="One per line." />
-            <Area name="nationalities" label="Nationalities" value={linesOf(p.nationalities)} rows={2} hint="One per line." />
+            <TagsField name="cities" label="Cities you work in" initial={p.cities} placeholder="e.g. Nairobi, Mombasa" />
+            <TagsField name="nationalities" label="Nationalities" initial={p.nationalities} placeholder="e.g. Kenyan" />
           </section>
 
           <section className="admin-card form" aria-labelledby="s-look">
@@ -137,7 +145,7 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
             <Text name="lowVoice" label="Low voice" value={p.voiceRange.lowVoice} half />
             <Text name="mediumVoice" label="Medium voice" value={p.voiceRange.mediumVoice} half />
             <Text name="highVoice" label="High voice" value={p.voiceRange.highVoice} half />
-            <Area name="traits" label="Appearance traits" value={traitsText(p)} rows={2} hint={`One per line, as Trait | Where. Traits: ${profileOptions.trait.join(", ")}.`} />
+            <TraitsField initial={p.appearanceTraits.map((t) => ({ trait: t.trait, location: t.location }))} traits={profileOptions.trait} />
           </section>
 
           <section className="admin-card form" aria-labelledby="s-measure">
@@ -159,17 +167,17 @@ export function ProfileFields({ p, mode, published, uploadFolder }: { p: TalentP
           </section>
 
           <section className="admin-card form" aria-labelledby="s-cv">
-            <h2 id="s-cv" className="admin-card__title">CV</h2>
-            <Area name="credits" label="Credits" value={creditsText(p)} rows={6} hint="One per line: Year | Production | Role | Type | Director. Types: Film, TV, Theatre, Commercial, Radio, Voice Over, Music Video, Other." />
-            <Area name="training" label="Training" value={trainingText(p)} rows={4} hint="One per line: Institution | Course | Year" />
-            <Area name="skills" label="Skills" value={linesOf(p.skills)} rows={4} hint="One per line, e.g. Stage combat, Swimming, Puppetry." />
-            <Area name="languages" label="Languages" value={linesOf(p.languages)} rows={3} hint="One per line." />
-            <Area name="accents" label="Accents" value={linesOf(p.accents)} rows={3} hint="One per line." />
+            <h2 id="s-cv" className="admin-card__title">Credits, training and skills</h2>
+            <CreditsField types={creditTypes} initial={p.credits.map((c) => ({ year: String(c.year), production: c.production, role: c.role, type: c.type, director: c.director ?? "" }))} />
+            <TrainingField initial={p.training.map((t) => ({ institution: t.institution, course: t.course, year: t.year ? String(t.year) : "" }))} />
+            <TagsField name="skills" label="Skills" initial={p.skills} placeholder="e.g. Stage combat, Swimming, Puppetry" />
+            <TagsField name="languages" label="Languages" initial={p.languages} placeholder="e.g. Swahili, English" />
+            <TagsField name="accents" label="Accents" initial={p.accents} placeholder="e.g. Kikuyu, British RP" />
           </section>
         </>
       )}
 
-      {isAdmin ? (
+      {isAdmin && !cvOnly ? (
         <section className="admin-card form" aria-labelledby="s-contact">
           <h2 id="s-contact" className="admin-card__title">Contact details</h2>
           <Text name="email" label="Email" value={p.contactDetails.email} type="email" half />
