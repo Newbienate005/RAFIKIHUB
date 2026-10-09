@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { drawerGroups } from "@/lib/site";
+import { haptic } from "@/lib/view-transition";
 
 /** Where a flick would come to rest (Apple's scroll-deceleration projection), in px from the release point. */
 const project = (velocity: number, rate = 0.998) => ((velocity / 1000) * rate) / (1 - rate);
@@ -92,7 +93,7 @@ export function MobileDrawer() {
     // Aim the transition straight at the end state, starting from exactly where the drawer is now
     el.style.transform = close ? "translateX(-100%)" : "";
     if (scrimRef.current) scrimRef.current.style.opacity = close ? "0" : "";
-    if (close) { setOpen(false); openRef.current?.focus(); }
+    if (close) { haptic(); setOpen(false); openRef.current?.focus(); }
     window.setTimeout(() => {
       el.style.transitionDuration = "";
       el.style.transform = "";

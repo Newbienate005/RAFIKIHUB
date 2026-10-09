@@ -57,7 +57,7 @@ export function AdminForm({
       ) : null}
       {children}
       <div className="admin-form__bar">
-        <button type="submit" className="btn btn--sun" disabled={pending}>{pending ? "Saving…" : submitLabel}</button>
+        <button type="submit" className="btn btn--sun" disabled={pending} aria-busy={pending}>{pending ? "Saving…" : submitLabel}</button>
       </div>
     </form>
   );
@@ -67,7 +67,7 @@ export function AdminForm({
 export function ConfirmButton({ action, children, message, className = "btn btn--ghost btn--sm" }: { action: () => Promise<void>; children: ReactNode; message: string; className?: string }) {
   const [pending, startTransition] = useTransition();
   return (
-    <button type="button" className={className} disabled={pending} onClick={() => { if (window.confirm(message)) startTransition(() => action()); }}>
+    <button type="button" className={className} disabled={pending} aria-busy={pending} onClick={() => { if (window.confirm(message)) startTransition(() => action()); }}>
       {pending ? "Working…" : children}
     </button>
   );
@@ -77,7 +77,7 @@ export function ConfirmButton({ action, children, message, className = "btn btn-
 export function ActionButton({ action, children, className = "btn btn--ink btn--sm", label }: { action: () => Promise<void>; children: ReactNode; className?: string; label?: string }) {
   const [pending, startTransition] = useTransition();
   return (
-    <button type="button" className={className} disabled={pending} aria-label={label} onClick={() => startTransition(() => action())}>
+    <button type="button" className={className} disabled={pending} aria-busy={pending} aria-label={label} onClick={() => startTransition(() => action())}>
       {children}
     </button>
   );
