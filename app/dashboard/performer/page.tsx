@@ -5,19 +5,24 @@ import { castingStatus, completenessItems, cvSections, performerTabs, sampleAgen
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
 import { MyMedia } from "@/components/profile/MyMedia";
+import { AdminForm } from "@/components/admin/AdminForm";
+import { ProfileFields, profileFieldLabels } from "@/components/profile/ProfileFields";
+import { saveOwnProfile } from "@/app/dashboard/profile/actions";
 import { requireDashboard } from "@/lib/session";
 import { site } from "@/lib/site";
 
-type Props = { searchParams: Promise<{ welcome?: string; tab?: string }> };
+type Props = { searchParams: Promise<{ welcome?: string; tab?: string; saved?: string }> };
 
 export default async function PerformerDashboard({ searchParams }: Props) {
   const session = await requireDashboard("performer");
-  const { welcome, tab: requested } = await searchParams;
+  const { welcome, tab: requested, saved } = await searchParams;
   const tab = pickTab(performerTabs, requested);
   const member = session.kind === "member" ? session : null;
   // Signed in with email and password: the member's real account and profile
   const real = member?.accountId ? await getMember(member.accountId) : null;
   const statusText = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  // Where to add each missing profile item: photos and reels, the bio, or the CV tab for everything else
+  const fixAt = (item: string) => (/headshot|photo|showreel/i.test(item) ? "/dashboard/profile#s-media" : /bio|description/i.test(item) ? "/dashboard/profile" : "?tab=cv");
 
   // The master login previews the dashboard with sample details
   const details = real
@@ -63,7 +68,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                     {real.profile ? (
                       <>
                         <p className="small">{real.completeness?.missing.length ? "Complete profiles are the ones casting directors find first. Still to add:" : "Every section is filled in. Keep your photos and credits up to date."}</p>
-                        {real.completeness?.missing.length ? <ul className="checklist">{real.completeness.missing.map((m) => <li key={m}><span className="checklist__mark" aria-hidden="true" /><span className="checklist__label">{m}</span><Link href="/dashboard/profile" className="checklist__action">Add</Link></li>)}</ul> : null}
+                        {real.completeness?.missing.length ? <ul className="checklist">{real.completeness.missing.map((m) => <li key={m}><span className="checklist__mark" aria-hidden="true" /><span className="checklist__label">{m}</span><Link href={fixAt(m)} className="checklist__action">Add</Link></li>)}</ul> : null}
                         <div className="btn-row dash-actions">
                           <Link href="/dashboard/profile" className="btn btn--sun btn--sm">Edit my profile</Link>
                           {real.profile.published ? <Link href={`/profile/${real.account.profileUrl}`} className="btn btn--ink btn--sm">View my public profile</Link> : null}
@@ -192,12 +197,38 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           ) : null}
 
           {tab === "cv" ? (
+            real?.profile ? (
+              <section aria-labelledby="cv" className="member-edit">
+                <div className="section-head">
+                  <h2 id="cv">Edit CV</h2>
+                  {real.profile.published ? <Link href={`/profile/${real.account.profileUrl}`} className="link-strong" target="_blank">View my public profile →</Link> : null}
+                </div>
+                <p className="small">Your CV is what casting directors search: playing age, height, look, credits and skills. Your name, photos, about you and reels are in <Link href="/dashboard/profile">Edit my profile</Link>.</p>
+                {saved ? <p className="form-success" role="status">Saved.{real.profile.published ? " Your public profile is updated." : ""}</p> : null}
+                {real.completeness ? (
+                  <div className="admin-card admin-complete">
+                    <p><strong>Profile {real.completeness.percent}% complete</strong>{real.completeness.missing.length ? ` · Still to add: ${real.completeness.missing.join(", ")}` : " · Every section is filled in."}</p>
+                    <span className="meter"><span style={{ width: `${real.completeness.percent}%` }} /></span>
+                  </div>
+                ) : null}
+                <AdminForm action={saveOwnProfile} labels={profileFieldLabels} submitLabel="Save my CV">
+                  <input type="hidden" name="_return" value="cv" />
+                  <ProfileFields p={real.profile.data} mode="member" uploadFolder={`members/${real.account.id}`} only="cv" />
+                </AdminForm>
+              </section>
+            ) : real ? (
+              <section aria-labelledby="cv">
+                <h2 id="cv">Edit CV</h2>
+                <p className="small">Create your profile first: add your name, a photo and a few lines about you. Then come back here for your credits, skills and measurements.</p>
+                <Link href="/dashboard/profile" className="btn btn--sun btn--sm">Create my profile</Link>
+              </section>
+            ) : (
             <section aria-labelledby="cv">
               <div className="section-head">
-                <h2 id="cv">Edit CV</h2>
+                <h2 id="cv">Edit CV <SampleTag /></h2>
                 <Link href="/profile/katesnow" className="link-strong">See an example profile →</Link>
               </div>
-              <p className="small">Your CV is your public RafikiHub profile. Editing opens once your membership is active; this is everything you'll be able to add.</p>
+              <p className="small">Members edit their CV here. It&apos;s their public RafikiHub profile; this is everything they can add.</p>
               <ul className="cv-groups">
                 {cvSections.map((g) => (
                   <li key={g.title} className="panel">
@@ -207,6 +238,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                 ))}
               </ul>
             </section>
+            )
           ) : null}
 
           {tab === "agents" ? (

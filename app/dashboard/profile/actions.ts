@@ -66,5 +66,6 @@ export async function saveOwnProfile(_prev: FormState, form: FormData): Promise<
   }
   revalidatePath(`/profile/${url}`);
   revalidatePath("/dashboard/performer");
-  redirect("/dashboard/profile?saved=1");
+  // Saved from the dashboard's Edit CV tab: back there
+  redirect(form.get("_return") === "cv" ? "/dashboard/performer?tab=cv&saved=1#cv" : "/dashboard/profile?saved=1");
 }
