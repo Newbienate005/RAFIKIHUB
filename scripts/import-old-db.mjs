@@ -10,9 +10,12 @@
  *   --dry-run              Read and convert everything, print what would be imported, write nothing.
  *   --assets-base <url>    Where the old uploaded files can be downloaded (default https://rafikihub.com).
  *   --assets-dir <folder>  A local copy of the old site's assets/ folder, used instead of downloading.
- *   --copy-files           Copy every referenced photo, showreel, voice clip and blog image into Vercel Blob
- *                          (needs BLOB_READ_WRITE_TOKEN). Do this before rafikihub.com points at the new site,
- *                          because the old files stop being reachable then.
+ *   --copy-files           Copy every referenced photo, voice clip and blog image into Vercel Blob
+ *                          (needs BLOB_READ_WRITE_TOKEN). Photos are resized to web size (WebP, 1600px long edge)
+ *                          on the way. Do this before rafikihub.com points at the new site, because the old files
+ *                          stop being reachable then.
+ *   --copy-videos          With --copy-files, also copy the showreels (about 11 GB, so off by default). Without it
+ *                          they keep loading from the old hosting.
  *
  * Safe to run more than once (until the switch-over): accounts and castings are updated, profiles are
  * refreshed only if nobody has edited them in the admin, and everything else is added once.
@@ -33,6 +36,7 @@ const dryRun = flag("--dry-run");
 const assetsBase = value("--assets-base", "https://rafikihub.com");
 const assetsDir = value("--assets-dir", null);
 const copyFiles = flag("--copy-files");
+const copyVideos = flag("--copy-videos");
 
 if (!file) {
   console.error("Usage: npm run import:old -- path/to/export.sql [--dry-run] [--copy-files] [--assets-dir folder]");
@@ -97,26 +101,34 @@ if (!url) {
 const sql = neon(url);
 
 /* ───────────── optional: copy old files into Vercel Blob ───────────── */
+const moved = new Map(); // old-site link → its copy in Blob
 if (copyFiles) {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     console.error("\n--copy-files needs BLOB_READ_WRITE_TOKEN in .env.local.");
     process.exit(1);
   }
   const { put, head } = await import("@vercel/blob");
+  const sharp = (await import("sharp")).default;
+  // Old photos are mostly uncompressed PNGs of 1–3 MB; web size is a tenth of that
+  const resize = (body) => sharp(body, { failOn: "none" }).rotate().resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true }).webp({ quality: 82 }).toBuffer();
   const prefix = `${assetsBase.replace(/\/$/, "")}/assets/`;
   const urls = new Set();
   const collect = (u) => { if (typeof u === "string" && u.startsWith(prefix)) urls.add(u); };
-  for (const p of out.profiles) { p.data.media.headshots.forEach(collect); [...p.data.media.reels, ...p.data.media.voiceClips].forEach((c) => collect(c.url)); }
+  for (const p of out.profiles) {
+    p.data.media.headshots.forEach(collect);
+    p.data.media.voiceClips.forEach((c) => collect(c.url));
+    if (copyVideos) p.data.media.reels.forEach((c) => collect(c.url));
+  }
   for (const a of out.articles) collect(a.data.image);
-  log(`\nCopying ${urls.size} files to Vercel Blob…`);
-  const moved = new Map();
+  log(`\nCopying ${urls.size} files to Vercel Blob${copyVideos ? "" : " (showreels stay on the old hosting; add --copy-videos to copy them too)"}…`);
   let failed = 0;
   const list = [...urls];
   const worker = async () => {
     while (list.length) {
       const src = list.pop();
       const rel = decodeURIComponent(src.slice(prefix.length));
-      const pathname = `legacy/${rel}`;
+      const isImage = rel.startsWith("images/") && !/\.gif$/i.test(rel);
+      const pathname = `legacy/${isImage ? rel.replace(/\.[a-z0-9]+$/i, "") + ".webp" : rel}`;
       try {
         const existing = await head(pathname).catch(() => null);
         if (existing) { moved.set(src, existing.url); continue; }
@@ -130,7 +142,8 @@ if (copyFiles) {
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           body = Buffer.from(await res.arrayBuffer());
         }
-        const blob = await put(pathname, body, { access: "public", addRandomSuffix: false, allowOverwrite: true });
+        if (isImage) body = await resize(body).catch(() => null) ?? body;
+        const blob = await put(pathname, body, { access: "public", addRandomSuffix: false, allowOverwrite: true, multipart: body.length > 20 * 1024 * 1024 });
         moved.set(src, blob.url);
       } catch (e) {
         failed++;
@@ -189,6 +202,18 @@ try {
       full_name = excluded.full_name, category = excluded.category, published = excluded.published, data = excluded.data,
       completeness = excluded.completeness, updated_at = now()
     WHERE talent_profiles.source = 'legacy'`, 100);
+
+  // Profiles edited on the new site aren't refreshed above, but their old-site links still move to the copies
+  if (moved.size) {
+    let n = 0;
+    for (const row of await sql(`SELECT profile_url, data FROM talent_profiles WHERE source <> 'legacy'`)) {
+      const before = JSON.stringify(row.data);
+      let after = before;
+      for (const [from, to] of moved) if (after.includes(from)) after = after.split(from).join(to);
+      if (after !== before) { await sql(`UPDATE talent_profiles SET data = $2::jsonb WHERE profile_url = $1`, [row.profile_url, after]); n++; }
+    }
+    log(`  ${"Edited profiles' links".padEnd(22)} ${n}`);
+  }
 
   await load("Casting breakdowns", out.auditions, `
     INSERT INTO auditions (legacy_id, ref, owner_id, title, type, gender, categories, countries, body, closes_on, filled, status, published_at, created_at, updated_at)
@@ -259,4 +284,4 @@ try {
 
 log("\nDone. Open /admin to check the members and profiles.");
 if (out.articles.length) log("Imported blog posts show on the site once Blog posts is copied into the database in /admin (Website content → Blog posts).");
-if (!copyFiles) log("Photos and reels still load from the old site. Re-run with --copy-files before rafikihub.com moves to the new site.");
+if (!copyFiles) log("Photos, reels and voice clips still load from the old site's files on Hostinger. When the new site takes over rafikihub.com, serve those files from a subdomain and set LEGACY_ASSETS_URL.");
