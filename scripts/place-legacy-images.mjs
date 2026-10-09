@@ -34,7 +34,7 @@ const photos = [
   ["52.jpg", "/images/sections/workshop.jpg", 1400],
   ["performer.jpeg", "/images/sections/performers.jpg", 1400],
   ["casting.jpeg", "/images/sections/casting.jpg", 1400],
-  ["171395272991.png", "/images/sections/community.jpg", 1400],
+  ["51.jpg", "/images/sections/kickoff.jpg", 1400], // the illustrated portrait (427px wide on the old site, so never enlarged)
   ["location.jpg", "/images/sections/nairobi.jpg", 1400],
   // Sio Bahati Services
   ["kate-snow-171087605191.png", "/images/services/headshots.jpg", 1000],

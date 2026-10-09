@@ -36,7 +36,8 @@ export const images = {
     workshop: "/images/sections/workshop.jpg",
     // Lucy Maina is represented by RafikiHub Talent Management
     talentManagement: "/images/people/lucy-maina.jpg",
-    community: "/images/sections/community.jpg",
+    // Home page "Kick-off your career" section
+    kickoff: "/images/sections/kickoff.jpg",
   },
 
   // Page banners: the photo at the top of each old rafikihub.com page
