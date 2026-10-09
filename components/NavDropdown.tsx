@@ -31,7 +31,8 @@ export function NavDropdown({ group }: { group: NavGroup }) {
         {group.label}
         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" /></svg>
       </button>
-      <div className="dropdown__panel" id={panelId} hidden={!open}>
+      {/* Always rendered so it can animate in and out; inert while closed keeps it out of tab order and screen readers */}
+      <div className="dropdown__panel" id={panelId} data-open={open ? "" : undefined} inert={!open}>
         <ul>
           {group.items.map((i) => (
             <li key={i.href}>

@@ -43,6 +43,10 @@
   --info: #539df5;
   --positive: #6FCF97;
 
+  /* Motion: critically damped (no overshoot) by default; the sheet curve for drawers and panels */
+  --ease-settle: cubic-bezier(.2, .8, .2, 1);
+  --ease-sheet: cubic-bezier(.32, .72, 0, 1);
+
   --shadow-card: rgba(0, 0, 0, .3) 0 8px 8px;
   --shadow-pop: rgba(0, 0, 0, .5) 0 8px 24px;
   --inset: rgb(18, 18, 18) 0 1px 0, rgb(124, 124, 124) 0 0 0 1px inset;
@@ -133,10 +137,12 @@ p { margin: 0 0 1em; text-wrap: pretty; }
   font: 700 0.875rem/1 var(--body); letter-spacing: 0.1em; text-transform: uppercase;
   padding: 1.05rem 1.9rem; border-radius: 9999px; border: 0;
   text-decoration: none; cursor: pointer; white-space: nowrap;
-  transition: background-color .2s, color .2s, box-shadow .2s, transform .2s cubic-bezier(.3,.7,.4,1.4);
+  transition: background-color .2s, color .2s, box-shadow .2s, transform .3s var(--ease-settle);
+  touch-action: manipulation;
 }
-.btn:hover { transform: scale(1.04); }
-.btn:active { transform: scale(.98); }
+@media (hover: hover) { .btn:hover { transform: scale(1.03); } }
+/* The press is the feedback: instant on pointer-down, and it settles back without bouncing */
+.btn:active { transform: scale(.97); transition-duration: .2s, .2s, .2s, .08s; }
 .btn--sm { padding: 0.75rem 1.25rem; font-size: 0.75rem; letter-spacing: 0.12em; }
 .btn--sun { background: var(--accent); color: var(--accent-ink); }
 .btn--sun:hover { background: var(--accent-hover); color: var(--accent-ink); }
@@ -251,6 +257,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .ticker::before, .ticker::after { content: ""; position: absolute; left: 0; right: 0; height: 4px; background: var(--kente); }
 .ticker::before { top: 0; } .ticker::after { bottom: 0; }
 .ticker__track { display: flex; width: max-content; animation: ticker 48s linear infinite; }
+.ticker:hover .ticker__track { animation-play-state: paused; }
 .ticker__track span { flex: none; font: italic 900 clamp(1.4rem, 3vw, 2.2rem)/1 var(--display); letter-spacing: -0.02em; text-transform: uppercase; padding-inline: 1.1rem; white-space: nowrap; }
 .ticker__track span:nth-child(even) { font-style: normal; color: transparent; -webkit-text-stroke: 1.5px var(--accent-ink); }
 .ticker__track i { flex: none; align-self: center; width: 0.55rem; height: 0.55rem; rotate: 45deg; background: var(--accent-ink); }
@@ -545,9 +552,20 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 /* Dropdown menus */
 .dropdown { position: relative; }
 .dropdown__toggle { background: none; border: 0; padding: 0.5rem 0; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; }
-.dropdown__panel { position: absolute; top: 100%; left: -0.75rem; padding-top: 0.5rem; min-width: 14rem; z-index: var(--z-dropdown); }
-.dropdown__panel[hidden] { display: none; }
-.dropdown__panel ul { display: block !important; background: var(--surface-3); border-radius: 6px; padding: 0.3rem; box-shadow: var(--shadow-pop); overflow: hidden; }
+.dropdown__panel {
+  position: absolute; top: 100%; left: -0.75rem; padding-top: 0.5rem; min-width: 14rem; z-index: var(--z-dropdown);
+  /* Grows out of the button that opened it, and leaves the same way */
+  transform-origin: 1.5rem 0; opacity: 0; visibility: hidden; transform: translateY(-4px) scale(.96);
+  transition: opacity .12s ease-out, transform .16s var(--ease-settle), visibility 0s .16s;
+}
+.dropdown__panel[data-open] { opacity: 1; visibility: visible; transform: none; transition: opacity .14s ease-out, transform .22s var(--ease-settle), visibility 0s; }
+.dropdown__panel ul {
+  display: block !important; border-radius: 8px; padding: 0.3rem; overflow: hidden;
+  background: rgba(40, 40, 40, .88); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: var(--shadow-pop), inset 0 1px 0 rgba(255, 255, 255, .07); /* a bright top edge: light catching the material */
+}
+.dropdown__toggle svg { transition: rotate .22s var(--ease-settle); }
+.dropdown__toggle[aria-expanded="true"] svg { rotate: 180deg; }
 .dropdown__panel a { display: block; padding: 0.75rem 0.85rem; border-radius: 3px; color: var(--text) !important; font-size: 0.875rem; font-weight: 400 !important; }
 .dropdown__panel a:hover, .dropdown__panel a[aria-current] { background: rgba(255,255,255,.1); color: var(--text) !important; }
 .dropdown__panel a[aria-current] { font-weight: 700 !important; }
@@ -556,9 +574,10 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .menu-button { width: 44px; height: 44px; margin-left: -10px; display: grid; place-content: center; gap: 5px; background: none; border: 0; border-radius: 50%; cursor: pointer; transition: background-color .2s; }
 .menu-button:hover { background: var(--surface-3); }
 .menu-button span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
-.drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: var(--z-scrim); }
+.drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); opacity: 0; pointer-events: none; transition: opacity .42s var(--ease-sheet); z-index: var(--z-scrim); }
+.drawer.is-dragging, .drawer-scrim.is-dragging { transition: none; }
 .drawer-scrim.is-open { opacity: 1; pointer-events: auto; }
-.drawer { position: fixed; top: 0; bottom: 0; left: 0; width: min(85%, 22rem); background: var(--mudcloth-light), var(--surface); color: var(--text); z-index: var(--z-drawer); overflow-y: auto; transform: translateX(-100%); transition: transform .3s cubic-bezier(.3,.7,.3,1); box-shadow: var(--shadow-pop); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.drawer { position: fixed; top: 0; bottom: 0; left: 0; width: min(85%, 22rem); background: var(--mudcloth-light), var(--surface); color: var(--text); z-index: var(--z-drawer); overflow-y: auto; transform: translateX(-100%); transition: transform .42s var(--ease-sheet); box-shadow: var(--shadow-pop); touch-action: pan-y; overscroll-behavior: contain; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .drawer.is-open { transform: none; }
 .drawer__head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--line); }
 .drawer__close { background: var(--surface-3); border: 0; color: var(--text); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; margin-right: -6px; }
@@ -1010,3 +1029,64 @@ a.admin-list__title:hover { color: var(--accent); }
 .admin-setup pre { margin: 0.6rem 0 0.2rem; padding: 0.75rem 1rem; border-radius: 6px; background: var(--bg); overflow-x: auto; font-size: 0.85rem; }
 .admin-setup code, .admin-info code { font-size: 0.9em; }
 .admin-card h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+
+/* ───────────── Fluid interaction layer ─────────────
+   From Apple's fluid-interface principles: respond on press, never let hover "stick" on touch screens,
+   let disclosure motion be interruptible, and honour reduced-motion / transparency / contrast settings. */
+a, button, summary, label, [role="button"] { -webkit-tap-highlight-color: transparent; }
+button, summary, .chip, .icon-btn { touch-action: manipulation; }
+
+/* Instant press feedback on small controls */
+.chip, .icon-btn, .menu-button, .drawer__close { transition: background-color .2s, color .2s, box-shadow .2s, transform .25s var(--ease-settle); }
+.chip:active, .icon-btn:active, .social a:active, .menu-button:active, .drawer__close:active { transform: scale(.92); transition-duration: .08s; }
+.numbered a:active, .talent-card:active, .next-steps a:active, a.resource:active { background: var(--surface-3); transition-duration: .08s; }
+.card__media:active .photo, .video__start:active img { transform: scale(.985); transition-duration: .1s; }
+
+/* Touch screens: hover transforms would stay stuck after a tap, so they only exist where hovering does */
+@media (hover: none) {
+  .plan:hover, .next-steps a:hover, .social a:hover { transform: none; }
+  .card:hover .card__media .photo, .person:hover .person__photo .photo, .brief:hover .brief__media .photo,
+  .video__start:hover img, .video:hover .video__thumb img { transform: none; }
+  .numbered a:hover { background: none; padding-left: 0; }
+  .numbered a:hover .numbered__arrow { transform: none; background: var(--surface-3); color: var(--text); }
+  .cats > div:hover { padding-left: 0; }
+}
+
+/* FAQ answers open and close smoothly, and can be reversed mid-motion (progressive: Chrome/Edge 131+) */
+@supports selector(::details-content) {
+  .faq details { interpolate-size: allow-keywords; }
+  .faq details::details-content { block-size: 0; overflow: clip; transition: block-size .34s var(--ease-settle), content-visibility .34s allow-discrete; }
+  .faq details[open]::details-content { block-size: auto; }
+}
+
+/* Video: the player fades in over its thumbnail instead of swapping in */
+.video__thumb iframe { opacity: 0; transition: opacity .35s ease-out; }
+.video__thumb iframe.is-loaded { opacity: 1; }
+.video__start[disabled] { cursor: default; }
+/* Status while the player starts: the play button breathes once a second (fast enough not to read as a slow, nauseating loop) */
+.video__start.is-loading .video__play { animation: video-wait 1s ease-in-out infinite; }
+@keyframes video-wait { 50% { transform: scale(.9); opacity: .6; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown__panel, .dropdown__panel[data-open] { transform: none; transition: opacity .12s, visibility 0s; }
+  .faq details::details-content { transition: none; }
+  .video__start.is-loading .video__play { animation: none; opacity: .6; }
+  .drawer { transition: opacity .2s; }
+  .chip:active, .icon-btn:active, .social a:active, .menu-button:active, .drawer__close:active { transform: none; }
+}
+
+/* Reduce transparency: frosted surfaces become solid */
+@media (prefers-reduced-transparency: reduce) {
+  .site-header::before, .dash-sections { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dropdown__panel ul { background: var(--surface-3); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .drawer-scrim { background: rgba(0, 0, 0, .85); }
+  body::after { display: none; }
+}
+
+/* Increase contrast: brighter secondary text and defined edges on cards and fields */
+@media (prefers-contrast: more) {
+  :root { --muted: #d4d4d4; --subtle: #a8a8a8; --line: rgba(255, 255, 255, .32); }
+  .admin-card, .plan, .benefits li, .resource, .listing, .opp, .stat, .steps li, .regions li, .panel, .dropdown__panel ul { box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .field input, .field select, .field textarea { box-shadow: inset 0 0 0 1px var(--muted); }
+  body::after { display: none; }
+}
