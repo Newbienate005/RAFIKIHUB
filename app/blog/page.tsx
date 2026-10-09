@@ -2,6 +2,7 @@ import { ArticleCard } from "@/components/ArticleCard";
 import { BlogFilter } from "@/components/BlogFilter";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { articleGenres } from "@/lib/data";
 import { getArticles } from "@/lib/content";
 import { blogSchema } from "@/lib/schema";
@@ -20,7 +21,7 @@ export default async function BlogPage() {
   return (
     <>
       <JsonLd data={blogSchema(sorted)} />
-      <PageHeader
+      <PageHeader image={images.headers.blog}
         kicker="Our blog"
         title={<>From the <em>community</em></>}
         lead="News, reviews, member stories and advice from Kenya's performing arts scene."

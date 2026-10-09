@@ -1,6 +1,7 @@
 import { CtaBand } from "@/components/CtaBand";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { PlanCards } from "@/components/PlanCards";
 import { Answer } from "@/components/Answer";
 import { PageFaq } from "@/components/PageFaq";
@@ -38,7 +39,7 @@ export default function MembershipPage() {
   return (
     <>
       <JsonLd data={offers} />
-      <PageHeader
+      <PageHeader image={images.headers.membership}
         kicker="Account Options"
         title={<>Choose the plan that <em>fits</em>.</>}
         lead="Every plan includes the same full membership. Longer plans cost less per month."

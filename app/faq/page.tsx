@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/PageHeader";
+import { images } from "@/lib/images";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { faqCategories } from "@/lib/data";
@@ -19,7 +20,7 @@ export default async function FaqPage() {
   return (
     <>
       <JsonLd data={faqSchema(faqs)} />
-      <PageHeader kicker="Help & FAQs" title={<>Frequently asked <em>questions</em></>} lead="Straight answers about casting, auditions, headshots and your membership." crumbs={[{ name: "FAQ", path: "/faq" }]} />
+      <PageHeader image={images.headers.faq} kicker="Help & FAQs" title={<>Frequently asked <em>questions</em></>} lead="Straight answers about casting, auditions, headshots and your membership." crumbs={[{ name: "FAQ", path: "/faq" }]} />
       <section className="section">
         <div className="wrap split">
           <div>

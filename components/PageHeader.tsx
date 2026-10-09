@@ -1,13 +1,30 @@
+import Image from "next/image";
 import Link from "next/link";
 import { JsonLd } from "./JsonLd";
 import { breadcrumbSchema } from "@/lib/schema";
+import manifest from "@/lib/image-manifest.json";
 
-type Props = { title: React.ReactNode; lead: string; crumbs: { name: string; path: string }[]; kicker?: string };
+const available = new Set<string>(manifest as string[]);
 
-export function PageHeader({ title, lead, crumbs, kicker }: Props) {
+type Props = {
+  title: React.ReactNode;
+  lead: string;
+  crumbs: { name: string; path: string }[];
+  kicker?: string;
+  /** A banner photo, faded into the dark behind the title (decorative). Skipped if the file isn't there. */
+  image?: string;
+};
+
+export function PageHeader({ title, lead, crumbs, kicker, image }: Props) {
+  const photo = image && available.has(image) ? image : null;
   return (
-    <header className="page-header pattern">
+    <header className={photo ? "page-header page-header--photo pattern" : "page-header pattern"}>
       <JsonLd data={breadcrumbSchema(crumbs)} />
+      {photo ? (
+        <div className="page-header__photo" aria-hidden="true">
+          <Image src={photo} alt="" fill priority sizes="(max-width: 760px) 100vw, 60vw" />
+        </div>
+      ) : null}
       <div className="wrap">
         <nav aria-label="Breadcrumb" className="crumbs">
           <ol>

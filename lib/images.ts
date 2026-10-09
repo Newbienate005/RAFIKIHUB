@@ -21,6 +21,15 @@ export const images = {
     { src: "/images/people/mirell-nazi.jpg", name: "Mirell Nazi", role: "Independent performer" },
   ],
 
+  // Hero background: the old home page's slideshow, faded into each other in this order
+  heroSlides: [
+    "/images/hero/slide-1.jpg",
+    "/images/hero/slide-2.jpg",
+    "/images/hero/slide-3.jpg",
+    "/images/hero/slide-4.jpg",
+    "/images/hero/slide-5.jpg",
+  ],
+
   sections: {
     performers: "/images/sections/performers.jpg",
     casting: "/images/sections/casting.jpg",
@@ -28,5 +37,32 @@ export const images = {
     // Lucy Maina is represented by RafikiHub Talent Management
     talentManagement: "/images/people/lucy-maina.jpg",
     community: "/images/sections/community.jpg",
+  },
+
+  // Page banners: the photo at the top of each old rafikihub.com page
+  headers: {
+    about: "/images/headers/about.jpg",
+    team: "/images/headers/team.jpg",
+    services: "/images/headers/services.jpg",
+    talentManagement: "/images/headers/talent-management.jpg",
+    join: "/images/headers/join.jpg",
+    faq: "/images/headers/faq.jpg",
+    locations: "/images/headers/locations.jpg",
+    blog: "/images/headers/blog.jpg",
+    videos: "/images/headers/videos.jpg",
+    contactListings: "/images/headers/contact-listings.jpg",
+    resources: "/images/headers/resources.jpg",
+    membership: "/images/headers/membership.jpg",
+  },
+
+  // Membership types, keyed like memberTypes in lib/data.ts (the old Join page cards)
+  members: {
+    talent: "/images/members/talent.jpg",
+    "young-performer": "/images/members/young-performer.jpg",
+    agent: "/images/members/agent.jpg",
+    "casting-professional": "/images/members/casting-professional.jpg",
+    "industry-client": "/images/members/industry-client.jpg",
+    crew: "/images/members/crew.jpg",
+    pet: "/images/members/pet.jpg",
   },
 } as const;

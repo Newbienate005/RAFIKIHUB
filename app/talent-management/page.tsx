@@ -24,7 +24,7 @@ export default async function TalentManagementPage() {
   return (
     <>
       <JsonLd data={serviceSchema("RafikiHub Talent Management", description, "/talent-management")} />
-      <PageHeader
+      <PageHeader image={images.headers.talentManagement}
         kicker="Talent Management"
         title={<>Looking for an agent? <em>RafikiHub Talent Management</em></>}
         lead="We represent a select group of actors of all ages across radio, theatre, commercials, film and television."

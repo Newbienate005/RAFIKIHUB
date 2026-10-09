@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ContactSheet } from "@/components/ContactSheet";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { ArticleCard } from "@/components/ArticleCard";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
@@ -31,7 +32,8 @@ export default async function Home() {
     <>
       <JsonLd data={faqSchema(homeFaqs)} />
 
-      <section className="hero">
+      <section className="hero hero--slides">
+        <HeroSlideshow />
         <div className="wrap hero__grid">
           <div>
             <p className="kicker">Karibu · Africa's performing arts community</p>

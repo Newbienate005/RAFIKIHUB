@@ -19,7 +19,7 @@ export default async function AboutPage() {
   const team = await getContent("team");
   return (
     <>
-      <PageHeader
+      <PageHeader image={images.headers.about}
         kicker="About us"
         title={<>Bringing the industry <em>together</em></>}
         lead="Our mission is to create easy links between artists and industry professionals, while boosting the showcase of Kenyan, East African and African talent."

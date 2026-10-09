@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
+import { Photo } from "@/components/Photo";
+import { images } from "@/lib/images";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { joinBenefits, memberTypes, plans } from "@/lib/data";
@@ -23,7 +25,7 @@ export default async function JoinPage() {
   return (
     <>
       <JsonLd data={faqSchema(joinFaqs)} />
-      <PageHeader
+      <PageHeader image={images.headers.join}
         kicker="Membership"
         title={<>Find your <em>rafiki</em>.</>}
         lead="Tell us about yourself and we'll set up your membership. You'll get a full profile and start receiving castings that match you."
@@ -65,13 +67,15 @@ export default async function JoinPage() {
               <li>The chance to be considered for RafikiHub Talent Management</li>
             </ul>
             <h2 style={{ marginTop: "2.5rem" }}>Membership types</h2>
-            <dl className="cats cats--detail">
+            <dl className="cats cats--detail cats--photos">
               {memberTypes.map((m) => (
                 <div key={m.key}>
                   <dt>{m.name}</dt>
                   <dd>
                     <ul>{m.benefits.map((b) => <li key={b}>{b}</li>)}</ul>
                   </dd>
+                  {/* The old site's photo for this membership type; decorative */}
+                  <dd className="cats__photo" aria-hidden="true"><Photo src={images.members[m.key]} alt="" sizes="(max-width: 600px) 30vw, 120px" /></dd>
                 </div>
               ))}
             </dl>
