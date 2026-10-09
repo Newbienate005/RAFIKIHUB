@@ -6,7 +6,8 @@ import type { DashboardRole } from "./dashboard";
 /**
  * Signed-cookie sessions for the dashboards. No database needed.
  * - "master": the site owner, signed in at /login with MASTER_PASSWORD; can open every dashboard.
- * - "member": someone who just submitted the join or casting form; sees their own dashboard only.
+ * - "member": a member signed in with their email and password (accountId set), or someone who just
+ *   submitted the join or casting form (no accountId); either way they see their own dashboard only.
  * Tokens are HMAC-signed with SESSION_SECRET (falls back to MASTER_PASSWORD). With neither set,
  * sessions are switched off and the forms keep showing their thank-you message.
  */
@@ -15,6 +16,8 @@ export type Session =
   | {
       kind: "member";
       role: DashboardRole;
+      /** Set when signed in with an email and password (a real account); absent for someone who just applied */
+      accountId?: number;
       name: string;
       email: string;
       category?: string;
@@ -96,4 +99,11 @@ export async function requireMaster() {
 export async function assertMaster() {
   const s = await getSession();
   if (s?.kind !== "master") throw new Error("Not signed in as admin.");
+}
+
+/** Guard for pages and actions that need a real member account (signed in with email and password). */
+export async function requireAccount() {
+  const s = await getSession();
+  if (s?.kind !== "member" || !s.accountId) redirect("/login");
+  return s as Extract<Session, { kind: "member" }> & { accountId: number };
 }

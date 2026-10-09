@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 
 /**
  * Image uploads from the admin go straight from the browser to Vercel Blob. This route only hands
- * out a short-lived upload token, and only to someone signed in with the master login.
+ * out a short-lived upload token: to the master login, or to a signed-in member for their own folder.
  * Needs BLOB_READ_WRITE_TOKEN (Vercel → Storage → Blob).
  */
 export async function POST(req: Request) {
@@ -17,8 +17,13 @@ export async function POST(req: Request) {
       body,
       request: req,
       onBeforeGenerateToken: async (pathname) => {
-        if ((await getSession())?.kind !== "master") throw new Error("Sign in to the admin to upload.");
-        if (!/^(images|documents)\//.test(pathname)) throw new Error("Unexpected upload path.");
+        const s = await getSession();
+        if (s?.kind === "master") {
+          if (!/^(images|documents)\//.test(pathname)) throw new Error("Unexpected upload path.");
+        } else if (s?.kind === "member" && s.accountId) {
+          // Members upload their own profile photos, and only into their own folder
+          if (!pathname.startsWith(`images/members/${s.accountId}/`) || pathname.includes("..")) throw new Error("You can only upload to your own profile.");
+        } else throw new Error("Sign in to upload.");
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"],
           maximumSizeInBytes: 10 * 1024 * 1024,

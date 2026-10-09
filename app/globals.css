@@ -1127,3 +1127,24 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 @keyframes form-done-in { from { opacity: 0; transform: translateY(6px) scale(.98); } }
 @media (prefers-reduced-motion: reduce) { .field-error, .form-success { animation: none; } }
 .dropdown__toggle.is-active::after { bottom: -0.05rem; } /* the toggle has its own padding */
+
+/* Header "Log in" (phones get it in the menu) */
+.site-header__login { color: var(--muted); text-decoration: none; font: 700 0.875rem var(--body); white-space: nowrap; transition: color .2s; }
+.site-header__login:hover, .site-header__login[aria-current] { color: var(--text); }
+@media (max-width: 1100px) { .site-header__login { display: none; } }
+
+/* Sign-in, forgot and reset pages */
+.auth { max-width: 30rem; display: grid; gap: 1rem; }
+.auth__title { font-size: var(--step-3); margin: 0; }
+.auth .lead { margin: 0; }
+.auth__note { margin: 0; }
+.auth__logout { margin-top: 1.25rem; }
+.auth__admin { margin-top: 1rem; }
+.auth__admin summary { cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--muted); padding: 0.5rem 0; list-style: none; }
+.auth__admin summary::-webkit-details-marker { display: none; }
+.auth__admin summary::before { content: "+ "; color: var(--accent); }
+.auth__admin[open] summary::before { content: "– "; }
+.auth__admin summary:hover { color: var(--text); }
+.field__row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.field__aside { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-decoration: none; }
+.admin-link { margin: 0.2rem 0 0; font-weight: 700; overflow-wrap: anywhere; }

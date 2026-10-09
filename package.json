@@ -14,8 +14,9 @@
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "import:old": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/import-old-db.mjs",
-    "test:import": "node --test \"scripts/lib/*.test.mjs\"",
-    "db:check": "node --env-file=.env.local scripts/db-check.mjs"
+    "test:import": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning --test \"scripts/lib/*.test.mjs\"",
+    "db:check": "node --env-file=.env.local scripts/db-check.mjs",
+    "db:sql": "node --env-file=.env.local scripts/run-sql.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

@@ -31,6 +31,7 @@ export function Header() {
 
         <div className="site-header__side site-header__side--end">
           <nav aria-label="Resources" className="nav-desktop"><NavList items={navRight} /></nav>
+          <NavLink href="/login" className="site-header__login">Log in</NavLink>
           <Link href="/join" className="btn btn--sun btn--sm">Join Now</Link>
         </div>
       </div>

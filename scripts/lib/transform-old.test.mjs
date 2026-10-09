@@ -36,14 +36,14 @@ test("accounts: roles, duplicates, passwords and sensitive fields", () => {
   assert.equal(byLegacy(3).hash_algo, "md5");
   assert.equal(byLegacy(3).phone, "+254 722222222");
   assert.equal(byLegacy(5).phone, "733333333");
-  assert.equal(byLegacy(6).profile_url, null, "pets keep their account but get no profile");
+  assert.equal(byLegacy(6).profile_url, "simba6PeTs", "pets have profiles at their old link");
   const json = JSON.stringify(out);
   for (const secret of ["12345678", "A00TAXPIN", "Ngong Road", "abc.pdf"]) assert.ok(!json.includes(secret), `${secret} must not be imported`);
 });
 
 test("profiles: fields, media order and publishing", () => {
   // 9 had no link name and 10's had an @, so theirs come from their names; 11's old link is kept as it was
-  assert.deepEqual(out.profiles.map((p) => p.profile_url).sort(), ["-baraka_ke", "Wanj3AbCdE", "achieng-otieno", "otie5QwErT", "wanjiru-mwangi"]);
+  assert.deepEqual(out.profiles.map((p) => p.profile_url).sort(), ["-baraka_ke", "Wanj3AbCdE", "achieng-otieno", "otie5QwErT", "simba6PeTs", "wanjiru-mwangi"]);
   assert.equal(byLegacy(10).profile_url, "wanjiru-mwangi", "the account points at the generated link name");
   assert.ok(out.report.notes.some((n) => n.startsWith("2 profiles had no usable link name")));
   const w = out.profiles.find((p) => p.profile_url === "Wanj3AbCdE");
@@ -105,4 +105,18 @@ test("inbox items and blog posts", () => {
   assert.equal(draft.published, false);
   assert.equal(draft.data.genre, "Member story");
   assert.ok(out.report.notes.some((n) => n.includes("1 old videos")));
+});
+
+test("pets: a pet profile with the old pet details", () => {
+  const simba = out.profiles.find((p) => p.profile_url === "simba6PeTs");
+  assert.equal(simba.category, "Pet");
+  assert.equal(simba.data.category, "Pet");
+  assert.deepEqual(simba.data.pet, {
+    type: "Dog", breed: "Rhodesian Ridgeback", size: "Large", trained: true, trainingLevel: "Intermediate",
+    // "Retreive" was misspelt on the old form and "Sit Down" folds into "Sit"
+    skills: ["Fetch", "Retrieve", "Roll Over", "Sit"],
+    personality: "Calm",
+  });
+  assert.equal(simba.data.bio, "Good boy.");
+  assert.equal(out.report.skipped["pet profiles (account imported, profile not: no pet profile type yet)"], undefined);
 });
