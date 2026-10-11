@@ -13,6 +13,12 @@ import { site } from "@/lib/site";
 
 export const revalidate = 3600; // refresh profile pages hourly
 
+// None are built ahead of time; each is rendered on its first visit and then served from the cache,
+// until the hour is up or the profile is saved (which revalidates it).
+export async function generateStaticParams() {
+  return [];
+}
+
 type Params = { params: Promise<{ url: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {

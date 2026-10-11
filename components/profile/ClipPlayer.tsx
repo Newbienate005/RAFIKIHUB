@@ -1,9 +1,10 @@
 import type { MediaClip } from "@/lib/data";
 import { clipKind } from "@/lib/media";
+import { LazyVideo } from "./LazyVideo";
 
 /**
- * Plays a showreel or voice clip in the page. Video and audio files only load their first frame or
- * nothing until someone presses play. Old-site formats browsers can't play are offered as a download.
+ * Plays a showreel or voice clip in the page. Video and audio files load nothing until someone
+ * presses play. Old-site formats browsers can't play are offered as a download.
  */
 export function ClipPlayer({ clip, fallbackTitle }: { clip: MediaClip; fallbackTitle: string }) {
   const title = clip.title || fallbackTitle;
@@ -17,12 +18,7 @@ export function ClipPlayer({ clip, fallbackTitle }: { clip: MediaClip; fallbackT
     );
   }
   if (k.kind === "video" && k.playable) {
-    return (
-      // #t=0.1 makes browsers show the first frame instead of a black box
-      <video className="clip__video" controls playsInline preload="metadata" src={`${clip.url}#t=0.1`} aria-label={title}>
-        <a href={clip.url}>Download {title}</a>
-      </video>
-    );
+    return <LazyVideo src={clip.url} title={title} />;
   }
   if (k.kind === "audio" && k.playable) {
     return (

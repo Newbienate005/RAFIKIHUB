@@ -31,7 +31,8 @@ export function Header() {
 
         <div className="site-header__side site-header__side--end">
           <nav aria-label="Resources" className="nav-desktop"><NavList items={navRight} /></nav>
-          <NavLink href="/login" className="site-header__login">Log in</NavLink>
+          {/* Not prefetched: the login page is never cached, and a prefetched no-store response keeps every page out of the back/forward cache */}
+          <NavLink href="/login" className="site-header__login" prefetch={false}>Log in</NavLink>
           <Link href="/join" className="btn btn--sun btn--sm">Join Now</Link>
         </div>
       </div>
