@@ -16,6 +16,9 @@
  *                          stop being reachable then.
  *   --copy-videos          With --copy-files, also copy the showreels (about 11 GB, so off by default). Without it
  *                          they keep loading from the old hosting.
+ *   --only <sections>      Write only these sections, comma-separated: accounts, profiles, castings, applications,
+ *                          agents, payments, bookings, locations, articles, listings. E.g. `--only listings` adds
+ *                          the contact listings without touching members.
  *
  * Safe to run more than once (until the switch-over): accounts and castings are updated, profiles are
  * refreshed only if nobody has edited them in the admin, and everything else is added once.
@@ -27,16 +30,25 @@ import { neon } from "@neondatabase/serverless";
 import { parseDump } from "./lib/mysqldump.mjs";
 import { transform } from "./lib/transform-old.mjs";
 import { profileCompleteness } from "../lib/profile-completeness.ts";
+import { contactListings as builtInListings } from "../lib/data.ts";
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
 const value = (name, fallback) => { const i = args.indexOf(name); return i >= 0 && args[i + 1] ? args[i + 1] : fallback; };
-const file = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--assets-base" && args[args.indexOf(a) - 1] !== "--assets-dir");
+const file = args.find((a) => !a.startsWith("--") && !["--assets-base", "--assets-dir", "--only"].includes(args[args.indexOf(a) - 1]));
 const dryRun = flag("--dry-run");
 const assetsBase = value("--assets-base", "https://rafikihub.com");
 const assetsDir = value("--assets-dir", null);
 const copyFiles = flag("--copy-files");
 const copyVideos = flag("--copy-videos");
+const SECTIONS = ["accounts", "profiles", "castings", "applications", "agents", "payments", "bookings", "locations", "articles", "listings"];
+const only = value("--only", null)?.split(",").map((s) => s.trim()).filter(Boolean) ?? null;
+const unknown = only?.filter((s) => !SECTIONS.includes(s)) ?? [];
+if (unknown.length) {
+  console.error(`Unknown section for --only: ${unknown.join(", ")}. Use any of: ${SECTIONS.join(", ")}.`);
+  process.exit(1);
+}
+const want = (section) => !only || only.includes(section);
 
 if (!file) {
   console.error("Usage: npm run import:old -- path/to/export.sql [--dry-run] [--copy-files] [--assets-dir folder]");
@@ -79,6 +91,7 @@ const summary = {
   "Sio Bahati bookings": out.bookings.length,
   "Location requests": out.locationRequests.length,
   "Blog posts": out.articles.length,
+  "Contact listings": out.contactListings.length,
 };
 log("\nTo import:");
 for (const [k, v] of Object.entries(summary)) log(`  ${k.padEnd(28)} ${v}`);
@@ -120,6 +133,7 @@ if (copyFiles) {
     if (copyVideos) p.data.media.reels.forEach((c) => collect(c.url));
   }
   for (const a of out.articles) collect(a.data.image);
+  for (const l of out.contactListings) collect(l.data.image);
   log(`\nCopying ${urls.size} files to Vercel Blob${copyVideos ? "" : " (showreels stay on the old hosting; add --copy-videos to copy them too)"}…`);
   let failed = 0;
   const list = [...urls];
@@ -161,6 +175,7 @@ if (copyFiles) {
     p.data.media.voiceClips = p.data.media.voiceClips.map((c) => ({ ...c, url: swap(c.url) }));
   }
   for (const a of out.articles) a.data.image = swap(a.data.image);
+  for (const l of out.contactListings) if (l.data.image) l.data.image = swap(l.data.image);
   log(`  Copied ${moved.size}, failed ${failed}${failed ? " (those keep their old link; re-run to retry)" : ""}.`);
 }
 
@@ -177,9 +192,9 @@ async function load(label, rows, query, size = 400) {
   log(`  ${label.padEnd(22)} ${done}`);
 }
 
-log("\nImporting…");
+log(only ? `\nImporting only: ${only.join(", ")}…` : "\nImporting…");
 try {
-  await load("Member accounts", out.accounts, `
+  if (want("accounts")) await load("Member accounts", out.accounts, `
     INSERT INTO accounts (legacy_id, email, name, role, category, password_hash, hash_algo, status, is_admin, phone, country, profile_url, plan_id, last_login_at, created_at)
     SELECT x.legacy_id, left(x.email, 200), left(x.name, 160), x.role, left(x.category, 80), x.password_hash, x.hash_algo, x.status, coalesce(x.is_admin, false),
            left(x.phone, 40), left(x.country, 80), left(x.profile_url, 120), x.plan_id, x.last_login_at, coalesce(x.created_at, now())
@@ -194,7 +209,7 @@ try {
       password_hash = CASE WHEN accounts.hash_algo = 'md5' OR accounts.password_hash IS NULL THEN excluded.password_hash ELSE accounts.password_hash END,
       hash_algo = CASE WHEN accounts.hash_algo = 'md5' OR accounts.password_hash IS NULL THEN excluded.hash_algo ELSE accounts.hash_algo END`);
 
-  await load("Talent profiles", out.profiles, `
+  if (want("profiles")) await load("Talent profiles", out.profiles, `
     INSERT INTO talent_profiles (profile_url, full_name, category, published, represented, data, source, completeness, updated_at)
     SELECT left(x.profile_url, 120), left(x.full_name, 160), left(x.category, 60), x.published, false, x.data, 'legacy', x.completeness, now()
     FROM jsonb_to_recordset($1::jsonb) AS x(profile_url text, full_name text, category text, published boolean, data jsonb, completeness int)
@@ -204,7 +219,7 @@ try {
     WHERE talent_profiles.source = 'legacy'`, 100);
 
   // Profiles edited on the new site aren't refreshed above, but their old-site links still move to the copies
-  if (moved.size) {
+  if (moved.size && want("profiles")) {
     let n = 0;
     for (const row of await sql(`SELECT profile_url, data FROM talent_profiles WHERE source <> 'legacy'`)) {
       const before = JSON.stringify(row.data);
@@ -215,7 +230,7 @@ try {
     log(`  ${"Edited profiles' links".padEnd(22)} ${n}`);
   }
 
-  await load("Casting breakdowns", out.auditions, `
+  if (want("castings")) await load("Casting breakdowns", out.auditions, `
     INSERT INTO auditions (legacy_id, ref, owner_id, title, type, gender, categories, countries, body, closes_on, filled, status, published_at, created_at, updated_at)
     SELECT x.legacy_id, left(x.ref, 20), a.id, left(x.title, 200), left(x.type, 80), left(x.gender, 20), x.categories, x.countries, x.body, x.closes_on,
            x.filled, x.status, x.published_at, coalesce(x.created_at, now()), now()
@@ -226,7 +241,7 @@ try {
       title = excluded.title, type = excluded.type, gender = excluded.gender, categories = excluded.categories, countries = excluded.countries,
       body = excluded.body, closes_on = excluded.closes_on, filled = excluded.filled, status = excluded.status, updated_at = now()`);
 
-  await load("Applications", out.applications, `
+  if (want("applications")) await load("Applications", out.applications, `
     INSERT INTO audition_applications (audition_id, applicant_id, status, created_at)
     SELECT au.id, ac.id, x.status, coalesce(x.created_at, now())
     FROM jsonb_to_recordset($1::jsonb) AS x(audition_legacy_id int, applicant_legacy_id int, status text, created_at timestamptz)
@@ -234,7 +249,7 @@ try {
     JOIN accounts ac ON ac.legacy_id = x.applicant_legacy_id
     ON CONFLICT (audition_id, applicant_id) DO NOTHING`);
 
-  await load("Agent links", out.agentLinks, `
+  if (want("agents")) await load("Agent links", out.agentLinks, `
     INSERT INTO agent_clients (agent_id, performer_id, status, created_at)
     SELECT ag.id, pf.id, x.status, coalesce(x.created_at, now())
     FROM jsonb_to_recordset($1::jsonb) AS x(agent_legacy_id int, performer_legacy_id int, status text, created_at timestamptz)
@@ -242,7 +257,7 @@ try {
     JOIN accounts pf ON pf.legacy_id = x.performer_legacy_id
     ON CONFLICT (agent_id, performer_id) DO NOTHING`);
 
-  await load("Payments", out.payments, `
+  if (want("payments")) await load("Payments", out.payments, `
     INSERT INTO payments (legacy_key, account_id, plan_id, amount_ksh, phone, provider, reference, status, paid_at, created_at)
     SELECT x.legacy_key, a.id, x.plan_id, x.amount_ksh, left(x.phone, 20), x.provider, left(x.reference, 80), x.status, x.paid_at, coalesce(x.created_at, now())
     FROM jsonb_to_recordset($1::jsonb) AS x(legacy_key text, account_legacy_id int, plan_id text, amount_ksh int, phone text, provider text, reference text,
@@ -250,13 +265,13 @@ try {
     JOIN accounts a ON a.legacy_id = x.account_legacy_id
     ON CONFLICT (legacy_key) DO NOTHING`);
 
-  await load("Sio Bahati bookings", out.bookings, `
+  if (want("bookings")) await load("Sio Bahati bookings", out.bookings, `
     INSERT INTO service_bookings (legacy_id, service, full_name, email, phone, preferred_date, notes, status, created_at)
     SELECT x.legacy_id, left(x.service, 40), left(x.full_name, 160), left(x.email, 200), left(x.phone, 40), left(x.preferred_date, 60), x.notes, x.status, coalesce(x.created_at, now())
     FROM jsonb_to_recordset($1::jsonb) AS x(legacy_id int, service text, full_name text, email text, phone text, preferred_date text, notes text, status text, created_at timestamptz)
     ON CONFLICT (legacy_id) DO NOTHING`);
 
-  await load("Location requests", out.locationRequests, `
+  if (want("locations")) await load("Location requests", out.locationRequests, `
     INSERT INTO location_requests (legacy_id, organization, email, country, phone, nature, crew, from_date, to_date, location_type, services, details, status, created_at)
     SELECT x.legacy_id, left(x.organization, 200), left(x.email, 200), left(x.country, 80), left(x.phone, 40), left(x.nature, 200), left(x.crew, 40),
            left(x.from_date, 40), left(x.to_date, 40), left(x.location_type, 80), left(x.services, 300), x.details, x.status, coalesce(x.created_at, now())
@@ -265,16 +280,42 @@ try {
     ON CONFLICT (legacy_id) DO NOTHING`);
 
   // Blog posts go in as content; existing posts with the same link name are left alone
-  await load("Blog posts", out.articles, `
+  if (want("articles")) await load("Blog posts", out.articles, `
     INSERT INTO content_items (kind, slug, data, published, sort_order)
     SELECT 'articles', left(x.slug, 200), x.data, x.published, 0
     FROM jsonb_to_recordset($1::jsonb) AS x(slug text, data jsonb, published boolean)
     ON CONFLICT (kind, slug) DO NOTHING`);
 
+  if (want("listings")) {
+    // The directory reads the database once its section is marked as copied in (lib/content.ts), so copy the
+    // built-in listings in first, as /admin would, or they'd disappear from the page
+    const [seeded] = await sql(`SELECT 1 FROM site_settings WHERE key = 'seeded:contactListings'`);
+    if (!seeded) {
+      await sql(`
+        INSERT INTO content_items (kind, slug, data, published, sort_order)
+        SELECT 'contactListings', NULL, x.data, true, x.sort_order
+        FROM jsonb_to_recordset($1::jsonb) AS x(data jsonb, sort_order int)`,
+        [JSON.stringify(builtInListings.map((data, i) => ({ data, sort_order: i * 10 })))]);
+      await sql(`INSERT INTO site_settings (key, value, updated_at) VALUES ('seeded:contactListings', $1::jsonb, now()) ON CONFLICT (key) DO NOTHING`,
+        [JSON.stringify({ at: new Date().toISOString(), count: builtInListings.length })]);
+    }
+    // Added once: edits made in /admin are kept on later runs. Someone already listed under the same email, or
+    // under a longer form of the same name (RafikiHub's own listing), isn't added again.
+    await load("Contact listings", out.contactListings, `
+      INSERT INTO content_items (kind, slug, data, published, sort_order)
+      SELECT 'contactListings', left(x.slug, 200), x.data, true, 1000
+      FROM jsonb_to_recordset($1::jsonb) AS x(slug text, data jsonb)
+      WHERE NOT EXISTS (
+        SELECT 1 FROM content_items c
+        WHERE c.kind = 'contactListings' AND c.slug IS DISTINCT FROM x.slug
+          AND (lower(c.data->>'email') = lower(x.data->>'email') OR starts_with(lower(c.data->>'name'), lower(x.data->>'name'))))
+      ON CONFLICT (kind, slug) DO NOTHING`);
+  }
+
   await sql(
     `INSERT INTO site_settings (key, value, updated_at) VALUES ('import:last', $1::jsonb, now())
      ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = now()`,
-    [JSON.stringify({ at: new Date().toISOString(), file: path.basename(file), summary, skipped: out.report.skipped, notes: out.report.notes, filesCopied: copyFiles })],
+    [JSON.stringify({ at: new Date().toISOString(), file: path.basename(file), summary, skipped: out.report.skipped, notes: out.report.notes, filesCopied: copyFiles, only })],
   );
 } catch (e) {
   console.error(`\nThe import stopped: ${e.message}`);
@@ -283,5 +324,6 @@ try {
 }
 
 log("\nDone. Open /admin to check the members and profiles.");
-if (out.articles.length) log("Imported blog posts show on the site once Blog posts is copied into the database in /admin (Website content → Blog posts).");
+if (want("listings") && out.contactListings.length) log("Contact listings show on /contact-listings within the hour (the page caches for up to an hour), and can be edited in /admin (Website content → RafikiHub Connect listings).");
+if (want("articles") && out.articles.length) log("Imported blog posts show on the site once Blog posts is copied into the database in /admin (Website content → Blog posts).");
 if (!copyFiles) log("Photos, reels and voice clips still load from the old site's files on Hostinger. When the new site takes over rafikihub.com, serve those files from a subdomain and set LEGACY_ASSETS_URL.");

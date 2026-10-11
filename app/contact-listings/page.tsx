@@ -2,6 +2,7 @@ import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { Photo } from "@/components/Photo";
 import { images } from "@/lib/images";
 import { getContent } from "@/lib/content";
 import { pageMeta } from "@/lib/seo";
@@ -21,7 +22,7 @@ export default async function ContactListingsPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "RafikiHub Connect contact listings",
-    itemListElement: sorted.map((c, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Organization", name: c.name, description: c.description, ...(c.website ? { url: c.website } : {}), address: c.location } })),
+    itemListElement: sorted.map((c, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Organization", name: c.name, ...(c.description ? { description: c.description } : {}), ...(c.website ? { url: c.website } : {}), address: c.location } })),
   };
   return (
     <>
@@ -43,10 +44,17 @@ export default async function ContactListingsPage() {
               node: (
                 <article className={`listing${c.enhanced ? " listing--enhanced" : ""}`}>
                   {c.enhanced ? <span className="listing__badge">Enhanced listing</span> : null}
-                  <p className="card__genre">{c.type}</p>
-                  <h2 className="card__title">{c.name}</h2>
-                  <p className="card__meta">{c.location}</p>
-                  <p className="card__excerpt">{c.description}</p>
+                  <div className="listing__head">
+                    <div className="listing__photo">
+                      <Photo src={c.image ?? undefined} alt="" label={c.name} sizes="64px" />
+                    </div>
+                    <div>
+                      <p className="card__genre">{c.type}</p>
+                      <h2 className="card__title">{c.name}</h2>
+                      <p className="card__meta">{c.location}</p>
+                    </div>
+                  </div>
+                  {c.description ? <p className="card__excerpt listing__about">{c.description}</p> : null}
                   <p className="listing__links">
                     {c.website ? <a href={c.website} target="_blank" rel="noopener">Website</a> : null}
                     {c.email ? <a href={`mailto:${c.email}`}>{c.email}</a> : null}

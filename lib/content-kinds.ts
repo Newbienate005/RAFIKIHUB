@@ -58,7 +58,7 @@ type KindConfig<K extends ContentKind> = {
 /** Today in Nairobi as YYYY-MM-DD (toISOString would give the UTC date, a day behind after 9pm EAT) */
 export const nairobiToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Nairobi" });
 
-const listingTypes = ["Agent", "Casting director", "Production company", "Photographer", "Training", "Service"] as const;
+const listingTypes = ["Agent", "Casting director", "Production company", "Corporate", "Photographer", "Training", "Service"] as const;
 
 export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
   articles: {
@@ -179,10 +179,11 @@ export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
       { name: "name", label: "Name", type: "text", required: true },
       { name: "type", label: "Type", type: "select", options: listingTypes, required: true },
       { name: "location", label: "Location", type: "text", required: true },
-      { name: "description", label: "Description", type: "textarea", required: true },
+      { name: "description", label: "Description", type: "textarea" },
       { name: "website", label: "Website", type: "url" },
       { name: "email", label: "Email", type: "email" },
       { name: "phone", label: "Phone", type: "text" },
+      { name: "image", label: "Photo or logo", type: "image" },
       { name: "enhanced", label: "Enhanced listing (highlighted and shown first)", type: "checkbox" },
     ],
     title: (d) => d.name,
