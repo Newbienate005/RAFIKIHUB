@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ContactSheet } from "@/components/ContactSheet";
@@ -9,7 +8,7 @@ import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { Testimonials } from "@/components/Testimonials";
 import { Photo } from "@/components/Photo";
-import { castingSteps, homePaths, memberTypes, timeline } from "@/lib/data";
+import { homePaths, memberTypes } from "@/lib/data";
 import { getArticles, getContent } from "@/lib/content";
 import { images } from "@/lib/images";
 import { shortDate } from "@/lib/dates";
@@ -60,18 +59,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Decorative: the same member types are listed as text under "Who can join" */}
-      <div className="ticker" aria-hidden="true">
-        <div className="ticker__track">
-          {[...memberTypes, ...memberTypes].map((c, i) => (
-            <Fragment key={`${c.key}-${i}`}>
-              <span>{c.name}</span>
-              <i />
-            </Fragment>
-          ))}
-        </div>
-      </div>
-
       <section className="section--tight section--white" aria-labelledby="what">
         <div className="wrap answer">
           <h2 id="what">What is RafikiHub?</h2>
@@ -107,38 +94,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section section--paper-2" aria-labelledby="journey">
-        <div className="wrap">
-          <p className="kicker">Our story</p>
-          <h2 id="journey">RafikiHub: our journey</h2>
-          <ol className="journey">
-            {timeline.map((t, i) => (
-              <li key={t.title} className={i === timeline.length - 1 ? "is-now" : undefined}>
-                <span className="journey__year">{t.year}</span>
-                <span className="journey__title">{t.title}</span>
-              </li>
-            ))}
-          </ol>
-          <Link href="/about#journey" className="link-strong">Read our full story →</Link>
-        </div>
-      </section>
-
-      <section className="section section--white" aria-labelledby="how">
-        <div className="wrap">
-          <h2 id="how">How casting works on RafikiHub</h2>
-          <p className="lead">From breakdown to audition in four steps.</p>
-          <ol className="steps">
-            {castingSteps.map((s) => (
-              <li key={s.title}>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className="section" aria-labelledby="who">
+      <section className="section section--paper-2" aria-labelledby="who">
         <div className="wrap">
           <h2 id="who">Who can join</h2>
           <p className="lead">Anyone working in, or ready to work in, the performing arts and production.</p>
@@ -232,17 +188,6 @@ export default async function Home() {
             <Link href="/faq">See all questions</Link>
           </div>
           <FaqList items={homeFaqs} />
-        </div>
-      </section>
-
-      <section className="section band">
-        <div className="wrap">
-          <h2>Ready to join RafikiHub?</h2>
-          <p>Choose a membership option and become part of Africa's centre of excellence for the performing arts.</p>
-          <div className="btn-row">
-            <Link href="/join" className="btn btn--sun">Join as talent</Link>
-            <Link href="/contact" className="btn btn--ghost">Ask us a question</Link>
-          </div>
         </div>
       </section>
     </>

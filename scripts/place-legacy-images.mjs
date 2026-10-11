@@ -73,7 +73,6 @@ const photos = [
 const logos = [
   ["16347070531.png", "/images/partners/maumau-arts.png"],
   ["16347092861.png", "/images/partners/national-youth-theatre-kenya.png"],
-  ["16887986701.png", "/images/partners/greenlight-films.png"],
   ["16887989581.png", "/images/partners/redflash-films.png"],
   ["16741502801.png", "/images/partners/amitations-studio.png"],
   ["16741503971.png", "/images/partners/triggerfish.png"],

@@ -298,6 +298,7 @@ export function transform(t, { assetsBase }) {
 
   /* talent profiles: performers, crew and pets */
   const profiles = [];
+  let emptyPets = 0;
   for (const u of kept) {
     const roleId = int(u.roles_id);
     if (roleId === 2) continue;
@@ -362,15 +363,19 @@ export function transform(t, { assetsBase }) {
       representedByRafikiHub: false,
       createdAt: dateOnly(u.created_at) ?? new Date().toISOString().slice(0, 10),
     };
+    // A pet profile with no photos and none of the pet details filled in is an empty page: keep it hidden
+    const emptyPet = roleId === 5 && !data.media.headshots.length && !data.pet.type && !data.pet.breed && !data.pet.skills.length;
+    if (emptyPet) emptyPets++;
     profiles.push({
       profile_url: url,
       full_name: data.fullName,
       category,
-      published: accountStatus(u.status) === "active" && yes(u.visible),
+      published: accountStatus(u.status) === "active" && yes(u.visible) && !emptyPet,
       data,
     });
   }
   const docs = t.get("files")?.length ?? 0;
+  if (emptyPets) report.notes.push(`${emptyPets} pet profiles have no photos or details, so they're imported unpublished.`);
   if (docs) report.notes.push(`${docs} uploaded documents (IDs, KRA PINs, certificates) were left out on purpose.`);
 
   /* castings */

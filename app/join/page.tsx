@@ -7,7 +7,6 @@ import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { joinBenefits, memberTypes, plans } from "@/lib/data";
 import { getContent } from "@/lib/content";
-import { PlanCards } from "@/components/PlanCards";
 import { faqSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
@@ -47,15 +46,6 @@ export default async function JoinPage() {
         </div>
       </section>
 
-      <section className="section section--white" aria-labelledby="plans">
-        <div className="wrap">
-          <p className="kicker">Membership options</p>
-          <h2 id="plans">Choose a plan</h2>
-          <PlanCards />
-          <p className="small" style={{ marginTop: "1.5rem" }}><Link href="/membership">Compare plans in detail</Link></p>
-        </div>
-      </section>
-
       <section className="section">
         <div className="wrap form-wrap">
           <div>
@@ -66,6 +56,7 @@ export default async function JoinPage() {
               <li>Invitations to workshops, mentoring and headshot sessions</li>
               <li>The chance to be considered for RafikiHub Talent Management</li>
             </ul>
+            <p className="small">Basic is Ksh {plans[0].priceKsh.toLocaleString("en-KE")} a month, and the 6 and 12 month plans cost less per month. <Link href="/membership">Compare membership options</Link>.</p>
             <h2 style={{ marginTop: "2.5rem" }}>Membership types</h2>
             <dl className="cats cats--detail cats--photos">
               {memberTypes.map((m) => (

@@ -12,7 +12,7 @@ export function motionPaused() {
 }
 
 /**
- * Pause / play for the home page's moving content: the background slideshow, the scrolling ticker and
+ * Pause / play for the home page's moving content: the background slideshow and
  * the rotating testimonials. Anything that moves on its own for more than 5 seconds needs a way to stop
  * it (WCAG 2.2.2). The choice is remembered on this device. Hidden when reduced motion is on, since
  * nothing moves then.
