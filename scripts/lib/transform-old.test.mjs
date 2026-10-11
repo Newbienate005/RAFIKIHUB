@@ -26,7 +26,7 @@ test("helpers", () => {
 test("accounts: roles, duplicates, passwords and sensitive fields", () => {
   const ids = out.accounts.map((a) => a.legacy_id).sort((a, b) => a - b);
   // 1 admin, 7 rooms/studio and 8 (no email) are left out; 4 is a duplicate of 3's email
-  assert.deepEqual(ids, [2, 3, 5, 6, 9, 10, 11]);
+  assert.deepEqual(ids, [2, 3, 5, 6, 9, 10, 11, 12, 13, 14]);
   assert.equal(out.report.skipped["duplicate emails (kept the active or most recent account)"], 1);
   assert.equal(byLegacy(2).email, "casting@example.test");
   assert.equal(byLegacy(2).role, "casting");
@@ -112,6 +112,27 @@ test("inbox items and blog posts", () => {
   assert.equal(draft.published, false);
   assert.equal(draft.data.genre, "Member story");
   assert.ok(out.report.notes.some((n) => n.includes("1 old videos")));
+});
+
+test("contact listings: listed casting accounts, as the old contacts page showed them", () => {
+  // 12 is expired and 14 didn't ask to be listed; performers are never listed
+  assert.deepEqual(out.contactListings.map((l) => l.slug), ["legacy-2", "legacy-13"]);
+  assert.equal(out.report.skipped["contact listings of expired, blocked or unverified accounts"], 1);
+  const [kioko, pwani] = out.contactListings;
+  assert.deepEqual(kioko.data, {
+    name: "Kioko Casting",
+    type: "Casting director",
+    location: "Kenya",
+    description: "We cast film & TV.",
+    website: "https://kiokocasting.example",
+    email: "casting@example.test",
+    phone: "+254 711111111",
+    image: "https://rafikihub.com/assets/images/gallery/1614168350130.png",
+  });
+  assert.equal(pwani.data.type, "Corporate");
+  assert.equal(pwani.data.website, "https://pwani.example/team", "a bare domain gets https://");
+  assert.equal(pwani.data.phone, "+254 733 000 000");
+  assert.ok(!("description" in pwani.data) && !("image" in pwani.data), "empty fields are left out");
 });
 
 test("pets: a pet profile with the old pet details", () => {

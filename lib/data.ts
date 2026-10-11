@@ -700,12 +700,15 @@ export const videos: Video[] = [
 // The directory of industry contacts ("Rafiki Data Bank") from the old site.
 export type ContactListing = {
   name: string;
-  type: "Agent" | "Casting director" | "Production company" | "Photographer" | "Training" | "Service";
+  type: "Agent" | "Casting director" | "Production company" | "Corporate" | "Photographer" | "Training" | "Service";
   location: string;
-  description: string;
+  /** Empty for listings imported from accounts that never wrote a bio */
+  description?: string;
   website?: string;
   email?: string;
   phone?: string;
+  /** Photo or logo */
+  image?: Maybe<string>;
   /** Enhanced listings appear first and are highlighted */
   enhanced?: boolean;
 };

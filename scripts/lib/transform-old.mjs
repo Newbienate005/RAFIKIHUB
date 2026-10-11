@@ -378,6 +378,38 @@ export function transform(t, { assetsBase }) {
   if (emptyPets) report.notes.push(`${emptyPets} pet profiles have no photos or details, so they're imported unpublished.`);
   if (docs) report.notes.push(`${docs} uploaded documents (IDs, KRA PINs, certificates) were left out on purpose.`);
 
+  /* contact listings: the old contacts page ("Rafiki Data Bank") listed casting, agent and corporate accounts
+     that ticked contact_listing, unless expired, blocked or unverified. Same shape as ContactListing in lib/data.ts. */
+  const listingType = (c) => ({ agent: "Agent", corporate: "Corporate" })[(clean(c) ?? "").toLowerCase()] ?? "Casting director";
+  const listingSite = (v) => {
+    const s = clean(v);
+    if (!s) return null;
+    if (/^https?:\/\/\S+$/i.test(s)) return s;
+    return /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(s) ? `https://${s}` : null;
+  };
+  // The old page joined the dialling code and the number, which members often typed with a leading 0
+  const listingPhone = (code, phone) => {
+    const p = clean(phone)?.replace(/\s+/g, " ");
+    if (!p) return null;
+    const c = clean(code);
+    return c && c !== "0" ? `${c} ${p.replace(/^0/, "")}` : p;
+  };
+  const contactListings = kept.flatMap((u) => {
+    if (int(u.roles_id) !== 2 || (clean(u.contact_listing) ?? "").toLowerCase() !== "yes") return [];
+    if (["expired", "blocked", "unverified"].includes((clean(u.status) ?? "").toLowerCase())) { skip("contact listings of expired, blocked or unverified accounts"); return []; }
+    const data = {
+      name: fixText(u.name) ?? "RafikiHub member",
+      type: listingType(u.membership_category),
+      location: fixText(u.country) ?? "Kenya",
+      description: htmlToText(u.agent_bio),
+      website: listingSite(u.website),
+      email: clean(u.email).toLowerCase(),
+      phone: listingPhone(u.code, u.phone),
+      image: asset("images/gallery", u.image_link),
+    };
+    return [{ slug: `legacy-${int(u.id)}`, data: Object.fromEntries(Object.entries(data).filter(([, v]) => v)) }];
+  });
+
   /* castings */
   const cats = groupBy(t.get("talent_categories"), "talent_id");
   const countries = groupBy(t.get("talent_countries"), "talent_id");
@@ -483,5 +515,5 @@ export function transform(t, { assetsBase }) {
     if (n) report.notes.push(`${n} old ${why} were not imported.`);
   }
 
-  return { accounts, profiles, auditions, applications, agentLinks, payments, bookings, locationRequests, articles, report };
+  return { accounts, profiles, auditions, applications, agentLinks, payments, bookings, locationRequests, articles, contactListings, report };
 }
