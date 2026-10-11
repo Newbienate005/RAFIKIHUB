@@ -1,12 +1,13 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { emptyProfile, parseProfileForm } from "@/lib/admin/profile-form";
 import { getDb } from "@/lib/db";
 import { accounts, talentProfiles } from "@/lib/db/schema";
 import { profileCompleteness } from "@/lib/profile-completeness";
+import { profileTag } from "@/lib/profiles";
 import { assertMaster } from "@/lib/session";
 import type { FormState } from "@/components/admin/AdminForm";
 
@@ -17,6 +18,7 @@ function db() {
 }
 
 function refresh(url: string) {
+  revalidateTag(profileTag(url));
   revalidatePath(`/profile/${url}`);
   revalidatePath("/talent-management");
   revalidatePath("/admin/profiles");

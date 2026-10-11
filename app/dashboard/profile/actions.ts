@@ -1,7 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/admin/AdminForm";
 import { emptyProfile, parseProfileForm } from "@/lib/admin/profile-form";
@@ -9,6 +9,7 @@ import { profileCategories, type TalentProfile } from "@/lib/data";
 import { getDb } from "@/lib/db";
 import { accounts, talentProfiles } from "@/lib/db/schema";
 import { profileCompleteness } from "@/lib/profile-completeness";
+import { profileTag } from "@/lib/profiles";
 import { getSession } from "@/lib/session";
 
 const slug = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "member";
@@ -64,6 +65,7 @@ export async function saveOwnProfile(_prev: FormState, form: FormData): Promise<
     console.error("[member] profile save failed", e);
     return { message: "We couldn't save that. Try again." };
   }
+  revalidateTag(profileTag(url!));
   revalidatePath(`/profile/${url}`);
   revalidatePath("/dashboard/performer");
   // Saved from the dashboard's Edit CV tab: back there

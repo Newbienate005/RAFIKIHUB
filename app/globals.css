@@ -171,6 +171,11 @@ p { margin: 0 0 1em; text-wrap: pretty; }
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: rgba(18, 18, 18, .86); -webkit-backdrop-filter: saturate(160%) blur(14px); backdrop-filter: saturate(160%) blur(14px);
 }
+/* Phones: a solid header and no film grain. Both are costly to paint on a mid-range phone and barely visible at that size. */
+@media (max-width: 760px) {
+  .site-header::before { background: rgba(18, 18, 18, .97); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  body::after { display: none; }
+}
 .site-header__inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1.5rem; min-height: 72px; position: relative; }
 .site-header__side { display: flex; align-items: center; gap: 1.25rem; min-width: 0; }
 .site-header__side--end { justify-content: flex-end; }
@@ -744,15 +749,18 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .rotator .quote__face { width: 56px; height: 56px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent); }
 .rotator cite { font-style: normal; font-weight: 700; display: block; }
 .rotator .role { color: var(--muted); font-size: 0.875rem; }
-.rotator__dots { display: flex; gap: 0.5rem; margin-top: 2.25rem; flex-wrap: wrap; }
-.rotator__dots button { width: 10px; height: 10px; border-radius: 999px; border: 0; padding: 0; background: var(--line-strong); cursor: pointer; transition: width .3s, background-color .3s; }
-.rotator__dots button:hover { background: var(--subtle); }
-.rotator__dots button[aria-pressed="true"] { width: 32px; background: var(--accent); }
+/* Each dot is drawn small inside a 24px tap target (WCAG 2.5.8) */
+.rotator__dots { display: flex; margin: 1.75rem 0 0 -7px; flex-wrap: wrap; }
+.rotator__dots button { position: relative; width: 24px; height: 24px; border: 0; padding: 0; background: transparent; cursor: pointer; transition: width .3s; }
+.rotator__dots button::before { content: ""; position: absolute; left: 7px; right: 7px; top: 7px; height: 10px; border-radius: 999px; background: var(--line-strong); transition: background-color .3s; }
+.rotator__dots button:hover::before { background: var(--subtle); }
+.rotator__dots button[aria-pressed="true"] { width: 46px; }
+.rotator__dots button[aria-pressed="true"]::before { background: var(--accent); }
 /* Reduced motion: quotes cross-fade in place instead of sliding */
 @media (prefers-reduced-motion: reduce) {
   .rotator__item, .rotator__item.is-active, .rotator__item.is-leaving { transform: none; transition: opacity .25s ease, visibility 0s .25s; }
   .rotator__item.is-active { transition: opacity .25s ease, visibility 0s; }
-  .rotator__dots button { transition: none; }
+  .rotator__dots button, .rotator__dots button::before { transition: none; }
 }
 
 /* Kick-off: edge-to-edge photo beside copy */
@@ -1200,6 +1208,17 @@ a.admin-list__title:hover { color: var(--accent); }
 .clip { background: var(--surface); border-radius: 8px; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
 .clip__video, .clip__frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; background: #000; display: block; }
 .clip__frame iframe { width: 100%; height: 100%; border: 0; border-radius: 6px; }
+/* A showreel before it is played: nothing downloads until this is pressed */
+.clip__start {
+  display: grid; place-items: center; align-content: center; gap: 0.75rem; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 6px;
+  background: radial-gradient(circle at 50% 42%, rgba(255,128,51,.18), transparent 60%), var(--mudcloth-light), #000;
+  color: var(--text); font: 700 0.75rem var(--body); letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; touch-action: manipulation;
+}
+.clip__play { width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); transition: transform .25s var(--ease-settle); }
+.clip__play svg { margin-left: 3px; }
+@media (hover: hover) { .clip__start:hover .clip__play { transform: scale(1.06); } }
+.clip__start:active .clip__play { transform: scale(.96); }
+@media (prefers-reduced-motion: reduce) { .clip__play { transition: none; } }
 .clip__audio { width: 100%; height: 2.5rem; color-scheme: dark; }
 .clip__title { margin: 0; font-weight: 700; font-size: 0.875rem; }
 .clip__meta { margin: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }

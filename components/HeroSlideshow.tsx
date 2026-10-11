@@ -16,7 +16,8 @@ export function HeroSlideshow() {
     <div className="hero__slides" aria-hidden="true" style={{ "--slides": slides.length } as React.CSSProperties}>
       {slides.map((src, i) => (
         <div key={src} className="hero__slide" style={{ "--i": i } as React.CSSProperties}>
-          <Image src={src} alt="" fill sizes="100vw" priority={i === 0} />
+          {/* The first photo is the largest thing on the page: fetch it first. They sit under a dark wash, so a lighter file is fine. */}
+          <Image src={src} alt="" fill sizes="100vw" quality={60} priority={i === 0} fetchPriority={i === 0 ? "high" : "low"} />
         </div>
       ))}
     </div>
