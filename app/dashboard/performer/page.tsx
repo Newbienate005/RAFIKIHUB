@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell";
 import { plans } from "@/lib/data";
-import { castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
+import { applicationLabel, castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
+import { getMyAgents, getMyApplications } from "@/lib/dashboard-data";
 import { MyMedia } from "@/components/profile/MyMedia";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { ProfileFields, profileFieldLabels } from "@/components/profile/ProfileFields";
@@ -34,6 +35,9 @@ export default async function PerformerDashboard({ searchParams }: Props) {
   const progress = Math.round((done.size / completenessItems.length) * 100);
   // Breakdowns published in the admin; the sample list only shows until the first one goes live
   const live = tab === "opportunities" ? await getOpenBreakdowns() : [];
+  // Signed-in members see their own applications and agents; the master preview sees samples
+  const applications = tab === "opportunities" && real ? await getMyApplications(real.account.id) : [];
+  const agents = tab === "agents" && real ? await getMyAgents(real.account.id) : [];
   const closes = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
 
   return (
@@ -130,42 +134,69 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           {tab === "opportunities" ? (
             <>
               <section aria-labelledby="postings">
-                <h2 id="postings">Talent postings {live.length ? null : <SampleTag />}</h2>
-                <p className="small">Live castings appear here once your membership is active. You can apply when the casting is open and you match its categories, countries and gender.</p>
-                <div className="table-scroll">
-                  <table className="credits subs">
-                    <thead><tr><th scope="col">Casting</th><th scope="col">Type</th><th scope="col">Gender</th><th scope="col">Closes</th><th scope="col">Status</th><th scope="col"><span className="sr-only">Action</span></th></tr></thead>
-                    <tbody>
-                      {live.map((c) => (
-                        <tr key={c.id}>
-                          <td><strong>{c.title}</strong><br /><span className="small">{[c.ref, c.location, c.categories.length ? c.categories.join(", ") : "All categories"].filter(Boolean).join(" · ")}</span></td>
-                          <td>{c.type}</td>
-                          <td>{c.gender}</td>
-                          <td>{closes(c.closesOn)}</td>
-                          <td><span className={`status status--${c.filled ? "filled" : "open"}`}>{c.filled ? "Filled" : "Open"}</span></td>
-                          <td><button type="button" className="btn btn--ink btn--sm" disabled title="Applying opens with member logins">Apply</button></td>
-                        </tr>
-                      ))}
-                      {live.length ? null : sampleCastings.map((c) => {
-                        const status = castingStatus(c);
-                        return (
+                <h2 id="postings">Talent postings {live.length || real ? null : <SampleTag />}</h2>
+                <p className="small">Open castings appear here while they&apos;re accepting applications. Online applications are being set up: until then, email <a href={`mailto:${site.email}`}>{site.email}</a> with the casting reference and your profile link.</p>
+                {live.length ? (
+                  <div className="table-scroll">
+                    <table className="credits subs">
+                      <thead><tr><th scope="col">Casting</th><th scope="col">Type</th><th scope="col">Gender</th><th scope="col">Closes</th><th scope="col">Status</th></tr></thead>
+                      <tbody>
+                        {live.map((c) => (
                           <tr key={c.id}>
-                            <td><strong>{c.title}</strong><br /><span className="small">{c.id} · {c.location} · {c.roles}</span></td>
+                            <td><strong>{c.title}</strong><br /><span className="small">{[c.ref, c.location, c.categories.length ? c.categories.join(", ") : "All categories"].filter(Boolean).join(" · ")}</span></td>
                             <td>{c.type}</td>
                             <td>{c.gender}</td>
-                            <td>{c.closes}</td>
-                            <td><span className={`status status--${status.toLowerCase()}`}>{status}</span></td>
-                            <td><button type="button" className="btn btn--ink btn--sm" disabled>Apply</button></td>
+                            <td>{closes(c.closesOn)}</td>
+                            <td><span className={`status status--${c.filled ? "filled" : "open"}`}>{c.filled ? "Filled" : "Open"}</span></td>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : real ? (
+                  <p className="small dash-empty">There are no open castings right now. New ones appear here as soon as they go live, so check back soon.</p>
+                ) : (
+                  <div className="table-scroll">
+                    <table className="credits subs">
+                      <thead><tr><th scope="col">Casting</th><th scope="col">Type</th><th scope="col">Gender</th><th scope="col">Closes</th><th scope="col">Status</th></tr></thead>
+                      <tbody>
+                        {sampleCastings.map((c) => {
+                          const status = castingStatus(c);
+                          return (
+                            <tr key={c.id}>
+                              <td><strong>{c.title}</strong><br /><span className="small">{c.id} · {c.location} · {c.roles}</span></td>
+                              <td>{c.type}</td>
+                              <td>{c.gender}</td>
+                              <td>{c.closes}</td>
+                              <td><span className={`status status--${status.toLowerCase()}`}>{status}</span></td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </section>
               <section className="panel" aria-labelledby="applied">
                 <h2 id="applied">My applications</h2>
-                <p className="small">You haven't applied for any castings yet. Castings you apply for are listed here, and you can withdraw an application while the casting is open.</p>
+                {applications.length ? (
+                  <div className="table-scroll">
+                    <table className="credits subs">
+                      <thead><tr><th scope="col">Casting</th><th scope="col">Applied</th><th scope="col">Status</th></tr></thead>
+                      <tbody>
+                        {applications.map((a) => (
+                          <tr key={a.id}>
+                            <td><strong>{a.title}</strong><br /><span className="small">{a.ref} · {a.type} · {a.castingStatus === "published" ? `closes ${closes(a.closesOn)}` : "closed"}</span></td>
+                            <td>{a.appliedAt.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</td>
+                            <td><span className={`status status--${a.status}`}>{applicationLabel(a.status)}</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="small">{real ? "You haven't applied for any castings yet. Castings you apply for are listed here with their status." : "Members see the castings they've applied for here, with their status."}</p>
+                )}
               </section>
             </>
           ) : null}
@@ -244,18 +275,22 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           {tab === "agents" ? (
             <>
               <section aria-labelledby="agents">
-                <h2 id="agents">My agents <SampleTag /></h2>
+                <h2 id="agents">My agents {real ? null : <SampleTag />}</h2>
                 <p className="small">Link your RafikiHub profile to your agent so they can submit you for roles. The agent approves the link from their dashboard.</p>
-                <div className="table-scroll">
-                  <table className="credits subs">
-                    <thead><tr><th scope="col">Agent</th><th scope="col">City</th><th scope="col">Status</th></tr></thead>
-                    <tbody>
-                      {sampleAgents.map((a) => (
-                        <tr key={a.name}><td><strong>{a.name}</strong></td><td>{a.city}</td><td><span className={`status status--${a.status.toLowerCase()}`}>{a.status}</span></td></tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                {real && !agents.length ? (
+                  <p className="small dash-empty">You haven&apos;t linked an agent yet. If you have one, email <a href={`mailto:${site.email}`}>{site.email}</a> and we&apos;ll connect you.</p>
+                ) : (
+                  <div className="table-scroll">
+                    <table className="credits subs">
+                      <thead><tr><th scope="col">Agent</th><th scope="col">Country</th><th scope="col">Status</th></tr></thead>
+                      <tbody>
+                        {real
+                          ? agents.map((a) => <tr key={a.id}><td><strong>{a.name}</strong></td><td>{a.country ?? "Not given"}</td><td><span className={`status status--${a.status}`}>{a.status === "approved" ? "Approved" : "Waiting for the agent"}</span></td></tr>)
+                          : sampleAgents.map((a) => <tr key={a.name}><td><strong>{a.name}</strong></td><td>{a.city}</td><td><span className={`status status--${a.status.toLowerCase()}`}>{a.status}</span></td></tr>)}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </section>
               <section className="panel" aria-labelledby="representation">
                 <h2 id="representation">Looking for representation?</h2>

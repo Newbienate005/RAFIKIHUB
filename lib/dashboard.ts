@@ -90,13 +90,7 @@ export const sampleRoster = [
   { name: "Joy Wairimu", category: "Young performer", status: "Pending" },
 ];
 
-export const sampleTalent = [
-  { name: "Amina Wanjiru", category: "Actress", gender: "Female", city: "Nairobi", age: "24 to 30", languages: ["English", "Swahili"] },
-  { name: "Brian Otieno", category: "Actor", gender: "Male", city: "Kisumu", age: "28 to 35", languages: ["English", "Swahili", "Dholuo"] },
-  { name: "Faith Njeri", category: "Actress", gender: "Female", city: "Nairobi", age: "18 to 24", languages: ["English", "Swahili", "Kikuyu"] },
-  { name: "Kevin Mutua", category: "Actor", gender: "Male", city: "Machakos", age: "30 to 40", languages: ["English", "Swahili", "Kamba"] },
-  { name: "Zawadi Hassan", category: "Dancer", gender: "Female", city: "Mombasa", age: "20 to 28", languages: ["English", "Swahili"] },
-  { name: "Leo Kamau", category: "Young performer", gender: "Male", city: "Nairobi", age: "10 to 13", languages: ["English", "Swahili"] },
-  { name: "Mercy Chebet", category: "Model", gender: "Female", city: "Eldoret", age: "20 to 26", languages: ["English", "Swahili", "Kalenjin"] },
-  { name: "David Ouma", category: "Crew", gender: "Male", city: "Nairobi", age: "30 to 45", languages: ["English", "Swahili"] },
-];
+
+/** How an application's status reads to the performer and the casting professional. */
+const applicationLabels: Record<string, string> = { new: "Submitted", shortlisted: "Shortlisted", "audition-booked": "Audition booked", declined: "Not selected", withdrawn: "Withdrawn" };
+export const applicationLabel = (status: string) => applicationLabels[status] ?? status;

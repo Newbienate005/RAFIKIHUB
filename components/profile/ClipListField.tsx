@@ -63,7 +63,11 @@ export function ClipListField({ name, label, kind, defaultValue = [], folder, hi
           {clips.map((c, i) => (
             <li key={c.url + i}>
               <div className="clip-list__head">
-                <span className="clip-list__icon" aria-hidden="true">{kind === "video" ? "▶" : "♪"}</span>
+                <span className="clip-list__icon" aria-hidden="true">{kind === "video" ? (
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zm-7 9a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2a5 5 0 0 1-10 0z" fill="currentColor" /></svg>
+                )}</span>
                 <input type="text" value={c.title ?? ""} onChange={(e) => retitle(i, e.target.value)} placeholder={`Title, e.g. ${kind === "video" ? "Drama reel 2025" : "Radio ad, Swahili"}`} maxLength={120} aria-label={`Title of ${noun} ${i + 1}`} />
                 <div className="img-list__tools">
                   <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Move ${noun} ${i + 1} up`}>↑</button>

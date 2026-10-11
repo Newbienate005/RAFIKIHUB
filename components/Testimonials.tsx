@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import type { Testimonial } from "@/lib/data";
 import { haptic } from "@/lib/view-transition";
+import { MOTION_EVENT, motionPaused } from "./MotionToggle";
 import { Photo } from "./Photo";
 
 /** Where a flick would come to rest (Apple's projection), in px from the release point.
@@ -23,6 +24,8 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
   const [dir, setDir] = useState<1 | -1>(1); // 1: the next quote comes in from the right
   const [paused, setPaused] = useState(false);
   const [userControlled, setUserControlled] = useState(false);
+  // The home page's Pause button (or reduced motion) stops the rotation too
+  const [stilled, setStilled] = useState(false);
   const iRef = useRef(0);
   const dirRef = useRef<1 | -1>(1);
   const stage = useRef<HTMLDivElement>(null);
@@ -49,12 +52,18 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
   };
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || paused || userControlled || n < 2) return;
+    const sync = () => setStilled(motionPaused());
+    sync();
+    window.addEventListener(MOTION_EVENT, sync);
+    return () => window.removeEventListener(MOTION_EVENT, sync);
+  }, []);
+
+  useEffect(() => {
+    if (stilled || paused || userControlled || n < 2) return;
     const id = setInterval(() => go((iRef.current + 1) % n, 1), 7000);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paused, userControlled, n]);
+  }, [stilled, paused, userControlled, n]);
 
   const activeEl = () => stage.current?.querySelector<HTMLElement>(".rotator__item.is-active") ?? null;
 
@@ -123,7 +132,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
         ref={stage}
         className="rotator__stage"
         style={{ "--dir": dir } as CSSProperties}
-        aria-live={paused || userControlled ? "polite" : "off"}
+        aria-live={paused || userControlled || stilled ? "polite" : "off"}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd}
