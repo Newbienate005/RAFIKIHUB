@@ -18,7 +18,7 @@ export function VideoPlayer({ video }: { video: Video }) {
         <button type="button" className={`video__start${playing && !loaded ? " is-loading" : ""}`} onClick={() => setPlaying(true)} aria-label={`Play video: ${title}`} disabled={playing} aria-busy={playing && !loaded}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`} alt="" loading="lazy" />
-          <span className="video__play" aria-hidden="true">▶</span>
+          <span className="video__play" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" /></svg></span>
           {video.duration ? <span className="video__dur">{video.duration}</span> : null}
         </button>
         {playing ? (

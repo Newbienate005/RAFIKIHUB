@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { PasswordInput } from "./PasswordInput";
 
 type Result = { ok?: boolean; error?: string; message?: string; redirect?: string; fields?: Record<string, string> };
 
@@ -31,7 +32,11 @@ function Field({ id, label, type, autoComplete, error, hint, extra }: { id: stri
   return (
     <div className="field">
       <div className="field__row"><label htmlFor={id}>{label}</label>{extra}</div>
-      <input id={id} name={id} type={type} autoComplete={autoComplete} required aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : undefined} />
+      {type === "password" ? (
+        <PasswordInput id={id} name={id} autoComplete={autoComplete} required aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : undefined} />
+      ) : (
+        <input id={id} name={id} type={type} autoComplete={autoComplete} required aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : undefined} />
+      )}
       {error ? <p id={`${id}-err`} className="field-error">{error}</p> : hint ? <p className="hint">{hint}</p> : null}
     </div>
   );

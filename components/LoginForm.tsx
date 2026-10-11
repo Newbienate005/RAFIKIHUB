@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { PasswordInput } from "./auth/PasswordInput";
 
 export function LoginForm() {
   const [state, setState] = useState<"idle" | "sending">("idle");
@@ -32,7 +33,7 @@ export function LoginForm() {
     <form className="form" method="post" action="/api/auth/login" onSubmit={onSubmit} noValidate>
       <div className="field">
         <label htmlFor="master-password">Master password</label>
-        <input id="master-password" name="password" type="password" autoComplete="current-password" required aria-invalid={error ? true : undefined} aria-describedby={error ? "master-password-err" : undefined} />
+        <PasswordInput id="master-password" name="password" autoComplete="current-password" required aria-invalid={error ? true : undefined} aria-describedby={error ? "master-password-err" : undefined} />
       </div>
       {error ? <p id="master-password-err" className="form-error" role="alert">{error}</p> : null}
       <button className="btn btn--sun" type="submit" disabled={state === "sending"}>{state === "sending" ? "Signing in…" : "Sign in"}</button>

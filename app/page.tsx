@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ContactSheet } from "@/components/ContactSheet";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { MotionToggle } from "@/components/MotionToggle";
 import { ArticleCard } from "@/components/ArticleCard";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
@@ -34,6 +35,7 @@ export default async function Home() {
 
       <section className="hero hero--slides">
         <HeroSlideshow />
+        <MotionToggle />
         <div className="wrap hero__grid">
           <div>
             <p className="kicker">Karibu · Africa's performing arts community</p>
