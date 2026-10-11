@@ -29,6 +29,10 @@ export default async function TalentManagementPage() {
         title={<>Looking for an agent? <em>RafikiHub Talent Management</em></>}
         lead="We represent a select group of actors of all ages across radio, theatre, commercials, film and television."
         crumbs={[{ name: "Talent management", path: "/talent-management" }]}
+        actions={<>
+          <a className="btn btn--sun" href={`mailto:${site.talentEmail}?subject=Representation%20enquiry`}>Email the talent team</a>
+          {roster.length ? <a className="btn btn--ghost" href="#roster">Meet our rafikis</a> : null}
+        </>}
       />
       <Answer question="How do I get an acting agent in Kenya?">
         Apply to an agency that represents actors in your market. RafikiHub Talent Management represents a small roster of

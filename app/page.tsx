@@ -98,14 +98,25 @@ export default async function Home() {
         <div className="wrap">
           <h2 id="who">Who can join</h2>
           <p className="lead">Anyone working in, or ready to work in, the performing arts and production.</p>
-          <dl className="cats">
+          {/* Each opens the join form with that membership type chosen (a full page load, so the form reads ?as=) */}
+          <ul className="cats cats--links">
             {memberTypes.map((c) => (
-              <div key={c.key}>
-                <dt>{c.name}</dt>
-                <dd>{c.tagline}</dd>
-              </div>
+              <li key={c.key}>
+                <a href={`/join?as=${c.key}#join-form`}>
+                  <span className="cats__name">{c.name}</span>
+                  <span className="cats__text">{c.tagline}</span>
+                  <span className="cats__go">Apply now <span aria-hidden="true">→</span></span>
+                </a>
+              </li>
             ))}
-          </dl>
+            <li>
+              <Link href="/contact">
+                <span className="cats__name">Not sure where you fit?</span>
+                <span className="cats__text">Tell us what you do and we'll point you to the right membership.</span>
+                <span className="cats__go">Ask us <span aria-hidden="true">→</span></span>
+              </Link>
+            </li>
+          </ul>
         </div>
       </section>
 

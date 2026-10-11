@@ -11,6 +11,8 @@ export type Field = {
   optionLabels?: string[];
   /** Pre-select this field from a URL query parameter, e.g. ?plan=premium */
   defaultFromQuery?: string;
+  /** Short names the query parameter may use instead of the option values, in the same order, e.g. ?as=agent */
+  optionKeys?: string[];
   required?: boolean;
   autoComplete?: string;
   hint?: string;
@@ -43,7 +45,9 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     for (const f of fields) {
-      const v = f.defaultFromQuery ? params.get(f.defaultFromQuery) : null;
+      const raw = f.defaultFromQuery ? params.get(f.defaultFromQuery) : null;
+      const keyed = raw && f.optionKeys ? f.options?.[f.optionKeys.indexOf(raw)] : undefined;
+      const v = keyed ?? raw;
       const el = v ? formRef.current?.elements.namedItem(f.name) : null;
       if (v && (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) && (!f.options || f.options.includes(v))) el.value = v;
     }

@@ -24,6 +24,7 @@ export default function ServicesPage() {
         title={<>It's not luck. It's <em>preparation</em>.</>}
         lead="Sio bahati means 'it's not luck' in Swahili. Headshots, showreels and audition prep to give casting directors every reason to call you in."
         crumbs={[{ name: "Sio Bahati Services", path: "/services" }]}
+        actions={<a className="btn btn--sun" href="#book">Book a session</a>}
       />
       <Answer question="Where can I get acting headshots in Nairobi?">
         RafikiHub's Sio Bahati Services offer professional acting headshots, showreels and one-to-one audition preparation

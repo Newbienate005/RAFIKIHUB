@@ -13,9 +13,11 @@ type Props = {
   kicker?: string;
   /** A banner photo, faded into the dark behind the title (decorative). Skipped if the file isn't there. */
   image?: string;
+  /** Buttons under the lead, for the page's main action */
+  actions?: React.ReactNode;
 };
 
-export function PageHeader({ title, lead, crumbs, kicker, image }: Props) {
+export function PageHeader({ title, lead, crumbs, kicker, image, actions }: Props) {
   const photo = image && available.has(image) ? image : null;
   return (
     <header className={photo ? "page-header page-header--photo pattern" : "page-header pattern"}>
@@ -39,6 +41,7 @@ export function PageHeader({ title, lead, crumbs, kicker, image }: Props) {
         {kicker ? <p className="kicker">{kicker}</p> : null}
         <h1>{title}</h1>
         <p className="lead">{lead}</p>
+        {actions ? <div className="btn-row page-header__actions">{actions}</div> : null}
       </div>
     </header>
   );
