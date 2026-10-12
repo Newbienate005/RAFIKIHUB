@@ -241,30 +241,47 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .hero__proof strong { color: var(--text); font-weight: 700; }
 @media (max-width: 900px) { .hero__grid { grid-template-columns: 1fr; } }
 
-/* The old site's background slideshow: five photos, 6s each, cross-fading on a 30s loop (its own timing).
-   Darkened towards the text side so the headline and buttons stay readable. */
+/* The old site's background slideshow: five photos, 6s each, on a 30s loop. Each cross-fade takes 1.2s,
+   so a photo is seen on its own rather than double-exposed with the next. The keyframe percentages
+   assume five slides (1.2s and 6s of 30s). */
 .hero--slides::before { display: none; }
 .hero__slides { position: absolute; inset: 0; z-index: -2; background: var(--bg); }
-.hero__slide { position: absolute; inset: 0; opacity: 0; animation: hero-slide calc(var(--slides) * 6s) linear infinite; animation-delay: calc(var(--i) * 6s - 2.4s); will-change: opacity; }
+.hero__slide { position: absolute; inset: 0; opacity: 0; animation: hero-slide calc(var(--slides) * 6s) linear infinite; animation-delay: calc(var(--i) * 6s - 1.2s); will-change: opacity; }
+/* The first photo is a base layer that never fades out: the others fade in over it, so a slow connection that
+   hasn't fetched the next photo yet still shows a picture rather than an empty hero. */
+.hero__slide:first-child { opacity: 1; animation: none; will-change: auto; }
 .hero__slide img { object-fit: cover; }
-/* fade in over 2.4s, hold, fade out over 2.4s; each slide overlaps the next as it goes */
+/* Each photo fades in over 1.2s on top of the one before (later slides stack higher), which stays fully
+   visible underneath until it's covered, so the two never blend into a double exposure. Then it drops out
+   unseen. The last photo instead fades out, revealing the first again. */
 @keyframes hero-slide {
-  0% { opacity: 0; animation-timing-function: ease-in; }
-  8% { opacity: 1; animation-timing-function: ease-out; }
-  17% { opacity: 1; }
-  25% { opacity: 0; }
+  0% { opacity: 0; animation-timing-function: ease-in-out; }
+  4% { opacity: 1; }
+  24% { opacity: 1; }
+  24.01% { opacity: 0; }
   100% { opacity: 0; }
 }
+@keyframes hero-slide-last {
+  0% { opacity: 0; animation-timing-function: ease-in-out; }
+  4% { opacity: 1; }
+  20% { opacity: 1; animation-timing-function: ease-in-out; }
+  24% { opacity: 0; }
+  100% { opacity: 0; }
+}
+.hero__slide:last-child:not(:first-child) { animation-name: hero-slide-last; }
+/* A lighter wash than before, so the photos read: dark enough behind the text column only, nearly
+   clear elsewhere. The text carries a soft shadow of its own for the brighter frames. */
 .hero__slides::after {
   content: ""; position: absolute; inset: 0;
   background:
-    linear-gradient(90deg, rgba(18,18,18,.86) 0%, rgba(18,18,18,.6) 36%, rgba(18,18,18,.22) 68%, rgba(18,18,18,.32) 100%),
-    linear-gradient(0deg, var(--bg) 0%, transparent 26%),
-    linear-gradient(180deg, rgba(18,18,18,.5) 0%, transparent 16%);
+    linear-gradient(90deg, rgba(18,18,18,.78) 0%, rgba(18,18,18,.64) 42%, rgba(18,18,18,.28) 56%, rgba(18,18,18,.1) 70%, rgba(18,18,18,.18) 100%),
+    linear-gradient(0deg, var(--bg) 0%, transparent 22%),
+    linear-gradient(180deg, rgba(18,18,18,.45) 0%, transparent 14%);
 }
-@media (max-width: 900px) { .hero__slides::after { background: linear-gradient(180deg, rgba(18,18,18,.4) 0%, rgba(18,18,18,.62) 40%, rgba(18,18,18,.86) 70%, var(--bg) 100%); } }
+@media (max-width: 900px) { .hero__slides::after { background: linear-gradient(180deg, rgba(18,18,18,.3) 0%, rgba(18,18,18,.5) 38%, rgba(18,18,18,.8) 68%, var(--bg) 100%); } }
+.hero--slides h1, .hero--slides .lead, .hero--slides .kicker, .hero--slides .hero__proof { text-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 18px rgba(0,0,0,.45); }
 @media (prefers-reduced-motion: reduce) {
-  .hero__slide { animation: none; }
+  .hero__slide { animation: none; will-change: auto; }
   .hero__slide:first-child { opacity: 1; }
 }
 /* Pause / play for the moving background and rotating testimonials (WCAG 2.2.2) */
