@@ -239,6 +239,14 @@ p { margin: 0 0 1em; text-wrap: pretty; }
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--line-strong);
 }
 .hero__proof strong { color: var(--text); font-weight: 700; }
+/* Two paths, one per audience, each with a line on what it gets you */
+.hero__paths { display: flex; flex-wrap: wrap; gap: 1.1rem 1.5rem; }
+.hero__paths > div { display: flex; flex-direction: column; align-items: flex-start; gap: 0.65rem; }
+.hero__paths p { margin: 0; max-width: 16rem; font-size: 0.875rem; line-height: 1.45; color: var(--text-soft); }
+@media (max-width: 480px) {
+  .kicker__more { display: none; }
+  .hero__paths > div { width: 100%; }
+}
 @media (max-width: 900px) { .hero__grid { grid-template-columns: 1fr; } }
 
 /* The old site's background slideshow: five photos, 6s each, on a 30s loop. Each cross-fade takes 1.2s,
@@ -279,7 +287,7 @@ p { margin: 0 0 1em; text-wrap: pretty; }
     linear-gradient(180deg, rgba(18,18,18,.45) 0%, transparent 14%);
 }
 @media (max-width: 900px) { .hero__slides::after { background: linear-gradient(180deg, rgba(18,18,18,.3) 0%, rgba(18,18,18,.5) 38%, rgba(18,18,18,.8) 68%, var(--bg) 100%); } }
-.hero--slides h1, .hero--slides .lead, .hero--slides .kicker, .hero--slides .hero__proof { text-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 18px rgba(0,0,0,.45); }
+.hero--slides h1, .hero--slides .lead, .hero--slides .kicker, .hero--slides .hero__proof, .hero--slides .hero__paths p { text-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 18px rgba(0,0,0,.45); }
 @media (prefers-reduced-motion: reduce) {
   .hero__slide { animation: none; will-change: auto; }
   .hero__slide:first-child { opacity: 1; }
@@ -315,10 +323,24 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .sheet__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem 0.75rem; }
 .sheet__grid li { position: relative; }
 .sheet__frame { position: relative; aspect-ratio: 4 / 5; background: #E2DACF; overflow: hidden; border-radius: 1px; }
-.sheet__frame .photo { filter: grayscale(.25) contrast(1.05); transition: filter .4s; }
+.sheet__frame .photo { filter: grayscale(.25) contrast(1.05); transition: filter .4s, transform .5s var(--ease-settle); }
+/* Each headshot opens that member's profile */
+.sheet__link { display: block; color: inherit; text-decoration: none; border-radius: 2px; }
+.sheet__link:hover { color: inherit; }
+.sheet__link:focus-visible { outline-offset: 4px; }
+.sheet__view {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 1.4rem 0.4rem 0.4rem; text-align: center;
+  background: linear-gradient(transparent, rgba(18,18,18,.78)); color: #fff; font: 700 0.62rem var(--body); letter-spacing: 0.1em; text-transform: uppercase;
+  opacity: 0; transition: opacity .25s;
+}
+.sheet__link:hover .sheet__view, .sheet__link:focus-visible .sheet__view { opacity: 1; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .sheet__link:hover .photo { transform: scale(1.04); } }
+.sheet__link:hover .photo, .sheet__link:focus-visible .photo { filter: none; }
 .sheet__grid li.is-picked .sheet__frame .photo, .sheet:hover .sheet__frame .photo { filter: none; }
 .sheet__name { font-weight: 700; font-size: 0.8rem; margin: 0.45rem 0 0; line-height: 1.25; color: var(--paper-ink); }
 .sheet__role { font-size: 0.72rem; color: var(--paper-muted); margin: 0; line-height: 1.3; }
+/* Phones: just the row with the circled shortlist, so the sheet is half the height */
+@media (max-width: 600px) { .sheet__grid li:nth-child(-n+3) { display: none; } }
 .sheet figcaption { font-family: var(--display); font-style: italic; font-weight: 800; color: #B34E12; font-size: 1rem; text-align: right; margin-top: 0.6rem; transform: rotate(-2deg); }
 .sheet__circle { position: absolute; inset: -9% -13% -16% -13%; width: 126%; height: 125%; pointer-events: none; overflow: visible; }
 .sheet__circle path { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 720; stroke-dashoffset: 0; animation: draw 1.1s 0.5s cubic-bezier(.6,.1,.3,1) both; }
@@ -819,6 +841,11 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .partners__list > li { width: min(10.5rem, calc(50% - 0.375rem)); aspect-ratio: 2 / 1; }
 .partners__list > li > a, .partners__list > li > img, .partners__list > li > .partners__name { display: grid; place-items: center; width: 100%; height: 100%; }
 .partners__list > li > .partners__name { background: var(--surface-2); border-radius: 8px; padding: 0.5rem; font-size: 1rem; }
+/* Under the hero: a compact row of logos as early proof */
+.partners--strip { background: var(--bg); padding-block: 1.5rem 2.75rem; }
+.partners--strip .partners__title { font: 700 0.75rem var(--body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.partners--strip .partners__list { margin-top: 1rem; gap: 0.6rem; }
+.partners--strip .partners__list > li { width: min(7.25rem, calc(33.333% - 0.4rem)); }
 .partners__name { font-family: var(--display); font-weight: 800; font-size: 1.2rem; color: var(--muted); text-align: center; display: block; }
 .partners__name .small { display: block; font-family: var(--body); font-size: 0.75rem; font-weight: 400; }
 .partners__list img { width: 100%; height: 100%; max-width: none; object-fit: contain; padding: 0.8rem 1.1rem; background: #EEEEEE; border-radius: 8px; filter: grayscale(1); opacity: .7; transition: filter .3s, opacity .3s, transform .3s; }

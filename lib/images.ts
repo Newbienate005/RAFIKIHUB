@@ -11,14 +11,14 @@ export const images = {
   /** Leave as null to use the all-caps RAFIKIHUB wordmark. Set a path to use an image logo instead. */
   logo: null as string | null,
 
-  // Hero contact sheet: six performer headshots
+  // Hero contact sheet: six members' headshots, each linking to their profile (old-site link names, which don't change)
   hero: [
-    { src: "/images/people/olivia-makena-makau.jpg", name: "Olivia Makena Makau", role: "Actress" },
-    { src: "/images/people/sam-wachira.jpg", name: "Sam Wachira", role: "Independent performer" },
-    { src: "/images/people/bob-zenga.jpg", name: "Bob Zenga", role: "Actor" },
-    { src: "/images/people/lucy-maina.jpg", name: "Lucy Maina", role: "Actress" },
-    { src: "/images/people/derrick-kinyanjui.jpg", name: "Derrick Kinyanjui", role: "Actor" },
-    { src: "/images/people/mirell-nazi.jpg", name: "Mirell Nazi", role: "Independent performer" },
+    { src: "/images/people/olivia-makena-makau.jpg", name: "Olivia Makena Makau", role: "Actress", profile: "lD-8MnKIXg801" },
+    { src: "/images/people/sam-wachira.jpg", name: "Sam Wachira", role: "Independent performer", profile: "vIGi-X9vvE10186" },
+    { src: "/images/people/bob-zenga.jpg", name: "Bob Zenga", role: "Actor", profile: "hVxRLpbdwA132" },
+    { src: "/images/people/lucy-maina.jpg", name: "Lucy Maina", role: "Actress", profile: "hId-M9Uv3m1599" },
+    { src: "/images/people/derrick-kinyanjui.jpg", name: "Derrick Kinyanjui", role: "Actor", profile: "3RyAis99jd1529" },
+    { src: "/images/people/mirell-nazi.jpg", name: "Mirell Nazi", role: "Independent performer", profile: "yBI81h6Vev965" },
   ],
 
   // Hero background: the old home page's slideshow, faded into each other in this order
