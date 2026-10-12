@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Answer } from "@/components/Answer";
 import { CtaBand } from "@/components/CtaBand";
 import { PageHeader } from "@/components/PageHeader";
 import { Photo } from "@/components/Photo";
@@ -11,7 +12,7 @@ import { site } from "@/lib/site";
 export const metadata = pageMeta({
   title: "About RafikiHub, Kenya's casting platform",
   description:
-    "RafikiHub connects performers with roles in theatre, TV and film, and boosts the showcase of Kenyan, East African and African talent. Founded in Nairobi by actress Kate Snow.",
+    "RafikiHub connects performers with roles in theatre, TV and film, and showcases Kenyan and African talent. Founded in Nairobi by actress Kate Snow.",
   path: "/about",
 });
 
@@ -25,6 +26,11 @@ export default async function AboutPage() {
         lead="Our mission is to create easy links between artists and industry professionals, while boosting the showcase of Kenyan, East African and African talent."
         crumbs={[{ name: "About", path: "/about" }]}
       />
+      <Answer question="Who founded RafikiHub?">
+        RafikiHub was founded in Nairobi by actress {site.founder}, who came home to Kenya in 2017 after working as an actress in
+        London. The platform launched in 2021 and now has {site.memberCount} members, from actors and crew to agents and casting
+        directors, finding work in theatre, TV and film.
+      </Answer>
       <section className="section">
         <div className="wrap split">
           <div className="prose">

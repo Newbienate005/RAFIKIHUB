@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const article = await find(slug);
   if (!article) return {};
-  const meta = pageMeta({ title: article.title, description: article.excerpt, path: `/blog/${article.url}` });
+  const meta = pageMeta({ title: article.title, description: article.excerpt, path: `/blog/${article.url}`, image: article.image });
   return {
     ...meta,
     openGraph: { ...meta.openGraph, type: "article", publishedTime: article.publishedAt, modifiedTime: article.updatedAt ?? article.publishedAt, section: article.genre, authors: [article.author] },

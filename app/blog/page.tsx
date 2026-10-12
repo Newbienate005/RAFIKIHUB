@@ -1,4 +1,5 @@
 import { ArticleCard } from "@/components/ArticleCard";
+import { Answer } from "@/components/Answer";
 import { BlogFilter } from "@/components/BlogFilter";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
@@ -27,6 +28,10 @@ export default async function BlogPage() {
         lead="News, reviews, member stories and advice from Kenya's performing arts scene."
         crumbs={[{ name: "Blog", path: "/blog" }]}
       />
+      <Answer question="What does the RafikiHub blog cover?">
+        News, reviews, member stories and practical advice for performers in Kenya: how casting works on RafikiHub, how to get a
+        headshot that gets you called in, and reviews of productions from Nairobi&apos;s stages and screens.
+      </Answer>
       <section className="section">
         <div className="wrap">
           <h2 className="eyebrow">Latest</h2>

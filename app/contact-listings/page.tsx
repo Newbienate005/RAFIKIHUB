@@ -1,3 +1,4 @@
+import { Answer } from "@/components/Answer";
 import { CtaBand } from "@/components/CtaBand";
 import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
@@ -33,6 +34,11 @@ export default async function ContactListingsPage() {
         lead="A trusted directory of agents, casting directors and the services performers rely on."
         crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Connect", path: "/contact-listings" }]}
       />
+      <Answer question="What is RafikiHub Connect?">
+        A directory of {sorted.length} talent agents, casting professionals and companies working with performers in Kenya and across
+        Africa. Each listing shows what they do, where they are and how to reach them, and agents, casting directors and
+        companies can request a listing of their own.
+      </Answer>
       <section className="section">
         <div className="wrap">
           <FilterGrid
