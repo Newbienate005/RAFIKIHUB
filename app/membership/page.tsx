@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
 
 export const metadata = pageMeta({
   title: "Membership options and prices",
-  description: "RafikiHub membership: Basic Ksh 250 per month, Standard Ksh 1,250 for 6 months, Premium Ksh 2,500 for 12 months. Every plan includes a full profile and casting submissions.",
+  description: "RafikiHub membership: Basic Ksh 250 a month, Standard Ksh 1,250 for 6 months, Premium Ksh 2,500 a year. Every plan has a full profile and castings.",
   path: "/membership",
 });
 

@@ -9,7 +9,7 @@ import { serviceSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
 const description =
-  "Post a casting breakdown on RafikiHub and reach actors, models, performers and agents across Kenya and Africa. Review every submission in one place and invite your shortlist to audition.";
+  "Post a casting breakdown on RafikiHub to reach actors, models and agents across Kenya and Africa, then review submissions and invite your shortlist.";
 
 export const metadata = pageMeta({ title: "Post a casting call in Kenya", description, path: "/casting" });
 

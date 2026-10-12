@@ -13,7 +13,7 @@ import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 const description =
-  "RafikiHub Talent Management represents a select group of actors in Kenya across film, television, theatre, radio and commercials, with formal contracts, fair pay and career support.";
+  "RafikiHub Talent Management represents a select group of Kenyan actors across film, TV, theatre, radio and ads, with formal contracts and fair pay.";
 
 export const metadata = pageMeta({ title: "Talent management and agent representation in Kenya", description, path: "/talent-management" });
 

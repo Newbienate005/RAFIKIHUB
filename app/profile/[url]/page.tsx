@@ -9,6 +9,7 @@ import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, isPet, show, t
 import { reelsOf, voiceClipsOf } from "@/lib/media";
 import { getProfile, getSimilarProfiles } from "@/lib/profiles";
 import { breadcrumbSchema, profilePageSchema } from "@/lib/schema";
+import { defaultShareImage } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const revalidate = 3600; // refresh profile pages hourly
@@ -27,11 +28,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!p) return { title: "Profile not found", robots: { index: false } };
   const where = p.cities[0] ?? p.personalData.country;
   const description = `${p.fullName}, ${p.category.toLowerCase()} based in ${where}. ${p.bio ?? "View headshots, credits, skills and showreel on RafikiHub."}`.slice(0, 160);
+  const shareImages = p.media.headshots[0] ? [{ url: p.media.headshots[0], alt: p.fullName }] : [defaultShareImage];
   return {
     title: `${p.fullName}, ${p.category}`,
     description,
     alternates: { canonical: `/profile/${p.profileUrl}` },
-    openGraph: { title: `${p.fullName} | RafikiHub`, description, type: "profile", url: `${site.url}/profile/${p.profileUrl}`, images: p.media.headshots[0] ? [p.media.headshots[0]] : undefined },
+    openGraph: { title: `${p.fullName} | RafikiHub`, description, type: "profile", url: `${site.url}/profile/${p.profileUrl}`, images: shareImages },
+    twitter: { card: "summary_large_image", title: `${p.fullName} | RafikiHub`, description, images: shareImages },
     robots: p.profileUrl === exampleProfile.profileUrl ? { index: false } : undefined,
   };
 }

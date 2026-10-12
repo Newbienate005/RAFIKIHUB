@@ -13,7 +13,7 @@ import { getArticles, getContent } from "@/lib/content";
 import { images } from "@/lib/images";
 import { shortDate } from "@/lib/dates";
 import { faqSchema } from "@/lib/schema";
-import { site } from "@/lib/site";
+import { getSiteStats } from "@/lib/stats";
 
 export const metadata: Metadata = {
   title: { absolute: "RafikiHub | Casting platform for actors and performers in Kenya" },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 
 export default async function Home() {
-  const [articles, faqs, partners, testimonials] = await Promise.all([getArticles(), getContent("faqs"), getContent("partners"), getContent("testimonials")]);
+  const [articles, faqs, partners, testimonials, stats] = await Promise.all([getArticles(), getContent("faqs"), getContent("partners"), getContent("testimonials"), getSiteStats()]);
   const homeFaqs = faqs.slice(0, 5);
   const latestArticles = articles.slice(0, 4);
   const quotes = testimonials.filter((t) => t.message.length > 20);
@@ -37,7 +37,7 @@ export default async function Home() {
         <MotionToggle />
         <div className="wrap hero__grid">
           <div>
-            <p className="kicker">Karibu · Africa's performing arts community</p>
+            <p className="kicker">Karibu<span className="kicker__more"> · Africa&apos;s performing arts community</span></p>
             <h1>
               <span className="line">Get seen.</span>
               <span className="line line--sun">Get cast.</span>
@@ -46,18 +46,46 @@ export default async function Home() {
               RafikiHub connects actors, models and performers across Kenya and Africa with the casting
               directors, agents and producers looking for them.
             </p>
-            <div className="btn-row">
-              <Link href="/join" className="btn btn--sun">Join as talent</Link>
-              <Link href="/casting" className="btn btn--ghost">Post a casting</Link>
+            {/* One path per audience, each with the reason to take it */}
+            <div className="hero__paths">
+              <div>
+                <Link href="/join" className="btn btn--sun">Join as talent</Link>
+                <p>Build a profile and get castings sent to you.</p>
+              </div>
+              <div>
+                <Link href="/casting" className="btn btn--ghost">Post a casting</Link>
+                <p>Post a brief and shortlist from {stats.members} members.</p>
+              </div>
             </div>
             <p className="hero__proof">
-              <strong>{site.memberCount} members</strong>, including agents and casting professionals across
-              the continent. Based in Nairobi.
+              <strong>{stats.members} members</strong>
+              {stats.castings && stats.applications
+                ? <>, {stats.castings} castings posted and {stats.applications.toLocaleString("en-KE")} applications sent. Based in Nairobi, working across Africa.</>
+                : <>, including agents and casting professionals across the continent. Based in Nairobi.</>}
             </p>
           </div>
           <ContactSheet />
         </div>
       </section>
+
+      {partners.length ? (
+        <section className="partners partners--strip" aria-labelledby="partners">
+          <div className="wrap">
+            <h2 id="partners" className="partners__title">Who we&apos;ve worked with</h2>
+            <ul className="partners__list">
+              {partners.map((p) => {
+                const mark = p.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.logo} alt={p.name} height={56} loading="lazy" />
+                ) : (
+                  <span className="partners__name">{p.name}{p.description ? <span className="small">{p.description}</span> : null}</span>
+                );
+                return <li key={p.name}>{p.url ? <a href={p.url} target="_blank" rel="noopener">{mark}</a> : mark}</li>;
+              })}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section className="section--tight section--white" aria-labelledby="what">
         <div className="wrap answer">
@@ -172,24 +200,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {partners.length ? (
-        <section className="section--tight partners" aria-labelledby="partners">
-          <div className="wrap">
-            <h2 id="partners" className="partners__title">Who we've worked with</h2>
-            <ul className="partners__list">
-              {partners.map((p) => {
-                const mark = p.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.logo} alt={p.name} height={56} loading="lazy" />
-                ) : (
-                  <span className="partners__name">{p.name}{p.description ? <span className="small">{p.description}</span> : null}</span>
-                );
-                return <li key={p.name}>{p.url ? <a href={p.url} target="_blank" rel="noopener">{mark}</a> : mark}</li>;
-              })}
-            </ul>
-          </div>
-        </section>
-      ) : null}
 
       <section className="section section--white" aria-labelledby="faq">
         <div className="wrap split">

@@ -13,7 +13,7 @@ import { pageMeta } from "@/lib/seo";
 export const metadata = pageMeta({
   title: "Join RafikiHub as an actor, model or performer",
   description:
-    "Create your RafikiHub profile and apply for film, TV, theatre and commercial castings in Kenya and Africa. Open to actors, young performers, models, make-up artists, stylists, agents and casting directors.",
+    "Create your RafikiHub profile and apply for film, TV, theatre and commercial castings in Kenya and Africa. Open to actors, models, crew, agents and more.",
   path: "/join",
 });
 
