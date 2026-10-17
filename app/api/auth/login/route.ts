@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const isForm = !(req.headers.get("content-type") ?? "").includes("application/json");
   // Form posts get redirects (303 so the browser follows with GET); fetch calls get JSON.
   const fail = (error: string, status: number) =>
-    isForm ? NextResponse.redirect(new URL("/login?error=1", req.url), 303) : NextResponse.json({ ok: false, error }, { status });
+    isForm ? NextResponse.redirect(new URL("/team-login?error=1", req.url), 303) : NextResponse.json({ ok: false, error }, { status });
 
   if (!sessionsEnabled()) {
     return fail("Sign-in isn't set up yet. Add SESSION_SECRET to the environment variables.", 503);

@@ -93,7 +93,7 @@ export function checkMasterPassword(input: string) {
 /** Guard for /admin pages: only the master login gets in. */
 export async function requireMaster() {
   const s = await getSession();
-  if (s?.kind !== "master") redirect("/login?next=/admin");
+  if (s?.kind !== "master") redirect("/team-login?next=/admin");
   return s;
 }
 

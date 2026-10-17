@@ -23,7 +23,7 @@ export function LoginForm() {
     setState("idle");
   }
 
-  // A no-script form post that failed comes back as /login?error=1
+  // A no-script form post that failed comes back as /team-login?error=1
   useEffect(() => {
     if (new URLSearchParams(window.location.search).has("error")) setError("That password isn't right.");
   }, []);

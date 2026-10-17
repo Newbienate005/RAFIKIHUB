@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MemberLoginForm } from "@/components/auth/AuthForms";
-import { LoginForm } from "@/components/LoginForm";
 import { dashboardRoles } from "@/lib/dashboard";
 import { getSession } from "@/lib/session";
 
@@ -12,7 +11,6 @@ type Props = { searchParams: Promise<{ error?: string }> };
 export default async function LoginPage({ searchParams }: Props) {
   const session = await getSession();
   const { error } = await searchParams;
-  const masterSetUp = Boolean(process.env.MASTER_PASSWORD);
   return (
     <section className="section">
       <div className="wrap auth">
@@ -39,15 +37,7 @@ export default async function LoginPage({ searchParams }: Props) {
               <MemberLoginForm />
             </div>
             <p className="small auth__note">New to RafikiHub? <Link href="/join">Apply for membership</Link>.</p>
-            <details className="auth__admin">
-              <summary>RafikiHub team login</summary>
-              <div className="panel">
-                <p className="small">The master login opens the admin and both dashboards.</p>
-                {masterSetUp ? <LoginForm /> : (
-                  <p className="form-error">The master login isn&apos;t set up yet. Add a <code>MASTER_PASSWORD</code> environment variable (in Vercel: Settings → Environment Variables) and redeploy.</p>
-                )}
-              </div>
-            </details>
+            <p className="small auth__note">RafikiHub team? <Link href="/team-login">Team login</Link> (password only).</p>
           </>
         )}
       </div>
