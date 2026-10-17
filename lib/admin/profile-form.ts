@@ -258,3 +258,19 @@ function keepMissing(f: FormData, base: TalentProfile, p: TalentProfile): Talent
     representedByRafikiHub: on("_adminFields") ? p.representedByRafikiHub : base.representedByRafikiHub,
   };
 }
+
+/**
+ * A member saving their own profile can only change what the member form shows. The browser decides
+ * which fields it sends, so anything the member form never renders (the representation badge,
+ * enhanced listing, public documents, contact details, the Pet category) goes back to the saved value.
+ */
+export function limitToMemberFields(p: TalentProfile, base: TalentProfile): TalentProfile {
+  return {
+    ...p,
+    category: p.category === "Pet" && base.category !== "Pet" ? base.category : p.category,
+    contactDetails: base.contactDetails,
+    isEnhanced: base.isEnhanced,
+    representedByRafikiHub: base.representedByRafikiHub,
+    media: { ...p.media, documents: base.media.documents },
+  };
+}

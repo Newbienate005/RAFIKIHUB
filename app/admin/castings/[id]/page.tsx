@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
@@ -15,6 +16,7 @@ type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: s
 const labels: Record<string, string> = { title: "Title", type: "Type", gender: "Who it's for", body: "Breakdown", closesOn: "Closing date", contactEmail: "Contact email" };
 
 export default async function BreakdownPage({ params, searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const { id } = await params;
   const sp = await searchParams;
   const isNew = id === "new";

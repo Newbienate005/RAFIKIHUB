@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/admin/AdminForm";
-import { emptyProfile, parseProfileForm } from "@/lib/admin/profile-form";
+import { emptyProfile, limitToMemberFields, parseProfileForm } from "@/lib/admin/profile-form";
 import { profileCategories, type TalentProfile } from "@/lib/data";
 import { getDb } from "@/lib/db";
 import { accounts, talentProfiles } from "@/lib/db/schema";
@@ -44,7 +44,8 @@ export async function saveOwnProfile(_prev: FormState, form: FormData): Promise<
   form.set("profileUrl", url!);
   const parsed = parseProfileForm(form, base);
   if ("errors" in parsed) return { errors: parsed.errors, message: "Some fields need attention." };
-  const p = { ...parsed.profile, profileUrl: url! };
+  // Admin-only fields keep their saved values, whatever the browser sent
+  const p = { ...limitToMemberFields(parsed.profile, base), profileUrl: url! };
 
   const values = {
     fullName: p.fullName,
