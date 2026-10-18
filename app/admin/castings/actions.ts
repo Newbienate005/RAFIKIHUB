@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/admin/AdminForm";
 import { breakdownTypes, breakdownGenders, applicationStatuses } from "@/lib/admin/castings";
+import { rememberForImport } from "@/lib/admin/import-guard";
 import { nairobiToday } from "@/lib/content-kinds";
 import { profileCategories } from "@/lib/data";
 import { getDb } from "@/lib/db";
@@ -62,6 +63,8 @@ export async function saveBreakdown(id: string, _prev: FormState, form: FormData
     if (castingCallId) await db().update(castingCalls).set({ status: "in-progress" }).where(eq(castingCalls.id, castingCallId));
   } else {
     await db().update(auditions).set(values).where(eq(auditions.id, savedId));
+    // Edited here: re-running the old-site import must not overwrite it
+    await rememberForImport(db(), "import:moderated-auditions", savedId);
   }
   refresh();
   redirect(`/admin/castings/${savedId}?saved=1`);
@@ -76,6 +79,7 @@ export async function setBreakdownStatus(id: number, status: "draft" | "publishe
     .update(auditions)
     .set({ status, updatedAt: new Date(), ...(status === "published" && !row.publishedAt ? { publishedAt: new Date() } : {}) })
     .where(eq(auditions.id, id));
+  await rememberForImport(db(), "import:moderated-auditions", id);
   if (status === "published" && row.castingCallId) await db().update(castingCalls).set({ status: "published" }).where(eq(castingCalls.id, row.castingCallId));
   refresh();
 }

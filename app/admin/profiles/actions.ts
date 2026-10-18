@@ -3,6 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { rememberForImport } from "@/lib/admin/import-guard";
 import { emptyProfile, parseProfileForm } from "@/lib/admin/profile-form";
 import { getDb } from "@/lib/db";
 import { accounts, talentProfiles } from "@/lib/db/schema";
@@ -67,10 +68,11 @@ export async function saveProfile(originalUrl: string, _prev: FormState, form: F
 
 export async function setProfileFlag(url: string, flag: "published" | "represented", value: boolean) {
   await assertMaster();
-  const [row] = await db().select({ data: talentProfiles.data }).from(talentProfiles).where(eq(talentProfiles.profileUrl, url)).limit(1);
+  const [row] = await db().select({ data: talentProfiles.data, source: talentProfiles.source }).from(talentProfiles).where(eq(talentProfiles.profileUrl, url)).limit(1);
   if (!row) return;
   const set = flag === "published" ? { published: value } : { represented: value, data: { ...row.data, representedByRafikiHub: value } };
-  await db().update(talentProfiles).set({ ...set, updatedAt: new Date() }).where(eq(talentProfiles.profileUrl, url));
+  // "admin": moderated here, so re-running the old-site import never flips it back
+  await db().update(talentProfiles).set({ ...set, ...(row.source === "legacy" ? { source: "admin" } : {}), updatedAt: new Date() }).where(eq(talentProfiles.profileUrl, url));
   refresh(url);
 }
 
@@ -78,6 +80,8 @@ export async function deleteProfile(url: string) {
   await assertMaster();
   await db().delete(talentProfiles).where(eq(talentProfiles.profileUrl, url));
   await db().update(accounts).set({ profileUrl: null }).where(eq(accounts.profileUrl, url));
+  // So re-running the old-site import doesn't bring it back
+  await rememberForImport(db(), "import:deleted-profiles", url);
   refresh(url);
   redirect("/admin/profiles?deleted=1");
 }
