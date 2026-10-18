@@ -1,10 +1,10 @@
 import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdminHeader, NoDatabase, Pager, StatusPill, Tabs, fmtDate } from "@/components/admin/ui";
+import { AdminHeader, NoDatabase, Notice, Pager, StatusPill, Tabs, fmtDate } from "@/components/admin/ui";
 import { PAGE_SIZE, inboxTypes, isInboxKey, listInbox, statusLabel } from "@/lib/admin/inbox";
 
-type Props = { params: Promise<{ type: string }>; searchParams: Promise<{ status?: string; page?: string }> };
+type Props = { params: Promise<{ type: string }>; searchParams: Promise<{ status?: string; page?: string; missing?: string }> };
 
 export default async function InboxPage({ params, searchParams }: Props) {
   await requireMaster(); // the layout checks too, but a request can skip the layout
@@ -24,6 +24,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
     />
   );
   if (!result) return <>{header}<NoDatabase /></>;
+  const missing = sp.missing ? <Notice tone="info">That item isn&apos;t there any more. It may have been deleted in another tab, so nothing changed.</Notice> : null;
 
   const q = (s?: string, p?: number) => {
     const u = new URLSearchParams();
@@ -36,6 +37,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
   return (
     <>
       {header}
+      {missing}
       {statuses ? (
         <Tabs label="Filter by status" current={status ?? "all"} items={[{ key: "all", label: "All", href: q() }, ...statuses.map((s) => ({ key: s, label: statusLabel(s), href: q(s) }))]} />
       ) : null}

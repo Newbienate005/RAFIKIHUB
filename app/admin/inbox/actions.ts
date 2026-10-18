@@ -3,6 +3,7 @@
 import { eq, getTableColumns } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { inboxTypes, isInboxKey } from "@/lib/admin/inbox";
 import { getDb } from "@/lib/db";
 import { assertMaster } from "@/lib/session";
@@ -17,6 +18,8 @@ export async function setInboxStatus(key: string, id: number, form: FormData) {
   const db = getDb();
   if (!db) throw new Error("The database isn't connected.");
   const cols = getTableColumns(cfg.table) as Record<string, PgColumn>;
-  await db.update(cfg.table).set({ status } as never).where(eq(cols.id, id));
+  // Say whether it worked: an item deleted in another tab used to look like a successful change
+  const changed = Number.isInteger(id) ? await db.update(cfg.table).set({ status } as never).where(eq(cols.id, id)).returning({ id: cols.id }) : [];
   revalidatePath("/admin", "layout");
+  redirect(changed.length ? `/admin/inbox/${key}/${id}?updated=1` : `/admin/inbox/${key}?missing=1`);
 }

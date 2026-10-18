@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { TalentProfile } from "./data";
 import { getDb } from "./db";
 import { accounts, agentClients, auditionApplications, auditions, talentProfiles } from "./db/schema";
@@ -114,29 +114,41 @@ const like = (s: string) => `%${s.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
  * Published profiles matching a casting professional's search. Cities and languages are typed freely
  * on the old site ("Nairobi", "Nairobi, Kenya", "nairobi"…), so they match as text, ignoring case.
  * Profiles with a headshot come first.
+ *
+ * Filters run on lowercase generated columns with trigram indexes (scripts/sql/2026-10-18-talent-search.sql),
+ * so a search doesn't read every profile's whole record; only the fields a result card shows are fetched.
  */
 export async function searchTalent(f: TalentSearch, limit = 48): Promise<{ results: TalentResult[]; total: number }> {
   const db = getDb();
   if (!db) return { results: [], total: 0 };
   const where = [eq(talentProfiles.published, true)];
-  if (f.q?.trim()) where.push(ilike(talentProfiles.fullName, like(f.q.trim())));
+  const term = (v?: string) => like(v!.trim().toLowerCase());
+  if (f.q?.trim()) where.push(sql`search_name like ${term(f.q)}`);
   if (f.category) where.push(eq(talentProfiles.category, f.category));
-  if (f.city?.trim()) where.push(sql`(${talentProfiles.data}->'cities')::text ilike ${like(f.city.trim())}`);
-  if (f.language?.trim()) where.push(or(sql`(${talentProfiles.data}->'languages')::text ilike ${like(f.language.trim())}`, sql`(${talentProfiles.data}->'accents')::text ilike ${like(f.language.trim())}`)!);
+  if (f.city?.trim()) where.push(sql`search_places like ${term(f.city)}`);
+  if (f.language?.trim()) where.push(sql`search_languages like ${term(f.language)}`);
   try {
     const cond = and(...where);
     const [rows, [count]] = await Promise.all([
       db
-        .select({ data: talentProfiles.data })
+        .select({
+          profileUrl: talentProfiles.profileUrl,
+          fullName: talentProfiles.fullName,
+          category: talentProfiles.category,
+          cities: sql<string[] | null>`${talentProfiles.data}->'cities'`,
+          languages: sql<string[] | null>`${talentProfiles.data}->'languages'`,
+          headshot: sql<string | null>`${talentProfiles.data}->'media'->'headshots'->>0`,
+          playingAge: sql<TalentResult["playingAge"]>`${talentProfiles.data}->'personalData'->'playingAge'`,
+        })
         .from(talentProfiles)
         .where(cond)
-        .orderBy(sql`jsonb_array_length(${talentProfiles.data}->'media'->'headshots') = 0`, desc(talentProfiles.completeness), talentProfiles.fullName)
+        .orderBy(sql`has_headshot desc`, desc(talentProfiles.completeness), talentProfiles.fullName)
         .limit(limit),
       db.select({ n: sql<number>`count(*)::int` }).from(talentProfiles).where(cond),
     ]);
     return {
       total: count?.n ?? 0,
-      results: rows.map(({ data: p }) => ({ profileUrl: p.profileUrl, fullName: p.fullName, category: p.category, cities: p.cities, languages: p.languages, headshot: p.media.headshots[0] ?? null, playingAge: p.personalData.playingAge })),
+      results: rows.map((r) => ({ ...r, category: r.category as TalentResult["category"], cities: r.cities ?? [], languages: r.languages ?? [], playingAge: r.playingAge ?? null })),
     };
   } catch (e) {
     console.error("[dashboard] talent search failed", e);

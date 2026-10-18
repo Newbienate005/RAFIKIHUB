@@ -10,7 +10,7 @@ import { getDb } from "@/lib/db";
 import { contentItems, siteSettings } from "@/lib/db/schema";
 import { moveContent, seedKindAction, setPublished } from "../actions";
 
-type Props = { params: Promise<{ kind: string }>; searchParams: Promise<{ saved?: string; deleted?: string }> };
+type Props = { params: Promise<{ kind: string }>; searchParams: Promise<{ saved?: string; deleted?: string; missing?: string }> };
 
 export default async function ContentListPage({ params, searchParams }: Props) {
   await requireMaster(); // the layout checks too, but a request can skip the layout
@@ -63,6 +63,7 @@ export default async function ContentListPage({ params, searchParams }: Props) {
       {header}
       {sp.saved ? <Notice>Saved. The website is updated.</Notice> : null}
       {sp.deleted ? <Notice>Deleted.</Notice> : null}
+      {sp.missing ? <Notice tone="info">That item isn&apos;t there any more. It may have been deleted in another tab, so nothing changed.</Notice> : null}
       {items.length ? (
         <ul className="admin-list">
           {items.map((r) => (
