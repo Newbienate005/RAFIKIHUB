@@ -1,5 +1,6 @@
 "use client";
 
+import { isAllowedImageUrl } from "@/lib/image-hosts";
 import { upload } from "@vercel/blob/client";
 import { useId, useRef, useState } from "react";
 
@@ -67,6 +68,16 @@ export function ImageListField({ name, label, defaultValue = [], folder = "heads
   const file = useRef<HTMLInputElement>(null);
   const { busy, error, run } = useUploader(folder);
   const move = (i: number, d: -1 | 1) => setUrls((u) => { const n = [...u]; [n[i], n[i + d]] = [n[i + d], n[i]]; return n; });
+  const [pasteError, setPasteError] = useState("");
+  /** Only links the site can show: photos from anywhere else appear broken on the public profile. */
+  const addPasted = () => {
+    const v = paste.trim();
+    if (!v) return;
+    if (!isAllowedImageUrl(v)) return setPasteError("That link can't be shown on the site. Download the photo and use Upload images instead.");
+    if (urls.includes(v)) return setPasteError("That photo is already added.");
+    setUrls((x) => [...x, v]);
+    setPaste("");
+  };
   return (
     <div className="field">
       <span className="field__label">{label}</span>
@@ -74,7 +85,7 @@ export function ImageListField({ name, label, defaultValue = [], folder = "heads
       {urls.length ? (
         <ol className="img-list">
           {urls.map((u, i) => (
-            <li key={u + i}>
+            <li key={u}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={u} alt={`Headshot ${i + 1}`} />
               {i === 0 ? <span className="img-list__main">Main</span> : null}
@@ -92,9 +103,16 @@ export function ImageListField({ name, label, defaultValue = [], folder = "heads
       </div>
       <input ref={file} type="file" accept="image/*" multiple hidden onChange={(e) => e.target.files?.length && run(e.target.files, (u) => setUrls((x) => [...x, u]))} />
       <div className="img-field__paste">
-        <input type="url" inputMode="url" placeholder="…or paste an image link" value={paste} onChange={(e) => setPaste(e.target.value)} aria-label={`Add ${label.toLowerCase()} by link`} />
-        <button type="button" className="btn btn--ghost btn--sm" onClick={() => { if (/^https?:\/\//.test(paste.trim())) { setUrls((x) => [...x, paste.trim()]); setPaste(""); } }}>Add</button>
+        <input
+          type="url" inputMode="url" placeholder="…or paste an image link" value={paste}
+          onChange={(e) => { setPaste(e.target.value); setPasteError(""); }}
+          // Enter adds the link here, instead of submitting the whole profile form
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPasted(); } }}
+          aria-label={`Add ${label.toLowerCase()} by link`} aria-invalid={pasteError ? true : undefined}
+        />
+        <button type="button" className="btn btn--ghost btn--sm" onClick={addPasted}>Add</button>
       </div>
+      {pasteError ? <p className="field-error" role="alert">{pasteError}</p> : null}
       {error ? <p className="field-error" role="alert">{error}</p> : hint ? <p className="hint">{hint}</p> : null}
     </div>
   );

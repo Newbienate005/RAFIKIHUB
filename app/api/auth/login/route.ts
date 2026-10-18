@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getDb } from "@/lib/db";
+import { clearFailures, clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { MASTER_DAYS, SESSION_COOKIE, checkMasterPassword, cookieOptions, encodeSession, sessionsEnabled } from "@/lib/session";
 
 /** Where to go after signing in: only a path on this site, never another host. */
@@ -29,10 +31,22 @@ export async function POST(req: Request) {
   const password = isForm
     ? String((await req.formData().catch(() => null))?.get("password") ?? "")
     : await req.json().then((b: { password?: unknown } | null) => (typeof b?.password === "string" ? b.password : ""), () => "");
+  // Wrong guesses are capped per address (10 in 15 minutes) and site-wide (100 an hour)
+  const db = getDb();
+  const mine = `master:${clientIp(req)}`;
+  if (db) {
+    const [byIp, overall] = await Promise.all([failures(db, mine, 15 * 60), failures(db, "master:all", 60 * 60)]).catch((e) => {
+      console.error("[login] rate limit check failed", e);
+      return [0, 0];
+    });
+    if (byIp >= 10 || overall >= 100) return fail("Too many wrong passwords. Wait 15 minutes, then try again.", 429);
+  }
   if (!checkMasterPassword(password)) {
+    if (db) await Promise.all([recordFailure(db, mine, 15 * 60), recordFailure(db, "master:all", 60 * 60)]).catch((e) => console.error("[login] couldn't record a failed attempt", e));
     await new Promise((r) => setTimeout(r, 800)); // slow down guessing
     return fail("That password isn't right.", 401);
   }
+  if (db) await clearFailures(db, mine).catch(() => {});
   // The master login opens the admin; ?next= is only honoured for paths on this site
   const next = new URL(req.headers.get("referer") ?? req.url).searchParams.get("next");
   const dest = landingPath(next, req.url);

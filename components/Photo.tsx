@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isAllowedImageUrl } from "@/lib/image-hosts";
 import manifest from "@/lib/image-manifest.json";
 
 const available = new Set<string>(manifest as string[]);
@@ -15,7 +16,8 @@ type Props = {
 
 /** Fills its parent (give the parent a size or aspect-ratio). Falls back to an initials placeholder. */
 export function Photo({ src, alt, label, sizes = "(max-width: 768px) 100vw, 50vw", priority, className }: Props) {
-  if (src && (/^https?:\/\//.test(src) || available.has(src))) {
+  // Only hosts next/image may load; anything else would show as a broken picture
+  if (src && (isAllowedImageUrl(src) || available.has(src))) {
     return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={`photo ${className ?? ""}`} />;
   }
   const initials = (label ?? alt)

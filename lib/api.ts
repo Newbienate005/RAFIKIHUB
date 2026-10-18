@@ -1,9 +1,32 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type { ZodSchema } from "zod";
 import { getDb } from "@/lib/db";
+import { emailConfigured, sendEmail, submissionEmail } from "@/lib/email";
+import { site } from "@/lib/site";
 import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, decodeSession, encodeSession, type NewSession } from "@/lib/session";
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
+
+/** Forms the team hears about by email, by API path. Newsletter sign-ups are left out: too many, nothing to act on. */
+const notifyFor: Record<string, string> = {
+  join: "membership application",
+  casting: "casting request",
+  contact: "contact message",
+  booking: "booking request",
+  "location-request": "location request",
+};
+
+/** After the response is sent: email the team, and log loudly if that fails. */
+function notifyTeam(req: Request, data: Record<string, unknown>) {
+  const form = notifyFor[new URL(req.url).pathname.split("/").pop() ?? ""];
+  if (!form) return;
+  if (!emailConfigured()) {
+    if (process.env.NODE_ENV === "production") console.error(`[forms] RESEND_API_KEY isn't set, so nobody was told about a new ${form}.`);
+    return;
+  }
+  const to = process.env.NOTIFY_EMAIL || site.email;
+  after(() => sendEmail({ to, ...submissionEmail(form, data, `${site.url}/admin`) }).catch((e) => console.error(`[forms] couldn't email the team about a new ${form}`, e)));
+}
 
 type SignIn = { redirect: string; session: NewSession };
 
@@ -42,7 +65,8 @@ export async function handleForm<T extends { website?: string }>(
 
   const db = getDb();
   if (!db) {
-    console.warn("[forms] DATABASE_URL is not set. Submission not saved:", data);
+    // No names or emails in the logs
+    console.warn(`[forms] DATABASE_URL is not set, so a ${new URL(req.url).pathname} submission wasn't saved.`);
     return NextResponse.json(
       { ok: false, error: "The database isn't connected yet. Email info@rafikihub.com and we'll help directly." },
       { status: 503 },
@@ -50,10 +74,12 @@ export async function handleForm<T extends { website?: string }>(
   }
   try {
     await save(db, data);
+    notifyTeam(req, data);
     return success(req, signIn?.(data));
   } catch (err: unknown) {
     const code = (err as { code?: string })?.code;
-    if (code === "23505") return success(req, signIn?.(data)); // already saved (e.g. already subscribed)
+    // Already on file (e.g. already subscribed): fine, but no sign-in, since nothing proves this person owns that email
+    if (code === "23505") return success(req);
     console.error("[forms] save failed", err);
     return NextResponse.json(
       { ok: false, error: "We couldn't save that just now. Try again in a minute, or email info@rafikihub.com." },

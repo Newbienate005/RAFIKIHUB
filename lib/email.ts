@@ -14,6 +14,8 @@ export async function sendEmail({ to, subject, text, html }: { to: string; subje
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: process.env.EMAIL_FROM || "RafikiHub <no-reply@rafikihub.com>", to: [to], subject, text, html }),
+    // A stuck email service mustn't hang the request
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) throw new Error(`Resend refused the email (${res.status}): ${(await res.text()).slice(0, 200)}`);
 }
@@ -40,4 +42,17 @@ RafikiHub · info@rafikihub.com`;
 <tr><td style="padding-top:28px;font-size:12px;color:#7c7c7c">RafikiHub · info@rafikihub.com</td></tr>
 </table></td></tr></table></body></html>`;
   return { subject: "Reset your RafikiHub password", text, html };
+}
+
+/** Tells the team a form came in, so nothing waits unseen in /admin. Goes to NOTIFY_EMAIL, else the site address. */
+export function submissionEmail(form: string, data: Record<string, unknown>, adminUrl: string) {
+  const rows = Object.entries(data).filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== "");
+  const lines = rows.map(([k, v]) => `${k}: ${String(v)}`).join("\n");
+  const text = `New ${form} on RafikiHub\n\n${lines}\n\nOpen the inbox: ${adminUrl}`;
+  const cells = rows.map(([k, v]) => `<tr><td style="color:#555;vertical-align:top">${esc(k)}</td><td>${esc(String(v)).replace(/\n/g, "<br>")}</td></tr>`).join("");
+  const html = `<!doctype html><html><body style="font-family:Helvetica,Arial,sans-serif;color:#121212">
+<h2 style="margin:0 0 12px">New ${esc(form)} on RafikiHub</h2>
+<table cellpadding="6" style="border-collapse:collapse">${cells}</table>
+<p><a href="${esc(adminUrl)}">Open the inbox</a></p></body></html>`;
+  return { subject: `New ${form}: ${String(rows.find(([k]) => /name|company|organization/i.test(k))?.[1] ?? "RafikiHub")}`.slice(0, 140), text, html };
 }
