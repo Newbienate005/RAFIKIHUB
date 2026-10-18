@@ -7,17 +7,19 @@ import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Log in", robots: { index: false, follow: false } };
 
-type Props = { searchParams: Promise<{ error?: string }> };
+type Props = { searchParams: Promise<{ error?: string; next?: string }> };
 
 export default async function LoginPage({ searchParams }: Props) {
   const session = await getSession();
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
+  // Sent here from /admin: only the team password, no email form
+  const forAdmin = next?.startsWith("/admin") ?? false;
   const masterSetUp = Boolean(process.env.MASTER_PASSWORD);
   return (
     <section className="section">
       <div className="wrap auth">
-        <p className="kicker">Members</p>
-        <h1 className="auth__title">Log in to RafikiHub</h1>
+        <p className="kicker">{forAdmin && !session ? "RafikiHub team" : "Members"}</p>
+        <h1 className="auth__title">{forAdmin && !session ? "Team login" : "Log in to RafikiHub"}</h1>
         {session ? (
           <div className="panel">
             <p>You&apos;re already signed in{session.kind === "master" ? " with the master login" : ` as ${session.name}`}.</p>
@@ -31,6 +33,16 @@ export default async function LoginPage({ searchParams }: Props) {
               <button type="submit" className="link-button">Log out</button>
             </form>
           </div>
+        ) : forAdmin ? (
+          <>
+            <div className="panel">
+              <p className="small">Enter the team password to open the admin. No email needed.</p>
+              {masterSetUp ? <LoginForm /> : (
+                <p className="form-error">The master login isn&apos;t set up yet. Add a <code>MASTER_PASSWORD</code> environment variable (in Vercel: Settings → Environment Variables) and redeploy.</p>
+              )}
+            </div>
+            <p className="small auth__note">A member? <Link href="/login">Log in with your email</Link>.</p>
+          </>
         ) : (
           <>
             <div className="panel">
