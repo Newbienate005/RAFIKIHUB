@@ -1370,6 +1370,12 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 .auth .lead { margin: 0; }
 .auth__note { margin: 0; }
 .auth__logout { margin-top: 1.25rem; }
+.auth__admin { margin-top: 1rem; }
+.auth__admin summary { cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--muted); padding: 0.5rem 0; list-style: none; }
+.auth__admin summary::-webkit-details-marker { display: none; }
+.auth__admin summary::before { content: "+ "; color: var(--accent); }
+.auth__admin[open] summary::before { content: "– "; }
+.auth__admin summary:hover { color: var(--text); }
 .field__row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
 .field__aside { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-decoration: none; }
 .admin-link { margin: 0.2rem 0 0; font-weight: 700; overflow-wrap: anywhere; }
