@@ -97,6 +97,8 @@ export const talentProfiles = pgTable(
     completeness: integer("completeness").notNull().default(0), // 0–100, see lib/profile-completeness.ts
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
+  // The talent search also uses generated columns (search_name, search_places, search_languages, has_headshot)
+  // and trigram indexes, kept up to date by Postgres; added in scripts/sql/2026-10-18-talent-search.sql
   (t) => [index("talent_profiles_name_idx").on(t.fullName), index("talent_profiles_category_idx").on(t.category), index("talent_profiles_complete_idx").on(t.completeness)],
 );
 

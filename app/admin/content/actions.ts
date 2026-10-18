@@ -71,10 +71,11 @@ export async function saveContent(kind: string, id: string, _prev: FormState, fo
       const [last] = await db().select({ s: contentItems.sortOrder }).from(contentItems).where(eq(contentItems.kind, kind)).orderBy(desc(contentItems.sortOrder)).limit(1);
       await db().insert(contentItems).values({ kind, slug, data, published, sortOrder: (last?.s ?? 0) + 10 });
     } else {
-      await db()
-        .update(contentItems)
-        .set({ data, slug, published, updatedAt: new Date() })
-        .where(and(eq(contentItems.id, Number(id)), eq(contentItems.kind, kind)));
+      const n = Number(id);
+      const changed = Number.isInteger(n)
+        ? await db().update(contentItems).set({ data, slug, published, updatedAt: new Date() }).where(and(eq(contentItems.id, n), eq(contentItems.kind, kind))).returning({ id: contentItems.id })
+        : [];
+      if (!changed.length) return { message: "That item isn't there any more, so nothing was saved. It may have been deleted in another tab." };
     }
   } catch (e) {
     if ((e as { code?: string })?.code === "23505") {
@@ -90,16 +91,19 @@ export async function saveContent(kind: string, id: string, _prev: FormState, fo
 export async function deleteContent(kind: string, id: number) {
   await assertMaster();
   if (!isContentKind(kind)) throw new Error("Unknown section.");
-  await db().delete(contentItems).where(and(eq(contentItems.id, id), eq(contentItems.kind, kind)));
+  const gone = Number.isInteger(id) ? await db().delete(contentItems).where(and(eq(contentItems.id, id), eq(contentItems.kind, kind))).returning({ id: contentItems.id }) : [];
   refresh(kind);
-  redirect(`/admin/content/${kind}?deleted=1`);
+  redirect(`/admin/content/${kind}?${gone.length ? "deleted" : "missing"}=1`);
 }
 
 export async function setPublished(kind: string, id: number, published: boolean) {
   await assertMaster();
   if (!isContentKind(kind)) throw new Error("Unknown section.");
-  await db().update(contentItems).set({ published, updatedAt: new Date() }).where(and(eq(contentItems.id, id), eq(contentItems.kind, kind)));
+  const changed = Number.isInteger(id)
+    ? await db().update(contentItems).set({ published, updatedAt: new Date() }).where(and(eq(contentItems.id, id), eq(contentItems.kind, kind))).returning({ id: contentItems.id })
+    : [];
   refresh(kind);
+  if (!changed.length) redirect(`/admin/content/${kind}?missing=1`);
 }
 
 /** Swaps an item with its neighbour above or below. */
@@ -107,8 +111,8 @@ export async function moveContent(kind: string, id: number, direction: "up" | "d
   await assertMaster();
   if (!isContentKind(kind)) throw new Error("Unknown section.");
   const d = db();
-  const [item] = await d.select().from(contentItems).where(and(eq(contentItems.id, id), eq(contentItems.kind, kind))).limit(1);
-  if (!item) return;
+  const [item] = Number.isInteger(id) ? await d.select().from(contentItems).where(and(eq(contentItems.id, id), eq(contentItems.kind, kind))).limit(1) : [];
+  if (!item) redirect(`/admin/content/${kind}?missing=1`);
   const [other] = await d
     .select()
     .from(contentItems)

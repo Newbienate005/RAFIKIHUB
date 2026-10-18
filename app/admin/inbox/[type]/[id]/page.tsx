@@ -1,15 +1,16 @@
 import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdminHeader, NoDatabase, StatusPill, fmtDate } from "@/components/admin/ui";
+import { AdminHeader, NoDatabase, Notice, StatusPill, fmtDate } from "@/components/admin/ui";
 import { getInboxItem, inboxTypes, isInboxKey, statusLabel } from "@/lib/admin/inbox";
 import { setInboxStatus } from "../../actions";
 
-type Props = { params: Promise<{ type: string; id: string }> };
+type Props = { params: Promise<{ type: string; id: string }>; searchParams: Promise<{ updated?: string }> };
 
-export default async function InboxItemPage({ params }: Props) {
+export default async function InboxItemPage({ params, searchParams }: Props) {
   await requireMaster(); // the layout checks too, but a request can skip the layout
   const { type, id } = await params;
+  const { updated } = await searchParams;
   if (!isInboxKey(type) || !/^\d+$/.test(id)) notFound();
   const cfg = inboxTypes[type];
   const statuses = cfg.statuses as readonly string[] | null;
@@ -40,6 +41,7 @@ export default async function InboxItemPage({ params }: Props) {
           {type === "castings" ? <Link className="btn btn--sun btn--sm" href={`/admin/castings/new?from=${id}`}>Create breakdown</Link> : null}
         </>}
       />
+      {updated ? <Notice>Status updated.</Notice> : null}
       <div className="admin-grid">
         <div className="admin-card">
           <dl className="facts">
