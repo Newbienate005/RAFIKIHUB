@@ -28,6 +28,7 @@ import { readFile, access } from "node:fs/promises";
 import path from "node:path";
 import { neon } from "@neondatabase/serverless";
 import { parseDump } from "./lib/mysqldump.mjs";
+import { planRerun } from "./lib/rerun-guard.mjs";
 import { transform } from "./lib/transform-old.mjs";
 import { profileCompleteness } from "../lib/profile-completeness.ts";
 import { contactListings as builtInListings } from "../lib/data.ts";
@@ -192,6 +193,24 @@ async function load(label, rows, query, size = 400) {
   log(`  ${label.padEnd(22)} ${done}`);
 }
 
+/* ───────────── keep what was changed on the new site ───────────── */
+// Blocks, takedowns, deletions and edited breakdowns made in the admin survive a re-run
+const guarded = async (key) => (await sql(`SELECT value FROM site_settings WHERE key = $1`, [key]))[0]?.value?.items ?? [];
+const deletedUrls = new Set((await guarded("import:deleted-profiles")).map(String));
+const moderatedAuditions = (await guarded("import:moderated-auditions")).map(Number).filter(Number.isInteger);
+const linked = await sql(`SELECT legacy_id, profile_url FROM accounts WHERE legacy_id IS NOT NULL OR profile_url IS NOT NULL`);
+const plan = planRerun({
+  accounts: out.accounts,
+  profiles: out.profiles,
+  existing: new Map(linked.filter((r) => r.legacy_id != null).map((r) => [r.legacy_id, r.profile_url])),
+  takenBy: new Map(linked.filter((r) => r.profile_url).map((r) => [r.profile_url, r.legacy_id])),
+  deletedUrls,
+});
+out.accounts = plan.accounts;
+out.profiles = plan.profiles;
+if (plan.dropped) log(`\nSkipping ${plan.dropped} profile(s) deleted in the admin or whose link belongs to another account.`);
+if (moderatedAuditions.length) log(`Keeping ${moderatedAuditions.length} breakdown(s) as edited in the admin.`);
+
 log(only ? `\nImporting only: ${only.join(", ")}…` : "\nImporting…");
 try {
   if (want("accounts")) await load("Member accounts", out.accounts, `
@@ -203,7 +222,9 @@ try {
     -- someone may already have signed up on the new site with the same email
     WHERE NOT EXISTS (SELECT 1 FROM accounts a WHERE lower(a.email) = x.email AND a.legacy_id IS DISTINCT FROM x.legacy_id)
     ON CONFLICT (legacy_id) DO UPDATE SET
-      email = excluded.email, name = excluded.name, role = excluded.role, category = excluded.category, status = excluded.status,
+      email = excluded.email, name = excluded.name, role = excluded.role, category = excluded.category,
+      -- an account blocked in the admin stays blocked
+      status = CASE WHEN accounts.status = 'blocked' THEN accounts.status ELSE excluded.status END,
       phone = excluded.phone, country = excluded.country, profile_url = excluded.profile_url, plan_id = excluded.plan_id, last_login_at = excluded.last_login_at,
       -- once a member has logged in on the new site their password is re-hashed: never put the old MD5 back
       password_hash = CASE WHEN accounts.hash_algo = 'md5' OR accounts.password_hash IS NULL THEN excluded.password_hash ELSE accounts.password_hash END,
@@ -239,7 +260,9 @@ try {
     JOIN accounts a ON a.legacy_id = x.owner_legacy_id
     ON CONFLICT (legacy_id) DO UPDATE SET
       title = excluded.title, type = excluded.type, gender = excluded.gender, categories = excluded.categories, countries = excluded.countries,
-      body = excluded.body, closes_on = excluded.closes_on, filled = excluded.filled, status = excluded.status, updated_at = now()`);
+      body = excluded.body, closes_on = excluded.closes_on, filled = excluded.filled, status = excluded.status, updated_at = now()
+    -- breakdowns edited, opened or closed in the admin are left as they are
+    WHERE auditions.id <> ALL(ARRAY[${moderatedAuditions.join(",")}]::int[])`);
 
   if (want("applications")) await load("Applications", out.applications, `
     INSERT INTO audition_applications (audition_id, applicant_id, status, created_at)
