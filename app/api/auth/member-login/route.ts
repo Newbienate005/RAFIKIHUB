@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { fromThisSite } from "@/lib/same-site";
 import { eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
 import { hashPassword, verifyPassword } from "@/lib/password";
-import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, encodeSession } from "@/lib/session";
+import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, encodeSession, passwordVersion } from "@/lib/session";
 
 const MAX_FAILURES = 8;
 const LOCK_MINUTES = 15;
@@ -11,6 +12,8 @@ const wrong = () => NextResponse.json({ ok: false, error: "That email and passwo
 
 /** Member sign-in with email and password. Old-site MD5 passwords are upgraded to scrypt on the way in. */
 export async function POST(req: Request) {
+  // Signing in from a form on another website could plant someone else's session
+  if (!fromThisSite(req)) return NextResponse.json({ ok: false, error: "This form has to be sent from rafikihub.com. Reload the page and try again." }, { status: 403 });
   const res = await signIn(req);
   // A plain form post that failed goes back to the login page with a message, not a page of JSON
   if (res.status !== 303 && !(req.headers.get("content-type") ?? "").includes("application/json")) {
@@ -42,10 +45,13 @@ async function signIn(req: Request) {
 
   const { ok, needsRehash } = await verifyPassword(acct.passwordHash, acct.hashAlgo, password);
   if (!ok) {
-    const failures = acct.failedLogins + 1;
+    // Counted in one statement, so parallel guesses can't overwrite each other and slip past the limit
     await db
       .update(accounts)
-      .set({ failedLogins: failures >= MAX_FAILURES ? 0 : failures, lockedUntil: failures >= MAX_FAILURES ? new Date(Date.now() + LOCK_MINUTES * 60_000) : acct.lockedUntil })
+      .set({
+        failedLogins: sql`CASE WHEN ${accounts.failedLogins} + 1 >= ${MAX_FAILURES} THEN 0 ELSE ${accounts.failedLogins} + 1 END`,
+        lockedUntil: sql`CASE WHEN ${accounts.failedLogins} + 1 >= ${MAX_FAILURES} THEN now() + make_interval(mins => ${LOCK_MINUTES}) ELSE ${accounts.lockedUntil} END`,
+      })
       .where(eq(accounts.id, acct.id));
     await new Promise((r) => setTimeout(r, 800));
     return wrong();
@@ -61,7 +67,7 @@ async function signIn(req: Request) {
     .where(eq(accounts.id, acct.id));
 
   const role = acct.role === "casting" ? "casting" : "performer";
-  const token = encodeSession({ kind: "member", role, accountId: acct.id, name: acct.name, email: acct.email, category: acct.category ?? undefined, plan: acct.planId ?? undefined }, MEMBER_DAYS);
+  const token = encodeSession({ kind: "member", role, accountId: acct.id, pv: passwordVersion(upgrade?.hash ?? acct.passwordHash), name: acct.name, email: acct.email, category: acct.category ?? undefined, plan: acct.planId ?? undefined }, MEMBER_DAYS);
   if (!token) return NextResponse.json({ ok: false, error: "Sign-in isn't set up on this server yet." }, { status: 503 });
   const res = isForm ? NextResponse.redirect(new URL(`/dashboard/${role}`, req.url), 303) : NextResponse.json({ ok: true, redirect: `/dashboard/${role}` });
   res.cookies.set(SESSION_COOKIE, token, cookieOptions(MEMBER_DAYS));

@@ -116,7 +116,10 @@ export async function moveContent(kind: string, id: number, direction: "up" | "d
     .orderBy(direction === "up" ? desc(contentItems.sortOrder) : asc(contentItems.sortOrder))
     .limit(1);
   if (!other) return;
-  await d.update(contentItems).set({ sortOrder: other.sortOrder }).where(eq(contentItems.id, item.id));
-  await d.update(contentItems).set({ sortOrder: item.sortOrder }).where(eq(contentItems.id, other.id));
+  // Both halves of the swap in one transaction, so two items never end up in the same place
+  await d.batch([
+    d.update(contentItems).set({ sortOrder: other.sortOrder }).where(eq(contentItems.id, item.id)),
+    d.update(contentItems).set({ sortOrder: item.sortOrder }).where(eq(contentItems.id, other.id)),
+  ]);
   refresh(kind);
 }

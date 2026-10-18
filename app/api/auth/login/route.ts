@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { fromThisSite } from "@/lib/same-site";
 import { getDb } from "@/lib/db";
 import { clearFailures, clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { MASTER_DAYS, SESSION_COOKIE, checkMasterPassword, cookieOptions, encodeSession, sessionsEnabled } from "@/lib/session";
@@ -17,6 +18,8 @@ function landingPath(next: string | null, base: string) {
  * Takes JSON from LoginForm, or a plain form post if the form is submitted before its script loads.
  */
 export async function POST(req: Request) {
+  // Signing in from a form on another website could plant someone else's session
+  if (!fromThisSite(req)) return NextResponse.json({ ok: false, error: "This form has to be sent from rafikihub.com. Reload the page and try again." }, { status: 403 });
   const isForm = !(req.headers.get("content-type") ?? "").includes("application/json");
   // Form posts get redirects (303 so the browser follows with GET); fetch calls get JSON.
   const fail = (error: string, status: number) =>

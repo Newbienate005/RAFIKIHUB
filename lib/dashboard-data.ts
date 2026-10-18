@@ -14,7 +14,8 @@ async function safe<T>(label: string, run: () => Promise<T[]>): Promise<T[]> {
     return await run();
   } catch (e) {
     console.error(`[dashboard] ${label} failed`, e);
-    return [];
+    // Pass it on: the page shows "couldn't load, try again" rather than an empty list that looks real
+    throw e;
   }
 }
 
@@ -139,7 +140,8 @@ export async function searchTalent(f: TalentSearch, limit = 48): Promise<{ resul
     };
   } catch (e) {
     console.error("[dashboard] talent search failed", e);
-    return { results: [], total: 0 };
+    // Pass it on: the page shows "couldn't load, try again" rather than an empty list that looks real
+    throw e;
   }
 }
 

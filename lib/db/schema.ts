@@ -133,6 +133,8 @@ export const accounts = pgTable(
     lockedUntil: timestamp("locked_until", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
+  // More indexes on accounts, auditions, applications, agent links and payments (including a unique
+  // lower(email)) are applied by hand in scripts/sql/2026-10-18-indexes.sql
   (t) => [uniqueIndex("accounts_email_idx").on(t.email), uniqueIndex("accounts_legacy_idx").on(t.legacyId)],
 );
 

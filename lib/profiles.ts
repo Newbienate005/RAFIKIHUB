@@ -51,7 +51,8 @@ export async function getPublishedProfileUrls(): Promise<{ profileUrl: string; u
       .where(eq(talentProfiles.published, true));
   } catch (e) {
     console.error("[profiles] sitemap lookup failed", e);
-    return [];
+    // Pass it on: the page shows "couldn't load, try again" rather than an empty list that looks real
+    throw e;
   }
 }
 
@@ -69,7 +70,8 @@ export async function getRepresentedProfiles(limit = 12): Promise<TalentProfile[
     return rows.map((r) => r.data);
   } catch (e) {
     console.error("[profiles] roster failed", e);
-    return [];
+    // Pass it on: the page shows "couldn't load, try again" rather than an empty list that looks real
+    throw e;
   }
 }
 
@@ -91,7 +93,9 @@ export async function getSimilarProfiles(p: TalentProfile, limit = 3): Promise<T
   );
   try {
     return await read();
-  } catch {
+  } catch (e) {
+    // Only a "More actors" strip: leave it out rather than fail the profile page
+    console.error("[profiles] similar profiles failed", e);
     return [];
   }
 }

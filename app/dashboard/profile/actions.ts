@@ -59,10 +59,15 @@ export async function saveOwnProfile(_prev: FormState, form: FormData): Promise<
   try {
     if (existing) await db.update(talentProfiles).set(values).where(eq(talentProfiles.profileUrl, url!));
     else {
-      await db.insert(talentProfiles).values({ ...values, profileUrl: url!, published: false, represented: false });
-      await db.update(accounts).set({ profileUrl: url }).where(eq(accounts.id, account.id));
+      // The new profile and the account's link to it are saved together, or not at all
+      await db.batch([
+        db.insert(talentProfiles).values({ ...values, profileUrl: url!, published: false, represented: false }),
+        db.update(accounts).set({ profileUrl: url }).where(eq(accounts.id, account.id)),
+      ]);
     }
   } catch (e) {
+    // Someone else took this link name a moment ago: saving again picks the next free one
+    if ((e as { code?: string })?.code === "23505") return { message: "That link name was just taken. Press Save again and we'll pick another." };
     console.error("[member] profile save failed", e);
     return { message: "We couldn't save that. Try again." };
   }
