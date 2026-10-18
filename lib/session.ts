@@ -8,8 +8,10 @@ import type { DashboardRole } from "./dashboard";
  * - "master": the site owner, signed in at /login with MASTER_PASSWORD; can open every dashboard.
  * - "member": a member signed in with their email and password (accountId set), or someone who just
  *   submitted the join or casting form (no accountId); either way they see their own dashboard only.
- * Tokens are HMAC-signed with SESSION_SECRET (falls back to MASTER_PASSWORD). With neither set,
- * sessions are switched off and the forms keep showing their thank-you message.
+ * Tokens are HMAC-signed with SESSION_SECRET, which must be its own random value: anyone can get a signed
+ * cookie from the join form, so a key shared with MASTER_PASSWORD could be guessed offline. Only local
+ * development falls back to MASTER_PASSWORD. With no key, sessions are switched off and the forms keep
+ * showing their thank-you message.
  */
 export type Session =
   | { kind: "master"; exp: number }
@@ -34,7 +36,7 @@ export const SESSION_COOKIE = "rh_session";
 export const MASTER_DAYS = 7;
 export const MEMBER_DAYS = 30;
 
-const secret = () => process.env.SESSION_SECRET || process.env.MASTER_PASSWORD || "";
+const secret = () => process.env.SESSION_SECRET || (process.env.NODE_ENV === "production" ? "" : process.env.MASTER_PASSWORD || "");
 const sign = (data: string) => createHmac("sha256", secret()).update(data).digest("base64url");
 
 export const sessionsEnabled = () => Boolean(secret());

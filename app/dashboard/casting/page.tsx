@@ -230,7 +230,7 @@ export default async function CastingDashboard({ searchParams }: Props) {
                   ))}
                 </ul>
               ) : (
-                <p className="small dash-empty">No profiles match that search. Try fewer filters, or a shorter city or language.</p>
+                <p className="small dash-empty">No profiles match all of those filters. Try fewer filters, or a shorter city or language, or <Link href="/dashboard/casting?tab=talent">clear the search</Link> to see everyone.</p>
               )}
             </section>
           ) : null}
@@ -240,7 +240,7 @@ export default async function CastingDashboard({ searchParams }: Props) {
               <h2 id="roster">My talents {accountId ? null : <SampleTag />}</h2>
               <p className="small">Performers who link their profile to your agency appear here. To approve or remove a link, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
               {accountId && !roster.length ? (
-                <p className="small dash-empty">No performers have linked their profile to you yet.</p>
+                <p className="small dash-empty">No performers have linked their profile to you yet. When a performer names your agency on their profile and we confirm it, they appear here.</p>
               ) : (
                 <div className="table-scroll">
                   <table className="credits subs">

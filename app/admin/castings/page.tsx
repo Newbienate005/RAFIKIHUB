@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { count, desc, eq, sql } from "drizzle-orm";
 import { AdminHeader, NoDatabase, StatusPill, Tabs, fmtDate } from "@/components/admin/ui";
@@ -8,6 +9,7 @@ import { auditionApplications, auditions, castingCalls } from "@/lib/db/schema";
 type Props = { searchParams: Promise<{ status?: string }> };
 
 export default async function CastingsPage({ searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const sp = await searchParams;
   const header = (
     <AdminHeader

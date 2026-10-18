@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { and, count, desc, eq, gte, ilike, or, type SQL } from "drizzle-orm";
 import { ActionButton } from "@/components/admin/AdminForm";
@@ -19,6 +20,7 @@ const filters = {
 } as const;
 
 export default async function ProfilesPage({ searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const sp = await searchParams;
   const header = (
     <AdminHeader

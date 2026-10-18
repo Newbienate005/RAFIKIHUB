@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ import { deleteProfile, saveProfile } from "../actions";
 type Props = { params: Promise<{ url: string }>; searchParams: Promise<{ saved?: string }> };
 
 export default async function ProfileEditPage({ params, searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const { url } = await params;
   const sp = await searchParams;
   const isNew = url === "new";

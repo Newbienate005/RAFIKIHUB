@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { count, eq, like, sql } from "drizzle-orm";
 import { AdminHeader, NoDatabase } from "@/components/admin/ui";
@@ -7,6 +8,7 @@ import { getDb } from "@/lib/db";
 import { accounts, auditions, contentItems, siteSettings, talentProfiles } from "@/lib/db/schema";
 
 export default async function AdminHome() {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const db = getDb();
   const header = <AdminHeader title="Admin" description="Manage the website's content, the inbox, members, profiles and castings." />;
   if (!db) return <>{header}<NoDatabase /></>;

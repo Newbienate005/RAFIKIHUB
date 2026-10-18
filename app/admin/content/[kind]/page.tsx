@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { asc, desc, eq } from "drizzle-orm";
@@ -12,6 +13,7 @@ import { moveContent, seedKindAction, setPublished } from "../actions";
 type Props = { params: Promise<{ kind: string }>; searchParams: Promise<{ saved?: string; deleted?: string }> };
 
 export default async function ContentListPage({ params, searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const { kind } = await params;
   if (!isContentKind(kind)) notFound();
   const sp = await searchParams;

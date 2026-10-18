@@ -94,7 +94,7 @@ export default function ServicesPage() {
                 { name: "email", label: "Email", type: "email", required: true, autoComplete: "email", half: true },
                 { name: "phone", label: "Phone", type: "tel", required: true, autoComplete: "tel", half: true, hint: "Include the country code, e.g. +254" },
                 { name: "preferredDate", label: "Preferred date", hint: "A date or a rough time, e.g. 'any weekday in March'" },
-                { name: "notes", label: "Anything we should know?", type: "textarea" },
+                { name: "notes", label: "Anything we should know?", type: "textarea", max: 2000 },
               ]}
             />
           </div>

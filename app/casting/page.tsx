@@ -61,7 +61,7 @@ export default function CastingPage() {
                 { name: "projectTitle", label: "Project title", required: true, hint: "A working title is fine." },
                 { name: "shootDates", label: "Audition and shoot dates", half: true },
                 { name: "location", label: "Location", half: true },
-                { name: "details", label: "Roles and requirements", type: "textarea", required: true, hint: "Character names, age ranges, looks, skills, pay and any usage terms." },
+                { name: "details", label: "Roles and requirements", type: "textarea", max: 5000, required: true, hint: "Character names, age ranges, looks, skills, pay and any usage terms." },
               ]}
             />
           </div>

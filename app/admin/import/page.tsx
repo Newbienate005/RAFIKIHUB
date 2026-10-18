@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import { eq } from "drizzle-orm";
 import { AdminHeader, NoDatabase, fmtDate } from "@/components/admin/ui";
 import { getDb } from "@/lib/db";
@@ -6,6 +7,7 @@ import { siteSettings } from "@/lib/db/schema";
 type Report = { at: string; file: string; summary: Record<string, number>; skipped: Record<string, number>; notes: string[]; filesCopied: boolean };
 
 export default async function ImportPage() {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const header = (
     <AdminHeader
       title="Import the old database"

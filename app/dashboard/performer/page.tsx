@@ -154,7 +154,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                     </table>
                   </div>
                 ) : real ? (
-                  <p className="small dash-empty">There are no open castings right now. New ones appear here as soon as they go live, so check back soon.</p>
+                  <p className="small dash-empty">No castings are open right now. New ones appear here the moment they go live. Meanwhile, <Link href="/dashboard/profile">finish your profile</Link> so you can apply as soon as one opens.</p>
                 ) : (
                   <div className="table-scroll">
                     <table className="credits subs">

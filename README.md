@@ -88,7 +88,7 @@ Set these in `.env.local` and in Vercel → Settings → Environment Variables, 
 | Variable | What it does |
 |---|---|
 | `MASTER_PASSWORD` | The master login password. Without it, `/login` explains it isn't set up and members aren't signed in after the forms. |
-| `SESSION_SECRET` | Optional. A long random string that signs the session cookies (falls back to `MASTER_PASSWORD`). Changing it signs everyone out. |
+| `SESSION_SECRET` | Required in production. A long random string, different from `MASTER_PASSWORD`, that signs the session cookies. Without it nobody can sign in. Changing it signs everyone out. |
 
 The member's own form details are real. Castings, submissions and the stats marked **Sample** are placeholders until the dashboards are connected to real data.
 

@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminHeader, NoDatabase, Pager, StatusPill, Tabs, fmtDate } from "@/components/admin/ui";
@@ -6,6 +7,7 @@ import { PAGE_SIZE, inboxTypes, isInboxKey, listInbox, statusLabel } from "@/lib
 type Props = { params: Promise<{ type: string }>; searchParams: Promise<{ status?: string; page?: string }> };
 
 export default async function InboxPage({ params, searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const { type } = await params;
   if (!isInboxKey(type)) notFound();
   const sp = await searchParams;

@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { AdminHeader, NoDatabase, Pager, StatusPill, Tabs, fmtDate } from "@/components/admin/ui";
@@ -10,6 +11,7 @@ const accountStatuses = ["active", "unverified", "expired", "blocked"] as const;
 type Props = { searchParams: Promise<{ q?: string; role?: string; status?: string; page?: string }> };
 
 export default async function MembersPage({ searchParams }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const sp = await searchParams;
   const header = <AdminHeader title="Member accounts" description="Everyone with a RafikiHub login, imported from the old site. Performers link to their talent profile." />;
   const db = getDb();

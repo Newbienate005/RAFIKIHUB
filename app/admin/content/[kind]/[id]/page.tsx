@@ -1,3 +1,4 @@
+import { requireMaster } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, eq } from "drizzle-orm";
@@ -12,6 +13,7 @@ import { deleteContent, saveContent } from "../../actions";
 type Props = { params: Promise<{ kind: string; id: string }> };
 
 export default async function ContentEditPage({ params }: Props) {
+  await requireMaster(); // the layout checks too, but a request can skip the layout
   const { kind, id } = await params;
   if (!isContentKind(kind) || (id !== "new" && !/^\d+$/.test(id))) notFound();
   const cfg = contentKinds[kind];

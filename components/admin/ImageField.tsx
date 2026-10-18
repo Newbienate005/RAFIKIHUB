@@ -86,7 +86,7 @@ export function ImageListField({ name, label, defaultValue = [], folder = "heads
             </li>
           ))}
         </ol>
-      ) : <p className="hint">No images yet.</p>}
+      ) : <p className="hint">No images yet. Upload one below. The first image is the main photo people see.</p>}
       <div className="btn-row">
         <button type="button" className="btn btn--ink btn--sm" onClick={() => file.current?.click()} disabled={busy}>{busy ? "Uploading…" : "Upload images"}</button>
       </div>

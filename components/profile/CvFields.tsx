@@ -57,7 +57,7 @@ function Rows<R extends Record<string, string>>({ name, label, cols, initial, bl
             </li>
           ))}
         </ol>
-      ) : <p className="hint">No {noun}s yet.</p>}
+      ) : <p className="hint">No {noun}s yet. Use “Add {noun}” below to start the list.</p>}
       <button type="button" className="btn btn--ink btn--sm" onClick={() => setRows((r) => [...r, { ...blank }])}>+ Add {noun}</button>
       {hint ? <p className="hint">{hint}</p> : null}
     </fieldset>
