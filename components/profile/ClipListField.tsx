@@ -83,7 +83,7 @@ export function ClipListField({ name, label, kind, defaultValue = [], folder, hi
             </li>
           ))}
         </ol>
-      ) : <p className="hint">No {noun}s yet.</p>}
+      ) : <p className="hint">No {noun}s yet. Upload one below to add it to your profile.</p>}
       <div className="btn-row">
         <button type="button" className="btn btn--ink btn--sm" onClick={() => file.current?.click()} disabled={Boolean(busy)}>{busy ? "Uploading…" : `Upload ${noun}`}</button>
       </div>

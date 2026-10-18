@@ -513,6 +513,11 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .field--half { flex: 1 1 calc(50% - 0.5rem); min-width: 13rem; }
 .field label { font-weight: 700; font-size: 0.875rem; }
 .optional { font-weight: 400; color: var(--muted); }
+.required { color: var(--accent); font-weight: 700; }
+.form-note { flex: 1 1 100%; margin: 0; font-size: 0.8rem; color: var(--muted); }
+.char-count { margin: 0; align-self: flex-end; font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--subtle); }
+.char-count--near { color: var(--warning); }
+.char-count--over { color: var(--negative); font-weight: 700; }
 .field input, .field select, .field textarea, .namecheck input {
   font: inherit; font-size: 1rem; padding: 0.85rem 1rem; border: 0; border-radius: 4px;
   background: var(--surface-2); color: var(--text); width: 100%; box-shadow: var(--inset); transition: box-shadow .2s, background-color .2s;

@@ -61,7 +61,7 @@ export default async function JoinPage() {
                 { name: "category", label: "I'm joining as", type: "select", required: true, options: memberTypes.map((m) => m.formLabel), optionKeys: memberTypes.map((m) => m.key), defaultFromQuery: "as" },
                 { name: "plan", label: "Membership plan", type: "select", options: [...plans.map((p) => p.id), "undecided"], optionLabels: [...plans.map((p) => `${p.name}: Ksh ${p.priceKsh.toLocaleString("en-KE")} ${p.label}`), "Not sure yet"], defaultFromQuery: "plan" },
                 { name: "location", label: "Town or city", autoComplete: "address-level2" },
-                { name: "message", label: "Experience and training", type: "textarea", hint: "A few lines on your credits, training or what you're looking for." },
+                { name: "message", label: "Experience and training", type: "textarea", max: 2000, hint: "A few lines on your credits, training or what you're looking for." },
               ]}
             />
             <p className="small panel__note">Registering a performer under 18? A parent or guardian must complete this form.</p>

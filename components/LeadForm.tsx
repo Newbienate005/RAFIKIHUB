@@ -17,12 +17,21 @@ export type Field = {
   autoComplete?: string;
   hint?: string;
   half?: boolean;
+  /** Longest answer the server accepts; long text boxes show a live count against it */
+  max?: number;
 };
 
 /** The same checks the server makes, run as people fill the form in, so problems show up where they are. */
 function check(f: Field, raw: string): string {
   const v = raw.trim();
-  if (!v) return f.required ? (f.type === "select" ? "Choose one." : `Add your ${f.label.toLowerCase().replace(/^your /, "")}.`) : "";
+  if (!v) {
+    if (!f.required) return "";
+    if (f.type === "select") return "Pick an option from the list so we know where to send this.";
+    if (f.type === "email") return "Enter your email address so we can reply.";
+    if (f.type === "tel") return "Enter a phone number we can reach you on.";
+    return `Add your ${f.label.toLowerCase().replace(/^your /, "")}.`;
+  }
+  if (f.max && v.length > f.max) return `Keep this under ${f.max.toLocaleString()} characters (it's ${v.length.toLocaleString()} now).`;
   if (f.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter a valid email address, like name@example.com.";
   if (f.type === "tel" && v.replace(/\D/g, "").length < 7) return "Enter a phone number, with the country code if it's not Kenyan.";
   return "";
@@ -40,6 +49,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [counts, setCounts] = useState<Record<string, number>>({});
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -66,6 +76,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   const onInput = (e: FormEvent<HTMLFormElement>) => {
     const el = e.target as EventTarget as HTMLInputElement; // the field inside the form that fired it
     const f = fieldFor(el.name);
+    if (f?.max) setCounts((prev) => (prev[f.name] === el.value.length ? prev : { ...prev, [f.name]: el.value.length }));
     if (!f || !fieldErrors[f.name]) return;
     const msg = check(f, el.value);
     if (msg !== fieldErrors[f.name]) setFieldErrors((prev) => ({ ...prev, [f.name]: msg }));
@@ -116,6 +127,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
 
   return (
     <form ref={formRef} className={compact ? "form form--compact" : "form"} onSubmit={onSubmit} onBlur={onBlur} onInput={onInput} onChange={onInput} noValidate>
+      {!compact && fields.some((f) => f.required) ? <p className="form-note"><span className="required" aria-hidden="true">*</span> Required</p> : null}
       {fields.map((f) => {
         const id = `${endpoint.replace(/\W/g, "")}-${f.name}`;
         const err = fieldErrors[f.name];
@@ -130,10 +142,10 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
         return (
           <div key={f.name} className={`field ${f.half ? "field--half" : ""}`}>
             <label htmlFor={id} className={compact ? "sr-only" : undefined}>
-              {f.label}{!f.required && !compact ? <span className="optional"> (optional)</span> : null}
+              {f.label}{f.required && !compact ? <span className="required" aria-hidden="true"> *</span> : null}{!f.required && !compact ? <span className="optional"> (optional)</span> : null}
             </label>
             {f.type === "textarea" ? (
-              <textarea {...common} rows={5} />
+              <textarea {...common} rows={5} maxLength={f.max ? f.max + 200 : undefined} />
             ) : f.type === "select" ? (
               <select {...common} defaultValue="">
                 <option value="" disabled>Choose one</option>
@@ -144,6 +156,11 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
             )}
             {f.hint && !err ? <p id={`${id}-hint`} className="hint">{f.hint}</p> : null}
             {err ? <p id={`${id}-err`} className="field-error">{err}</p> : null}
+            {f.max && f.type === "textarea" ? (
+              <p className={`char-count${(counts[f.name] ?? 0) > f.max ? " char-count--over" : (counts[f.name] ?? 0) > f.max * 0.9 ? " char-count--near" : ""}`} aria-live="polite">
+                {(counts[f.name] ?? 0).toLocaleString()} / {f.max.toLocaleString()}
+              </p>
+            ) : null}
           </div>
         );
       })}

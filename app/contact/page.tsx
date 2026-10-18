@@ -37,7 +37,7 @@ export default function ContactPage() {
                 { name: "fullName", label: "Name", required: true, autoComplete: "name", half: true },
                 { name: "email", label: "Email", type: "email", required: true, autoComplete: "email", half: true },
                 { name: "topic", label: "What's it about?", type: "select", required: true, options: ["Membership", "Posting a casting", "Talent management", "Workshops", "Partnerships", "Something else"] },
-                { name: "message", label: "Message", type: "textarea", required: true },
+                { name: "message", label: "Message", type: "textarea", max: 5000, required: true },
               ]}
             />
           </div>

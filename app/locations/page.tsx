@@ -103,7 +103,7 @@ export default function LocationsPage() {
                 { name: "toDate", label: "Dates to", half: true },
                 { name: "locationType", label: "Kind of location", type: "select", required: true, options: [...locationTypes] },
                 { name: "services", label: "Services needed", hint: "e.g. transport, catering, accommodation" },
-                { name: "details", label: "Anything else we should know?", type: "textarea" },
+                { name: "details", label: "Anything else we should know?", type: "textarea", max: 3000 },
               ]}
             />
           </div>
