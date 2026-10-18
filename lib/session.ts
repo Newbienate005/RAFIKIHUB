@@ -1,6 +1,10 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
+import { getDb } from "./db";
+import { accounts } from "./db/schema";
 import type { DashboardRole } from "./dashboard";
 
 /**
@@ -14,12 +18,14 @@ import type { DashboardRole } from "./dashboard";
  * showing their thank-you message.
  */
 export type Session =
-  | { kind: "master"; exp: number }
+  | { kind: "master"; exp: number; /** Fingerprint of MASTER_PASSWORD: changing the password ends every admin session */ mv?: string }
   | {
       kind: "member";
       role: DashboardRole;
       /** Set when signed in with an email and password (a real account); absent for someone who just applied */
       accountId?: number;
+      /** Fingerprint of the account's password hash: a reset ends every older session */
+      pv?: string;
       name: string;
       email: string;
       category?: string;
@@ -41,9 +47,14 @@ const sign = (data: string) => createHmac("sha256", secret()).update(data).diges
 
 export const sessionsEnabled = () => Boolean(secret());
 
+/** A short fingerprint of a password hash. Changing the password changes it, so sessions issued earlier stop working. */
+export const passwordVersion = (hash: string | null | undefined) => createHash("sha256").update(hash ?? "").digest("base64url").slice(0, 16);
+const masterVersion = () => createHmac("sha256", "rafikihub-master-version").update(process.env.MASTER_PASSWORD ?? "").digest("base64url").slice(0, 16);
+
 export function encodeSession(s: NewSession, days: number): string | null {
   if (!sessionsEnabled()) return null;
-  const data = Buffer.from(JSON.stringify({ ...s, exp: Date.now() + days * 864e5 })).toString("base64url");
+  const payload = s.kind === "master" ? { ...s, mv: masterVersion() } : s;
+  const data = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + days * 864e5 })).toString("base64url");
   return `${data}.${sign(data)}`;
 }
 
@@ -70,9 +81,27 @@ export const cookieOptions = (days: number) => ({
   maxAge: days * 86400,
 });
 
-export async function getSession() {
-  return decodeSession((await cookies()).get(SESSION_COOKIE)?.value);
-}
+/**
+ * The signed-in session, still checked against the database: an admin session ends when MASTER_PASSWORD
+ * changes, and a member session ends when the account is blocked or its password is reset.
+ * Cached per request, so several checks on one page cost one lookup.
+ */
+export const getSession = cache(async (): Promise<Session | null> => {
+  const s = decodeSession((await cookies()).get(SESSION_COOKIE)?.value);
+  if (!s) return null;
+  if (s.kind === "master") return s.mv === masterVersion() ? s : null;
+  if (!s.accountId) return s; // just applied through a form: no account to check
+  const db = getDb();
+  if (!db) return null;
+  try {
+    const [a] = await db.select({ status: accounts.status, passwordHash: accounts.passwordHash }).from(accounts).where(eq(accounts.id, s.accountId)).limit(1);
+    if (!a || a.status === "blocked" || s.pv !== passwordVersion(a.passwordHash)) return null;
+    return s;
+  } catch (e) {
+    console.error("[session] couldn't check the account", e);
+    return null;
+  }
+});
 
 /** Guard for a dashboard page: signed-out visitors go to /login, members only see their own role. */
 export async function requireDashboard(role: DashboardRole) {

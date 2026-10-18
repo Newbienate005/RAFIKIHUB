@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
+import { fromThisSite } from "@/lib/same-site";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { accounts, passwordResets } from "@/lib/db/schema";
 import { hashPassword, passwordProblem, tokenHash } from "@/lib/password";
-import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, encodeSession } from "@/lib/session";
+import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, encodeSession, passwordVersion } from "@/lib/session";
 
 /** Sets a new password from a reset link, then signs the member in. */
 export async function POST(req: Request) {
+  if (!fromThisSite(req)) return NextResponse.json({ ok: false, error: "This form has to be sent from rafikihub.com. Reload the page and try again." }, { status: 403 });
   const db = getDb();
   if (!db) return NextResponse.json({ ok: false, error: "Password reset isn't available right now." }, { status: 503 });
   const body = (await req.json().catch(() => null)) as { token?: unknown; password?: unknown } | null;
@@ -41,7 +43,7 @@ export async function POST(req: Request) {
   if (!used.length) return NextResponse.json({ ok: false, error: "This reset link has already been used. Ask for a new one." }, { status: 400 });
 
   const role = acct.role === "casting" ? "casting" : "performer";
-  const session = encodeSession({ kind: "member", role, accountId: acct.id, name: acct.name, email: acct.email, category: acct.category ?? undefined, plan: acct.planId ?? undefined }, MEMBER_DAYS);
+  const session = encodeSession({ kind: "member", role, accountId: acct.id, pv: passwordVersion(hash), name: acct.name, email: acct.email, category: acct.category ?? undefined, plan: acct.planId ?? undefined }, MEMBER_DAYS);
   const res = NextResponse.json({ ok: true, redirect: `/dashboard/${role}?reset=1` });
   if (session) res.cookies.set(SESSION_COOKIE, session, cookieOptions(MEMBER_DAYS));
   return res;

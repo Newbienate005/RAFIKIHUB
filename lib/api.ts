@@ -2,6 +2,8 @@ import { after, NextResponse } from "next/server";
 import type { ZodSchema } from "zod";
 import { getDb } from "@/lib/db";
 import { emailConfigured, sendEmail, submissionEmail } from "@/lib/email";
+import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
+import { fromThisSite } from "@/lib/same-site";
 import { site } from "@/lib/site";
 import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, decodeSession, encodeSession, type NewSession } from "@/lib/session";
 
@@ -53,6 +55,7 @@ export async function handleForm<T extends { website?: string }>(
   save: (db: Db, data: Omit<T, "website">) => Promise<unknown>,
   signIn?: (data: Omit<T, "website">) => SignIn,
 ) {
+  if (!fromThisSite(req)) return NextResponse.json({ ok: false, error: "This form has to be sent from rafikihub.com. Reload the page and try again." }, { status: 403 });
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
@@ -64,6 +67,11 @@ export async function handleForm<T extends { website?: string }>(
   if (website) return NextResponse.json({ ok: true }); // bot filled the hidden field
 
   const db = getDb();
+  // Up to 10 of each form an hour from one address: plenty for people, a wall for scripts
+  const limitKey = `form:${new URL(req.url).pathname}:${clientIp(req)}`;
+  if (db && (await failures(db, limitKey, 60 * 60).catch(() => 0)) >= 10) {
+    return NextResponse.json({ ok: false, error: "You've sent this form a lot in the last hour. Wait a while, or email info@rafikihub.com." }, { status: 429 });
+  }
   if (!db) {
     // No names or emails in the logs
     console.warn(`[forms] DATABASE_URL is not set, so a ${new URL(req.url).pathname} submission wasn't saved.`);
@@ -74,6 +82,7 @@ export async function handleForm<T extends { website?: string }>(
   }
   try {
     await save(db, data);
+    await recordFailure(db, limitKey, 60 * 60).catch((e) => console.error("[forms] couldn't count a submission", e));
     notifyTeam(req, data);
     return success(req, signIn?.(data));
   } catch (err: unknown) {

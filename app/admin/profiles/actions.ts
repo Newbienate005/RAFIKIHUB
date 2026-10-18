@@ -52,9 +52,10 @@ export async function saveProfile(originalUrl: string, _prev: FormState, form: F
   try {
     if (isNew) await db().insert(talentProfiles).values(values);
     else {
-      await db().update(talentProfiles).set(values).where(eq(talentProfiles.profileUrl, originalUrl));
-      // Keep the member's account pointing at their profile if the link name changed
-      if (p.profileUrl !== originalUrl) await db().update(accounts).set({ profileUrl: p.profileUrl }).where(eq(accounts.profileUrl, originalUrl));
+      const save = db().update(talentProfiles).set(values).where(eq(talentProfiles.profileUrl, originalUrl));
+      // A new link name: move the member's account with it in the same transaction, so it never points at nothing
+      if (p.profileUrl !== originalUrl) await db().batch([save, db().update(accounts).set({ profileUrl: p.profileUrl }).where(eq(accounts.profileUrl, originalUrl))]);
+      else await save;
     }
   } catch (e) {
     if ((e as { code?: string })?.code === "23505") return { errors: { profileUrl: "Another profile already uses this link name." }, message: "Some fields need attention." };
@@ -78,8 +79,11 @@ export async function setProfileFlag(url: string, flag: "published" | "represent
 
 export async function deleteProfile(url: string) {
   await assertMaster();
-  await db().delete(talentProfiles).where(eq(talentProfiles.profileUrl, url));
-  await db().update(accounts).set({ profileUrl: null }).where(eq(accounts.profileUrl, url));
+  // One transaction: the account is never left pointing at a deleted profile
+  await db().batch([
+    db().delete(talentProfiles).where(eq(talentProfiles.profileUrl, url)),
+    db().update(accounts).set({ profileUrl: null }).where(eq(accounts.profileUrl, url)),
+  ]);
   // So re-running the old-site import doesn't bring it back
   await rememberForImport(db(), "import:deleted-profiles", url);
   refresh(url);

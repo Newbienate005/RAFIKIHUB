@@ -16,12 +16,18 @@ export default async function ImportPage() {
   );
   const db = getDb();
   if (!db) return <>{header}<NoDatabase /></>;
-  const [row] = await db.select().from(siteSettings).where(eq(siteSettings.key, "import:last")).limit(1).catch(() => []);
+  let readFailed = false;
+  const [row] = await db.select().from(siteSettings).where(eq(siteSettings.key, "import:last")).limit(1).catch((e) => {
+    console.error("[admin] couldn't read the last import", e);
+    readFailed = true;
+    return [];
+  });
   const last = row?.value as Report | undefined;
 
   return (
     <>
       {header}
+      {readFailed ? <p className="admin-info">Couldn&apos;t read the last import run from the database just now. Reload before importing again, so you don&apos;t run it twice by mistake.</p> : null}
       {last ? (
         <section className="admin-card" aria-labelledby="last">
           <h2 id="last" className="admin-card__title">Last import · {fmtDate(last.at)}</h2>

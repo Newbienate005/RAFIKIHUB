@@ -25,6 +25,7 @@ export async function getOpenBreakdowns(limit = 20): Promise<Breakdown[]> {
       .limit(limit);
   } catch (e) {
     console.error("[castings] couldn't load breakdowns", e);
-    return [];
+    // Pass it on: the page shows "couldn't load, try again" rather than an empty list that looks real
+    throw e;
   }
 }

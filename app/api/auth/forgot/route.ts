@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { fromThisSite } from "@/lib/same-site";
 import { and, count, eq, gt, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { accounts, passwordResets } from "@/lib/db/schema";
 import { emailConfigured, resetEmail, sendEmail } from "@/lib/email";
 import { newToken, tokenHash } from "@/lib/password";
+import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { site } from "@/lib/site";
 
 const NOT_SENT = { ok: false, error: "We couldn't send the reset email just now. Try again in a few minutes, or email info@rafikihub.com and we'll reset it for you." };
@@ -22,8 +24,15 @@ function appUrl(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!fromThisSite(req)) return NextResponse.json({ ok: false, error: "This form has to be sent from rafikihub.com. Reload the page and try again." }, { status: 403 });
   const db = getDb();
   if (!db) return NextResponse.json({ ok: false, error: "Password reset isn't available right now. Email info@rafikihub.com." }, { status: 503 });
+  // Up to 10 reset requests an hour from one address, so nobody can use up a member's resets
+  const limitKey = `forgot:${clientIp(req)}`;
+  if ((await failures(db, limitKey, 60 * 60).catch(() => 0)) >= 10) {
+    return NextResponse.json({ ok: false, error: "Too many reset requests from here. Wait an hour, or email info@rafikihub.com." }, { status: 429 });
+  }
+  await recordFailure(db, limitKey, 60 * 60).catch(() => {});
   const body = (await req.json().catch(() => null)) as { email?: unknown } | null;
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ ok: false, error: "Enter the email address you signed up with." }, { status: 400 });
