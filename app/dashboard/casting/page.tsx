@@ -4,10 +4,12 @@ import { Photo } from "@/components/Photo";
 import { profileCategories } from "@/lib/data";
 import { applicationLabel, castingStatus, castingTabs, isAgent, sampleCastings, sampleRoster, sampleSubmissions } from "@/lib/dashboard";
 import { agentNames, getApplicationsToMe, getMyCastings, getMyRoster, searchTalent } from "@/lib/dashboard-data";
+import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
+import { getMember } from "@/lib/member";
 import { requireDashboard } from "@/lib/session";
 import { site } from "@/lib/site";
 
-type Search = { welcome?: string; tab?: string; q?: string; category?: string; city?: string; language?: string };
+type Search = { welcome?: string; tab?: string; q?: string; category?: string; city?: string; language?: string; details?: string };
 type Props = { searchParams: Promise<Search> };
 
 const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
@@ -32,6 +34,8 @@ export default async function CastingDashboard({ searchParams }: Props) {
     ? await Promise.all([getMyCastings(accountId), getApplicationsToMe(accountId, tab === "home" ? 200 : 50)])
     : [[], []];
   const roster = accountId && tab === "roster" ? await getMyRoster(accountId) : [];
+  // Their own account, for the editable details on the home tab
+  const me = accountId && tab === "home" ? await getMember(accountId) : null;
   const via = await agentNames([...new Set(received.map((r) => r.viaAgent).filter((v): v is number => v !== null))]);
   const shortlisted = own ? received.filter((r) => r.status === "shortlisted" || r.status === "audition-booked").length : sampleSubmissions.filter((s) => s.status !== "New").length;
 
@@ -90,11 +94,15 @@ export default async function CastingDashboard({ searchParams }: Props) {
 
                 <section className="panel" aria-labelledby="account">
                   <h2 id="account">Your details {member ? null : <SampleTag />}</h2>
+                  {me ? (
+                    <MyDetailsForm name={me.account.name} email={me.account.email} phone={me.account.phone} country={me.account.country} saved={params.details === "saved"} />
+                  ) : (
                   <dl className="facts">
                     <dt>Name</dt><dd>{member?.name ?? "Sample Casting Director"}</dd>
                     <dt>Email</dt><dd>{member?.email ?? "casting@example.com"}</dd>
                     <dt>Company</dt><dd>{member?.company ?? member?.category ?? "Sample Productions"}</dd>
                   </dl>
+                  )}
                   <p className="small" style={{ marginTop: "1rem" }}>Questions about a casting? Call {site.phoneDisplay}.</p>
                 </section>
               </div>

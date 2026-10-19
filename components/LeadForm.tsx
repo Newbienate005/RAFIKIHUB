@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from "re
 export type Field = {
   name: string;
   label: string;
-  type?: "text" | "email" | "tel" | "textarea" | "select";
+  type?: "text" | "email" | "tel" | "textarea" | "select" | "password" | "date";
   options?: string[];
   /** Display labels for options, if different from the submitted values */
   optionLabels?: string[];
@@ -19,10 +19,19 @@ export type Field = {
   half?: boolean;
   /** Longest answer the server accepts; long text boxes show a live count against it */
   max?: number;
+  /** Must equal this other field, e.g. "Repeat password" */
+  matches?: string;
+  /** Starting value, e.g. a country */
+  defaultValue?: string;
 };
 
 /** The same checks the server makes, run as people fill the form in, so problems show up where they are. */
-function check(f: Field, raw: string): string {
+function check(f: Field, raw: string, other?: string): string {
+  if (f.type === "password") {
+    if (!raw) return f.required ? (f.matches ? "Type the same password again." : "Choose a password.") : "";
+    if (f.matches) return raw === other ? "" : "The two passwords don't match.";
+    return raw.length < 8 ? "Use at least 8 characters." : "";
+  }
   const v = raw.trim();
   if (!v) {
     if (!f.required) return "";
@@ -64,13 +73,16 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
   }, [fields]);
 
   const fieldFor = (name: string) => fields.find((f) => f.name === name);
+  /** What another field holds, for checks like "the passwords match" */
+  const otherValue = (form: HTMLFormElement | null | undefined, f: Field) =>
+    f.matches ? ((form?.elements.namedItem(f.matches) as HTMLInputElement | null)?.value ?? "") : undefined;
 
   /** Validate a field when the person leaves it; once it has an error, re-check as they type so it clears straight away. */
   const onBlur = (e: FocusEvent<HTMLFormElement>) => {
     const el = e.target as EventTarget as HTMLInputElement; // the field inside the form that fired it
     const f = fieldFor(el.name);
     if (!f) return;
-    const msg = check(f, el.value);
+    const msg = check(f, el.value, otherValue(el.form, f));
     setFieldErrors((prev) => (prev[f.name] === msg || (!msg && !prev[f.name]) ? prev : { ...prev, [f.name]: msg }));
   };
   const onInput = (e: FormEvent<HTMLFormElement>) => {
@@ -78,7 +90,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
     const f = fieldFor(el.name);
     if (f?.max) setCounts((prev) => (prev[f.name] === el.value.length ? prev : { ...prev, [f.name]: el.value.length }));
     if (!f || !fieldErrors[f.name]) return;
-    const msg = check(f, el.value);
+    const msg = check(f, el.value, otherValue(el.form, f));
     if (msg !== fieldErrors[f.name]) setFieldErrors((prev) => ({ ...prev, [f.name]: msg }));
   };
 
@@ -89,7 +101,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
     const local: Record<string, string> = {};
     for (const f of fields) {
       const el = form.elements.namedItem(f.name) as HTMLInputElement | null;
-      const msg = check(f, el?.value ?? "");
+      const msg = check(f, el?.value ?? "", otherValue(form, f));
       if (msg) local[f.name] = msg;
     }
     if (Object.keys(local).length) {
@@ -147,12 +159,12 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
             {f.type === "textarea" ? (
               <textarea {...common} rows={5} maxLength={f.max ? f.max + 200 : undefined} />
             ) : f.type === "select" ? (
-              <select {...common} defaultValue="">
+              <select {...common} defaultValue={f.defaultValue ?? ""}>
                 <option value="" disabled>Choose one</option>
                 {f.options?.map((o, i) => <option key={o} value={o}>{f.optionLabels?.[i] ?? o}</option>)}
               </select>
             ) : (
-              <input {...common} type={f.type ?? "text"} placeholder={compact ? f.label : undefined} />
+              <input {...common} type={f.type ?? "text"} defaultValue={f.defaultValue} placeholder={compact ? f.label : undefined} />
             )}
             {f.hint && !err ? <p id={`${id}-hint`} className="hint">{f.hint}</p> : null}
             {err ? <p id={`${id}-err`} className="field-error">{err}</p> : null}

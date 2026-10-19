@@ -5,6 +5,7 @@ import { applicationLabel, castingStatus, completenessItems, cvSections, perform
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
 import { getMyAgents, getMyApplications } from "@/lib/dashboard-data";
+import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
 import { MyMedia } from "@/components/profile/MyMedia";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { ProfileFields, profileFieldLabels } from "@/components/profile/ProfileFields";
@@ -12,11 +13,11 @@ import { saveOwnProfile } from "@/app/dashboard/profile/actions";
 import { requireDashboard } from "@/lib/session";
 import { site } from "@/lib/site";
 
-type Props = { searchParams: Promise<{ welcome?: string; tab?: string; saved?: string }> };
+type Props = { searchParams: Promise<{ welcome?: string; tab?: string; saved?: string; details?: string }> };
 
 export default async function PerformerDashboard({ searchParams }: Props) {
   const session = await requireDashboard("performer");
-  const { welcome, tab: requested, saved } = await searchParams;
+  const { welcome, tab: requested, saved, details: detailsSaved } = await searchParams;
   const tab = pickTab(performerTabs, requested);
   const member = session.kind === "member" ? session : null;
   // Signed in with email and password: the member's real account and profile
@@ -109,6 +110,10 @@ export default async function PerformerDashboard({ searchParams }: Props) {
 
                 <section className="panel" aria-labelledby="details">
                   <h2 id="details">Your details {member ? null : <SampleTag />}</h2>
+                  {real ? (
+                    <MyDetailsForm name={real.account.name} email={real.account.email} phone={real.account.phone} country={real.account.country} saved={detailsSaved === "saved"} />
+                  ) : (
+                  <>
                   <dl className="facts">
                     <dt>Name</dt><dd>{details.name}</dd>
                     <dt>Email</dt><dd>{details.email}</dd>
@@ -116,6 +121,8 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                     <dt>Location</dt><dd>{details.location ?? "Not given"}</dd>
                   </dl>
                   <p className="small" style={{ marginTop: "1rem" }}>Something wrong? Email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+                  </>
+                  )}
                 </section>
               </div>
 

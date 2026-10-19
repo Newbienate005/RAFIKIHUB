@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { countries } from "@/lib/countries";
 import { LeadForm } from "@/components/LeadForm";
 import { PageHeader } from "@/components/PageHeader";
 import { Photo } from "@/components/Photo";
 import { images } from "@/lib/images";
 import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
-import { joinBenefits, memberTypes, plans } from "@/lib/data";
+import { joinBenefits, memberTypes, plans, profileCategories } from "@/lib/data";
 import { getContent } from "@/lib/content";
 import { faqSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
@@ -48,23 +49,30 @@ export default async function JoinPage() {
             <p className="small">Basic is Ksh {plans[0].priceKsh.toLocaleString("en-KE")} a month, and the 6 and 12 month plans cost less per month. <Link href="/membership">Compare membership options</Link>.</p>
           </div>
           <div className="panel" id="join-form">
-            <h2 id="apply">Apply for membership</h2>
-            <p className="small">We'll reply by email within two working days with membership options.</p>
+            <h2 id="apply">Create your account</h2>
+            <p className="small">You can start your profile straight away. The RafikiHub team checks every profile before it goes live, and emails you within two working days about membership.</p>
             <LeadForm
               endpoint="/api/join"
-              submitLabel="Send my application"
-              successMessage="Application sent. We'll email you within two working days with your membership options."
+              submitLabel="Create my account"
+              successMessage="Your account is ready."
               fields={[
                 { name: "fullName", label: "Full name", required: true, autoComplete: "name" },
                 { name: "email", label: "Email", type: "email", required: true, autoComplete: "email", half: true },
                 { name: "phone", label: "Phone", type: "tel", required: true, autoComplete: "tel", half: true, hint: "Include the country code, e.g. +254" },
-                { name: "category", label: "I'm joining as", type: "select", required: true, options: memberTypes.map((m) => m.formLabel), optionKeys: memberTypes.map((m) => m.key), defaultFromQuery: "as" },
+                { name: "country", label: "Country", type: "select", required: true, options: [...countries], defaultValue: "Kenya", autoComplete: "country-name", half: true },
+                { name: "gender", label: "Gender", type: "select", options: ["Female", "Male", "Other"], half: true },
+                { name: "dateOfBirth", label: "Date of birth", type: "date", autoComplete: "bday", half: true, hint: "Used to work out your playing age. It isn't shown publicly." },
+                { name: "category", label: "I'm joining as", type: "select", required: true, options: memberTypes.map((m) => m.formLabel), optionKeys: memberTypes.map((m) => m.key), defaultFromQuery: "as", half: true },
+                { name: "talentCategory", label: "Your category", type: "select", options: profileCategories.filter((c) => c !== "Pet"), hint: "For performers and crew: what casting directors search you by. You can change it later." },
+                { name: "guardian", label: "Parent or guardian", type: "select", options: ["Parent", "Guardian"], hint: "Only if you're registering a performer under 18." },
+                { name: "password", label: "Password", type: "password", required: true, autoComplete: "new-password", half: true, hint: "At least 8 characters." },
+                { name: "passwordRepeat", label: "Repeat password", type: "password", required: true, autoComplete: "new-password", half: true, matches: "password" },
                 { name: "plan", label: "Membership plan", type: "select", options: [...plans.map((p) => p.id), "undecided"], optionLabels: [...plans.map((p) => `${p.name}: Ksh ${p.priceKsh.toLocaleString("en-KE")} ${p.label}`), "Not sure yet"], defaultFromQuery: "plan" },
                 { name: "location", label: "Town or city", autoComplete: "address-level2" },
                 { name: "message", label: "Experience and training", type: "textarea", max: 2000, hint: "A few lines on your credits, training or what you're looking for." },
               ]}
             />
-            <p className="small panel__note">Registering a performer under 18? A parent or guardian must complete this form.</p>
+            <p className="small panel__note">Registering a performer under 18? A parent or guardian must complete this form. Already a member? <Link href="/login">Log in</Link>.</p>
           </div>
         </div>
       </section>

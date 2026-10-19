@@ -20,7 +20,7 @@ const notifyFor: Record<string, string> = {
 };
 
 /** After the response is sent: email the team, and log loudly if that fails. */
-function notifyTeam(req: Request, data: Record<string, unknown>) {
+export function notifyTeam(req: Request, data: Record<string, unknown>) {
   const form = notifyFor[new URL(req.url).pathname.split("/").pop() ?? ""];
   if (!form) return;
   if (!emailConfigured()) {
