@@ -3,25 +3,14 @@ import { fromThisSite } from "@/lib/same-site";
 import { and, count, eq, gt, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { accounts, passwordResets } from "@/lib/db/schema";
+import { appUrl } from "@/lib/app-url";
 import { emailConfigured, resetEmail, sendEmail } from "@/lib/email";
 import { newToken, tokenHash } from "@/lib/password";
 import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
-import { site } from "@/lib/site";
 
 const NOT_SENT = { ok: false, error: "We couldn't send the reset email just now. Try again in a few minutes, or email info@rafikihub.com and we'll reset it for you." };
 const SAME_ANSWER = { ok: true, message: "If that email has a RafikiHub account, we've sent a link to reset the password. Check your inbox and spam folder." };
 
-/**
- * Where reset links point. Built from configured addresses only (never the request's Host header,
- * which an attacker could set): APP_URL, else Vercel's production address, else the site URL;
- * localhost in development.
- */
-function appUrl(req: Request) {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-  if (process.env.NODE_ENV !== "production") return new URL(req.url).origin;
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  return site.url;
-}
 
 export async function POST(req: Request) {
   if (!fromThisSite(req)) return NextResponse.json({ ok: false, error: "This form has to be sent from rafikihub.com. Reload the page and try again." }, { status: 403 });
@@ -56,7 +45,7 @@ export async function POST(req: Request) {
     // Not set up yet: in development, print the link so the flow can be tested; never log it in production
     if (process.env.NODE_ENV !== "production") console.info(`[forgot] Email isn't set up. Reset link for account ${acct.id}: ${link}`);
     else {
-      console.error("[forgot] RESEND_API_KEY isn't set, so a reset email couldn't be sent.");
+      console.error("[forgot] No email service is set up (ELASTIC_EMAIL_API_KEY), so a reset email couldn't be sent.");
       return NextResponse.json(NOT_SENT, { status: 503 });
     }
     return NextResponse.json(SAME_ANSWER);

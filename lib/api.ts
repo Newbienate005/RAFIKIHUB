@@ -1,6 +1,7 @@
 import { after, NextResponse } from "next/server";
 import type { ZodSchema } from "zod";
 import { getDb } from "@/lib/db";
+import { appUrl } from "@/lib/app-url";
 import { emailConfigured, sendEmail, submissionEmail } from "@/lib/email";
 import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { fromThisSite } from "@/lib/same-site";
@@ -23,11 +24,11 @@ function notifyTeam(req: Request, data: Record<string, unknown>) {
   const form = notifyFor[new URL(req.url).pathname.split("/").pop() ?? ""];
   if (!form) return;
   if (!emailConfigured()) {
-    if (process.env.NODE_ENV === "production") console.error(`[forms] RESEND_API_KEY isn't set, so nobody was told about a new ${form}.`);
+    if (process.env.NODE_ENV === "production") console.error(`[forms] No email service is set up (ELASTIC_EMAIL_API_KEY), so nobody was told about a new ${form}.`);
     return;
   }
   const to = process.env.NOTIFY_EMAIL || site.email;
-  after(() => sendEmail({ to, ...submissionEmail(form, data, `${site.url}/admin`) }).catch((e) => console.error(`[forms] couldn't email the team about a new ${form}`, e)));
+  after(() => sendEmail({ to, ...submissionEmail(form, data, `${appUrl(req)}/admin`) }).catch((e) => console.error(`[forms] couldn't email the team about a new ${form}`, e)));
 }
 
 type SignIn = { redirect: string; session: NewSession };
