@@ -134,7 +134,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           {tab === "opportunities" ? (
             <>
               <section aria-labelledby="postings">
-                <h2 id="postings">Talent postings {live.length || real ? null : <SampleTag />}</h2>
+                <h2 id="postings">Talent postings {live.length || member ? null : <SampleTag />}</h2>
                 <p className="small">Open castings appear here while they&apos;re accepting applications. Online applications are being set up: until then, email <a href={`mailto:${site.email}`}>{site.email}</a> with the casting reference and your profile link.</p>
                 {live.length ? (
                   <div className="table-scroll">
@@ -153,7 +153,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                       </tbody>
                     </table>
                   </div>
-                ) : real ? (
+                ) : member ? (
                   <p className="small dash-empty">No castings are open right now. New ones appear here the moment they go live. Meanwhile, <Link href="/dashboard/profile">finish your profile</Link> so you can apply as soon as one opens.</p>
                 ) : (
                   <div className="table-scroll">
@@ -195,14 +195,20 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                     </table>
                   </div>
                 ) : (
-                  <p className="small">{real ? "You haven't applied for any castings yet. Castings you apply for are listed here with their status." : "Members see the castings they've applied for here, with their status."}</p>
+                  <p className="small">{member ? "You haven't applied for any castings yet. Castings you apply for are listed here with their status." : "Members see the castings they've applied for here, with their status."}</p>
                 )}
               </section>
             </>
           ) : null}
 
           {tab === "media" ? (
-            real ? <MyMedia profile={real.profile?.data ?? null} published={real.profile?.published ?? false} /> : (
+            real ? <MyMedia profile={real.profile?.data ?? null} published={real.profile?.published ?? false} /> : member ? (
+            <section aria-labelledby="media">
+              <h2 id="media">My media</h2>
+              <p className="small">Your headshots, showreels and voice clips go here. Profiles with a clear headshot get looked at first.</p>
+              <p className="small dash-empty">We&apos;re reviewing your application. Once your membership is approved you&apos;ll get a login by email, and you can upload them here. Questions? Email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+            </section>
+            ) : (
             <section aria-labelledby="media">
               <h2 id="media">My media <SampleTag /></h2>
               <p className="small">Members see their photos, showreels and voice clips here, including everything from their old RafikiHub profile.</p>
@@ -247,6 +253,12 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                   <ProfileFields p={real.profile.data} mode="member" uploadFolder={`members/${real.account.id}`} only="cv" />
                 </AdminForm>
               </section>
+            ) : member && !real ? (
+              <section aria-labelledby="cv">
+                <h2 id="cv">Edit CV</h2>
+                <p className="small">Your CV is what casting directors search: playing age, height, look, credits and skills.</p>
+                <p className="small dash-empty">We&apos;re reviewing your application. Once your membership is approved you&apos;ll get a login by email, and you can fill it in here. Questions? Email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+              </section>
             ) : real ? (
               <section aria-labelledby="cv">
                 <h2 id="cv">Edit CV</h2>
@@ -275,9 +287,9 @@ export default async function PerformerDashboard({ searchParams }: Props) {
           {tab === "agents" ? (
             <>
               <section aria-labelledby="agents">
-                <h2 id="agents">My agents {real ? null : <SampleTag />}</h2>
+                <h2 id="agents">My agents {member ? null : <SampleTag />}</h2>
                 <p className="small">Link your RafikiHub profile to your agent so they can submit you for roles. The agent approves the link from their dashboard.</p>
-                {real && !agents.length ? (
+                {member && !agents.length ? (
                   <p className="small dash-empty">You haven&apos;t linked an agent yet. If you have one, email <a href={`mailto:${site.email}`}>{site.email}</a> and we&apos;ll connect you.</p>
                 ) : (
                   <div className="table-scroll">
