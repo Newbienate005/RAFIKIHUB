@@ -6,7 +6,7 @@ import { emailConfigured, sendEmail, submissionEmail } from "@/lib/email";
 import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { fromThisSite } from "@/lib/same-site";
 import { site } from "@/lib/site";
-import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, decodeSession, encodeSession, type NewSession } from "@/lib/session";
+import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, encodeSession, type NewSession } from "@/lib/session";
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
 
@@ -36,9 +36,7 @@ type SignIn = { redirect: string; session: NewSession };
 /** A success response; when `signIn` is given (and sessions are enabled) it also signs the person in and sends them on. */
 function success(req: Request, signIn?: SignIn) {
   if (!signIn) return NextResponse.json({ ok: true });
-  // Already signed in with the master login (e.g. testing the form): keep that session, just open the dashboard
-  const current = req.headers.get("cookie")?.match(new RegExp(`(?:^|; )${SESSION_COOKIE}=([^;]+)`))?.[1];
-  if (decodeSession(current)?.kind === "master") return NextResponse.json({ ok: true, redirect: signIn.redirect });
+  // Whoever just applied gets their own fresh dashboard, even if the master login was open in this browser
   const token = encodeSession(signIn.session, MEMBER_DAYS);
   if (!token) return NextResponse.json({ ok: true });
   const res = NextResponse.json({ ok: true, redirect: signIn.redirect });

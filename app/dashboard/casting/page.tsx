@@ -22,6 +22,8 @@ export default async function CastingDashboard({ searchParams }: Props) {
   const member = session.kind === "member" ? session : null;
   // Signed in with email and password: their real castings, applicants and roster. The master login previews samples.
   const accountId = member?.accountId ?? null;
+  // Anyone signed in sees their own (maybe empty) dashboard; sample data is only for the master preview
+  const own = Boolean(member);
   // "My talents" is for agents (and the master preview), as on the old site
   const tabs = castingTabs.filter((t) => !("agentsOnly" in t) || !member || isAgent(member.category));
   const tab = pickTab(tabs, params.tab);
@@ -31,7 +33,7 @@ export default async function CastingDashboard({ searchParams }: Props) {
     : [[], []];
   const roster = accountId && tab === "roster" ? await getMyRoster(accountId) : [];
   const via = await agentNames([...new Set(received.map((r) => r.viaAgent).filter((v): v is number => v !== null))]);
-  const shortlisted = accountId ? received.filter((r) => r.status === "shortlisted" || r.status === "audition-booked").length : sampleSubmissions.filter((s) => s.status !== "New").length;
+  const shortlisted = own ? received.filter((r) => r.status === "shortlisted" || r.status === "audition-booked").length : sampleSubmissions.filter((s) => s.status !== "New").length;
 
   // Find talent searches real, published profiles for everyone (including the master login)
   const search = tab === "talent" ? await searchTalent(params) : { results: [], total: 0 };
@@ -50,12 +52,12 @@ export default async function CastingDashboard({ searchParams }: Props) {
                   <span className="stat__note">{accountId && castings.length ? <Link href="?tab=castings">See all</Link> : member?.project ? "Being reviewed by RafikiHub" : <Link href="/casting">Post your first</Link>}</span>
                 </li>
                 <li className="stat">
-                  <span className="stat__label">Applications {accountId ? null : <SampleTag />}</span>
-                  <span className="stat__value">{accountId ? received.length : sampleSubmissions.length}</span>
+                  <span className="stat__label">Applications {own ? null : <SampleTag />}</span>
+                  <span className="stat__value">{own ? received.length : sampleSubmissions.length}</span>
                   <span className="stat__note">From agents and performers</span>
                 </li>
                 <li className="stat">
-                  <span className="stat__label">Shortlisted {accountId ? null : <SampleTag />}</span>
+                  <span className="stat__label">Shortlisted {own ? null : <SampleTag />}</span>
                   <span className="stat__value">{shortlisted}</span>
                   <span className="stat__note">Ready to invite to audition</span>
                 </li>
@@ -103,18 +105,21 @@ export default async function CastingDashboard({ searchParams }: Props) {
             <>
               <section aria-labelledby="posted">
                 <div className="section-head">
-                  <h2 id="posted">All my castings {accountId ? null : <SampleTag />}</h2>
+                  <h2 id="posted">All my castings {own ? null : <SampleTag />}</h2>
                   <Link href="/casting" className="btn btn--sun btn--sm">New casting</Link>
                 </div>
                 <p className="small">Each casting sets who can apply (gender, talent categories and countries) and a closing date. To close one early, reopen it or change it, call {site.phoneDisplay} or email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
-                {accountId && !castings.length ? (
+                {own && !castings.length && member?.project && !accountId ? (
+                  // Just sent the casting form: it's waiting for the team, not missing
+                  <p className="small dash-empty">Your casting &ldquo;{member.project}&rdquo; is with the RafikiHub team. It appears here once they&apos;ve checked it, usually within two working days.</p>
+                ) : own && !castings.length ? (
                   <p className="small dash-empty">You haven&apos;t posted a casting yet. <Link href="/casting">Post your first casting</Link> and it appears here once the RafikiHub team has checked it.</p>
                 ) : (
                   <div className="table-scroll">
                     <table className="credits subs">
                       <thead><tr><th scope="col">Casting</th><th scope="col">Open to</th><th scope="col">Closes</th><th scope="col">Applications</th><th scope="col">Status</th></tr></thead>
                       <tbody>
-                        {accountId
+                        {own
                           ? castings.map((c) => (
                               <tr key={c.id}>
                                 <td><strong>{c.title}</strong><br /><span className="small">{[c.ref, c.type, c.location].filter(Boolean).join(" · ")}</span></td>
@@ -143,16 +148,16 @@ export default async function CastingDashboard({ searchParams }: Props) {
               </section>
 
               <section aria-labelledby="subs">
-                <h2 id="subs">Received applications {accountId ? null : <SampleTag />}</h2>
+                <h2 id="subs">Received applications {own ? null : <SampleTag />}</h2>
                 <p className="small">Applications arrive from agents and from performers themselves, newest first. Open a profile to see their photos, reels and credits.</p>
-                {accountId && !received.length ? (
+                {own && !received.length ? (
                   <p className="small dash-empty">No applications yet. They appear here as performers and agents apply to your castings.</p>
                 ) : (
                   <div className="table-scroll">
                     <table className="credits subs">
                       <thead><tr><th scope="col">Performer</th><th scope="col">Casting</th><th scope="col">Playing age</th><th scope="col">Via</th><th scope="col">Applied</th><th scope="col">Status</th></tr></thead>
                       <tbody>
-                        {accountId
+                        {own
                           ? received.map((r) => (
                               <tr key={r.id}>
                                 <td>
@@ -237,16 +242,16 @@ export default async function CastingDashboard({ searchParams }: Props) {
 
           {tab === "roster" ? (
             <section aria-labelledby="roster">
-              <h2 id="roster">My talents {accountId ? null : <SampleTag />}</h2>
+              <h2 id="roster">My talents {own ? null : <SampleTag />}</h2>
               <p className="small">Performers who link their profile to your agency appear here. To approve or remove a link, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
-              {accountId && !roster.length ? (
+              {own && !roster.length ? (
                 <p className="small dash-empty">No performers have linked their profile to you yet. When a performer names your agency on their profile and we confirm it, they appear here.</p>
               ) : (
                 <div className="table-scroll">
                   <table className="credits subs">
                     <thead><tr><th scope="col">Performer</th><th scope="col">Category</th><th scope="col">Status</th></tr></thead>
                     <tbody>
-                      {accountId
+                      {own
                         ? roster.map((r) => (
                             <tr key={r.id}>
                               <td>{r.profileUrl && r.published ? <Link href={`/profile/${r.profileUrl}`} target="_blank"><strong>{r.name}</strong></Link> : <strong>{r.name}</strong>}</td>
