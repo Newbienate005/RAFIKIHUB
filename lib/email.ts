@@ -1,21 +1,49 @@
 /**
- * Transactional email through Resend's HTTP API (no SDK needed).
- * Needs RESEND_API_KEY, and EMAIL_FROM on a domain verified in Resend, e.g. "RafikiHub <no-reply@rafikihub.com>".
+ * Transactional email over HTTP (no SDK needed), through Elastic Email or Resend.
+ * Set ELASTIC_EMAIL_API_KEY (used first) or RESEND_API_KEY, and EMAIL_FROM on a domain verified with
+ * that service, e.g. "RafikiHub <no-reply@rafikihub.com>".
  */
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export const emailConfigured = () => Boolean(process.env.RESEND_API_KEY);
+export const emailConfigured = () => Boolean(process.env.ELASTIC_EMAIL_API_KEY || process.env.RESEND_API_KEY);
 
-export async function sendEmail({ to, subject, text, html }: { to: string; subject: string; text: string; html: string }) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) throw new Error("Email isn't set up: add RESEND_API_KEY.");
+type Message = { to: string; subject: string; text: string; html: string };
+
+export async function sendEmail(m: Message) {
+  const from = process.env.EMAIL_FROM || "RafikiHub <no-reply@rafikihub.com>";
+  // A stuck email service mustn't hang the request
+  const signal = AbortSignal.timeout(10_000);
+
+  const elastic = process.env.ELASTIC_EMAIL_API_KEY;
+  if (elastic) {
+    const res = await fetch("https://api.elasticemail.com/v4/emails/transactional", {
+      method: "POST",
+      headers: { "X-ElasticEmail-ApiKey": elastic, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Recipients: { To: [m.to] },
+        Content: {
+          From: from,
+          Subject: m.subject,
+          Body: [
+            { ContentType: "HTML", Charset: "utf-8", Content: m.html },
+            { ContentType: "PlainText", Charset: "utf-8", Content: m.text },
+          ],
+        },
+      }),
+      signal,
+    });
+    if (!res.ok) throw new Error(`Elastic Email refused the email (${res.status}): ${(await res.text()).slice(0, 200)}`);
+    return;
+  }
+
+  const resend = process.env.RESEND_API_KEY;
+  if (!resend) throw new Error("Email isn't set up: add ELASTIC_EMAIL_API_KEY.");
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: process.env.EMAIL_FROM || "RafikiHub <no-reply@rafikihub.com>", to: [to], subject, text, html }),
-    // A stuck email service mustn't hang the request
-    signal: AbortSignal.timeout(10_000),
+    headers: { Authorization: `Bearer ${resend}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to: [m.to], subject: m.subject, text: m.text, html: m.html }),
+    signal,
   });
   if (!res.ok) throw new Error(`Resend refused the email (${res.status}): ${(await res.text()).slice(0, 200)}`);
 }
