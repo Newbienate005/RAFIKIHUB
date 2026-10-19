@@ -4,11 +4,12 @@ import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { AdminHeader, NoDatabase, Pager, StatusPill, Tabs, fmtDate } from "@/components/admin/ui";
 import { getDb } from "@/lib/db";
 import { accounts, talentProfiles } from "@/lib/db/schema";
-import { setAccountStatus } from "./actions";
+import { ConfirmButton } from "@/components/admin/AdminForm";
+import { deleteAccount, setAccountStatus } from "./actions";
 
 const SIZE = 40;
 const accountStatuses = ["active", "unverified", "expired", "blocked"] as const;
-type Props = { searchParams: Promise<{ q?: string; role?: string; status?: string; page?: string }> };
+type Props = { searchParams: Promise<{ q?: string; role?: string; status?: string; page?: string; deleted?: string }> };
 
 export default async function MembersPage({ searchParams }: Props) {
   await requireMaster(); // the layout checks too, but a request can skip the layout
@@ -56,6 +57,7 @@ export default async function MembersPage({ searchParams }: Props) {
   return (
     <>
       {header}
+      {sp.deleted ? <p className="form-success" role="status">Account deleted.</p> : null}
       <form className="admin-search" role="search">
         {role ? <input type="hidden" name="role" value={role} /> : null}
         <label htmlFor="q" className="sr-only">Search</label>
@@ -75,7 +77,7 @@ export default async function MembersPage({ searchParams }: Props) {
       {rows.length ? (
         <div className="table-scroll">
           <table className="compare admin-table">
-            <thead><tr><th scope="col">Member</th><th scope="col">Type</th><th scope="col">Plan</th><th scope="col">Profile</th><th scope="col">Status</th></tr></thead>
+            <thead><tr><th scope="col">Member</th><th scope="col">Type</th><th scope="col">Plan</th><th scope="col">Profile</th><th scope="col">Status</th><th scope="col"><span className="sr-only">Delete</span></th></tr></thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id}>
@@ -95,6 +97,9 @@ export default async function MembersPage({ searchParams }: Props) {
                       </select>
                       <button type="submit" className="btn btn--ink btn--sm">Set</button>
                     </form>
+                  </td>
+                  <td>
+                    <ConfirmButton action={deleteAccount.bind(null, r.id)} className="btn btn--ghost btn--sm admin-delete" message={`Delete ${r.name}'s account? Their login, profile, casting applications and payment records are removed for good. To just stop them logging in, set the status to Blocked instead.`}>Delete</ConfirmButton>
                   </td>
                 </tr>
               ))}

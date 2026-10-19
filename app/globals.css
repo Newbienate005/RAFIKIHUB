@@ -1126,6 +1126,7 @@ body:has(.admin) .site-footer { display: none; }
 .admin-danger { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.25rem; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(243,114,127,.35); }
 .admin-danger p { margin: 0; color: var(--muted); font-size: 0.875rem; max-width: 40em; }
 .admin-danger .btn { color: var(--negative); box-shadow: inset 0 0 0 1px rgba(243,114,127,.6); }
+.admin-delete { color: var(--negative); box-shadow: inset 0 0 0 1px rgba(243,114,127,.6); }
 .admin-grid { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; gap: 1.25rem; align-items: start; }
 .admin-grid--2 { grid-template-columns: 1fr 1fr; }
 @media (max-width: 860px) { .admin-grid, .admin-grid--2 { grid-template-columns: 1fr; } }
