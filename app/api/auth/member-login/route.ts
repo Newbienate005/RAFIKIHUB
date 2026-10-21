@@ -3,6 +3,7 @@ import { fromThisSite } from "@/lib/same-site";
 import { eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
+import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { MEMBER_DAYS, SESSION_COOKIE, cookieOptions, encodeSession, passwordVersion } from "@/lib/session";
 
@@ -34,8 +35,16 @@ async function signIn(req: Request) {
   const password = typeof body?.password === "string" ? body.password : "";
   if (!email || !password) return NextResponse.json({ ok: false, error: "Enter your email and password." }, { status: 400 });
 
+  // Per address too, so one password can't be tried against every member's email (30 wrong in 15 minutes)
+  const ipKey = `member:${clientIp(req)}`;
+  if ((await failures(db, ipKey, 15 * 60).catch(() => 0)) >= 30) {
+    return NextResponse.json({ ok: false, error: "Too many wrong sign-ins from here. Wait 15 minutes, or reset your password." }, { status: 429 });
+  }
+  const missed = () => recordFailure(db, ipKey, 15 * 60).catch((e) => console.error("[member-login] couldn't count a failed attempt", e));
+
   const [acct] = await db.select().from(accounts).where(sql`lower(${accounts.email}) = ${email}`).limit(1);
   if (!acct) {
+    await missed();
     await new Promise((r) => setTimeout(r, 800)); // same pace as a wrong password, so emails can't be probed
     return wrong();
   }
@@ -53,6 +62,7 @@ async function signIn(req: Request) {
         lockedUntil: sql`CASE WHEN ${accounts.failedLogins} + 1 >= ${MAX_FAILURES} THEN now() + make_interval(mins => ${LOCK_MINUTES}) ELSE ${accounts.lockedUntil} END`,
       })
       .where(eq(accounts.id, acct.id));
+    await missed();
     await new Promise((r) => setTimeout(r, 800));
     return wrong();
   }

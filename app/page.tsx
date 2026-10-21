@@ -15,6 +15,9 @@ import { shortDate } from "@/lib/dates";
 import { faqSchema } from "@/lib/schema";
 import { getSiteStats } from "@/lib/stats";
 
+// Rebuilt at most hourly; admin saves refresh it sooner through revalidateTag
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: { absolute: "RafikiHub | Casting platform for actors and performers in Kenya" },
   description: "RafikiHub is a Nairobi casting platform connecting actors, models and performers in Kenya and Africa with casting directors for film, TV, theatre and ads.",
