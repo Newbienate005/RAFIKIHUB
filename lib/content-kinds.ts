@@ -212,7 +212,7 @@ export function toFormValue(field: Field, value: unknown): string | boolean {
 const youtubeId = (v: string) =>
   v.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/)?.[1] ?? (/^[\w-]{11}$/.test(v) ? v : null);
 
-export function parseBlocks(text: string) {
+function parseBlocks(text: string) {
   const chunks = text.replace(/\r/g, "").split(/\n\s*\n/).map((c) => c.trim()).filter(Boolean);
   const blocks: { heading?: string; text: string }[] = [];
   for (const chunk of chunks) {

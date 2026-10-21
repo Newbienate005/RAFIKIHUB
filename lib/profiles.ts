@@ -7,7 +7,7 @@ import { talentProfiles } from "./db/schema";
 const isDev = process.env.NODE_ENV !== "production";
 
 /** Cache tags: one per profile, and one for every profile (the "More actors" lists). Saves revalidate them. */
-export const PROFILES_TAG = "profiles";
+const PROFILES_TAG = "profiles";
 export const profileTag = (profileUrl: string) => `profile:${profileUrl}`;
 
 // The database reads are cached so profile pages can be cached too (rendered on the first visit, then

@@ -3,6 +3,7 @@
 import { upload } from "@vercel/blob/client";
 import { useRef, useState } from "react";
 import type { MediaClip } from "@/lib/data";
+import { uploadName } from "@/lib/upload-name";
 import { mediaOrigin, originLabel } from "@/lib/media";
 
 const limits = {
@@ -10,8 +11,6 @@ const limits = {
   audio: { folder: "voices", accept: "audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,audio/x-wav,audio/aac,audio/ogg", mb: 100, types: "MP3, M4A or WAV" },
 } as const;
 
-const slug = (name: string) => name.toLowerCase().replace(/\.[a-z0-9]+$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "clip";
-const ext = (name: string) => name.match(/\.[a-z0-9]+$/i)?.[0].toLowerCase() ?? "";
 const titleFromFile = (name: string) => name.replace(/\.[a-z0-9]+$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 120);
 
 /** Showreels or voice clips in order, each with a title. Sent as one hidden JSON field. The first one is the main one. */
@@ -34,7 +33,7 @@ export function ClipListField({ name, label, kind, defaultValue = [], folder, hi
         if (!f.type.startsWith(`${kind}/`)) throw new Error(`Choose a ${kind} file (${L.types}).`);
         if (f.size > L.mb * 1024 * 1024) throw new Error(`${f.name} is over ${L.mb} MB. Trim or compress it, or upload it to YouTube and paste the link.`);
         setBusy(`Uploading ${f.name}…`);
-        const blob = await upload(`${L.folder}/${folder}/${slug(f.name)}${ext(f.name)}`, f, { access: "public", handleUploadUrl: "/api/admin/upload", multipart: f.size > 20 * 1024 * 1024 });
+        const blob = await upload(`${L.folder}/${folder}/${uploadName(f.name, "clip")}`, f, { access: "public", handleUploadUrl: "/api/admin/upload", multipart: f.size > 20 * 1024 * 1024 });
         setClips((c) => [...c, { url: blob.url, title: titleFromFile(f.name) || null }]);
       }
     } catch (e) {
