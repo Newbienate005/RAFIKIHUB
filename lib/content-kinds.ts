@@ -1,5 +1,5 @@
 import {
-  articleGenres, articles, contactListings, faqCategories, faqs, partners, team, testimonials, videos,
+  articleGenres, articles, contactListings, faqCategories, faqs, partnerGroups, partners, team, testimonials, videos,
   type Article, type ContactListing, type Faq, type Partner, type TeamMember, type Testimonial, type Video,
 } from "./data";
 
@@ -133,6 +133,7 @@ export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
       { name: "logo", label: "Logo", type: "image" },
       { name: "url", label: "Website", type: "url" },
       { name: "description", label: "Short description", type: "text", hint: "Shown only when there's no logo." },
+      { name: "group", label: "Row", type: "select", options: partnerGroups, hint: "Which row on the home page it's in. Left empty, it goes under “Who we've worked with”." },
     ],
     title: (d) => d.name,
     subtitle: (d) => d.url ?? "",
