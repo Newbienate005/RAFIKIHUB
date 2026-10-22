@@ -8,7 +8,7 @@ import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { Testimonials } from "@/components/Testimonials";
 import { Photo } from "@/components/Photo";
-import { homePaths, memberTypes } from "@/lib/data";
+import { homePaths, memberTypes, partnerGroups } from "@/lib/data";
 import { getArticles, getContent } from "@/lib/content";
 import { images } from "@/lib/images";
 import { shortDate } from "@/lib/dates";
@@ -72,20 +72,27 @@ export default async function Home() {
       </section>
 
       {partners.length ? (
-        <section className="partners partners--strip" aria-labelledby="partners">
-          <div className="wrap">
-            <h2 id="partners" className="partners__title">Who we&apos;ve worked with</h2>
-            <ul className="partners__list">
-              {partners.map((p) => {
-                const mark = p.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.logo} alt={p.name} height={56} loading="lazy" />
-                ) : (
-                  <span className="partners__name">{p.name}{p.description ? <span className="small">{p.description}</span> : null}</span>
-                );
-                return <li key={p.name}>{p.url ? <a href={p.url} target="_blank" rel="noopener">{mark}</a> : mark}</li>;
-              })}
-            </ul>
+        <section className="partners partners--strip" aria-label="Brands and companies we've worked with">
+          <div className="wrap partners__groups">
+            {partnerGroups.map((g, gi) => {
+              const list = partners.filter((p) => (p.group ?? "Who we've worked with") === g);
+              return list.length ? (
+                <div key={g} className="partners__group">
+                  <h2 id={`partners-${gi}`} className="partners__title">{g}</h2>
+                  <ul className="partners__list" aria-labelledby={`partners-${gi}`}>
+                    {list.map((p) => {
+                      const mark = p.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.logo} alt={p.name} height={56} loading="lazy" />
+                      ) : (
+                        <span className="partners__name">{p.name}{p.description ? <span className="small">{p.description}</span> : null}</span>
+                      );
+                      return <li key={p.name}>{p.url ? <a href={p.url} target="_blank" rel="noopener">{mark}</a> : mark}</li>;
+                    })}
+                  </ul>
+                </div>
+              ) : null;
+            })}
           </div>
         </section>
       ) : null}
