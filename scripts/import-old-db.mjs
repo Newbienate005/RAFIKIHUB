@@ -198,6 +198,10 @@ async function load(label, rows, query, size = 400) {
 const guarded = async (key) => (await sql(`SELECT value FROM site_settings WHERE key = $1`, [key]))[0]?.value?.items ?? [];
 const deletedUrls = new Set((await guarded("import:deleted-profiles")).map(String));
 const moderatedAuditions = (await guarded("import:moderated-auditions")).map(Number).filter(Number.isInteger);
+const deletedAccounts = new Set((await guarded("import:deleted-accounts")).map(Number));
+const before = out.accounts.length;
+out.accounts = out.accounts.filter((a) => !deletedAccounts.has(a.legacy_id));
+if (out.accounts.length < before) log(`\nSkipping ${before - out.accounts.length} account(s) deleted in the admin.`);
 const linked = await sql(`SELECT legacy_id, profile_url FROM accounts WHERE legacy_id IS NOT NULL OR profile_url IS NOT NULL`);
 const plan = planRerun({
   accounts: out.accounts,
