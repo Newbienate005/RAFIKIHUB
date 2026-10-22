@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { Icon } from "./Icon";
 import { LeadForm } from "./LeadForm";
 import { SocialIcons } from "./SocialIcons";
 
@@ -37,12 +38,10 @@ export function Footer() {
         </nav>
         <div>
           <h2>Get In Touch</h2>
-          <address>
-            {a.building}<br />
-            {a.street}<br />
-            {a.area}, {a.city}, {a.countryName}<br />
-            <a href={`tel:${site.phone}`}>{site.phoneDisplay}</a><br />
-            <a href={`mailto:${site.email}`}>{site.email}</a>
+          <address className="icon-lines">
+            <span><Icon name="pin" size={18} /><span>{a.building}<br />{a.street}<br />{a.area}, {a.city}, {a.countryName}</span></span>
+            <span><Icon name="phone" size={18} /><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></span>
+            <span><Icon name="mail" size={18} /><a href={`mailto:${site.email}`}>{site.email}</a></span>
           </address>
         </div>
       </div>
