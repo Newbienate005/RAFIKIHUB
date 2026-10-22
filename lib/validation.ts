@@ -8,16 +8,39 @@ const phone = z.string({ required_error: "Enter a phone number, including the co
 // Never fails validation: a filled honeypot is silently accepted and dropped in lib/api.ts
 const honeypot = z.string().optional();
 
-export const joinSchema = z.object({
-  fullName: req("full name", 160),
-  email,
-  phone,
-  category: z.string({ required_error: "Choose what you're joining as." }).trim().min(1, "Choose what you're joining as.").max(80),
-  plan: z.enum(["basic", "standard", "premium", "undecided"]).optional().or(z.literal("")),
-  location: opt(120),
-  message: opt(2000),
-  website: honeypot,
-});
+/** Under 18 on the day they join, from a yyyy-mm-dd date of birth */
+export const isUnder18 = (dob: string) => {
+  const d = new Date(`${dob}T00:00:00`);
+  const eighteen = new Date(d.getFullYear() + 18, d.getMonth(), d.getDate());
+  return eighteen > new Date();
+};
+
+/** The join form: the same details the old rafikihub.com asked for, plus a password so the account works straight away. */
+export const joinSchema = z
+  .object({
+    fullName: req("full name", 160),
+    email,
+    phone,
+    country: z.string({ required_error: "Choose your country." }).trim().min(1, "Choose your country.").max(80),
+    gender: z.enum(["Female", "Male", "Other"]).optional().or(z.literal("")),
+    dateOfBirth: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date of birth.").optional().or(z.literal("")),
+    category: z.string({ required_error: "Choose what you're joining as." }).trim().min(1, "Choose what you're joining as.").max(80),
+    talentCategory: opt(80),
+    guardian: z.enum(["Parent", "Guardian"]).optional().or(z.literal("")),
+    password: z.string({ required_error: "Choose a password." }).min(8, "Use at least 8 characters.").max(200, "That's too long: use up to 200 characters."),
+    passwordRepeat: z.string({ required_error: "Type the same password again." }),
+    plan: z.enum(["basic", "standard", "premium", "undecided"]).optional().or(z.literal("")),
+    location: opt(120),
+    message: opt(2000),
+    website: honeypot,
+  })
+  .refine((d) => d.password === d.passwordRepeat, { path: ["passwordRepeat"], message: "The two passwords don't match." })
+  .refine((d) => !d.dateOfBirth || new Date(`${d.dateOfBirth}T00:00:00`) < new Date(), { path: ["dateOfBirth"], message: "That date is in the future." })
+  // A parent or guardian registers anyone under 18
+  .refine((d) => d.guardian || !(/young/i.test(d.category) || (d.dateOfBirth && isUnder18(d.dateOfBirth))), {
+    path: ["guardian"],
+    message: "Performers under 18 are registered by a parent or guardian: choose which you are.",
+  });
 
 export const castingSchema = z.object({
   company: req("company or production name"),

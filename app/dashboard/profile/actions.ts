@@ -9,10 +9,10 @@ import { profileCategories, type TalentProfile } from "@/lib/data";
 import { getDb } from "@/lib/db";
 import { accounts, talentProfiles } from "@/lib/db/schema";
 import { profileCompleteness } from "@/lib/profile-completeness";
+import { freeProfileUrl } from "@/lib/profile-url";
 import { profileTag } from "@/lib/profiles";
 import { getSession } from "@/lib/session";
 
-const slug = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "member";
 
 /** A member saving their own profile. They can't change their link name, publish it, or mark themselves represented. */
 export async function saveOwnProfile(_prev: FormState, form: FormData): Promise<FormState> {
@@ -33,9 +33,7 @@ export async function saveOwnProfile(_prev: FormState, form: FormData): Promise<
   }
   if (!existing) {
     // First profile: a link name from their name, made unique
-    const root = slug(account.name);
-    url = root;
-    for (let n = 2; (await db.select({ u: talentProfiles.profileUrl }).from(talentProfiles).where(eq(talentProfiles.profileUrl, url)).limit(1)).length; n++) url = `${root}-${n}`;
+    url = await freeProfileUrl(db, account.name);
     const cat = account.category && (profileCategories as readonly string[]).includes(account.category) ? (account.category as TalentProfile["category"]) : "Actor";
     base = { ...base, fullName: account.name, category: cat, contactDetails: { ...base.contactDetails, country: account.country ?? "Kenya" } };
   }
