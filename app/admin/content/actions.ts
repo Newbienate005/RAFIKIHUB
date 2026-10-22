@@ -32,7 +32,7 @@ async function isSeeded(kind: ContentKind) {
  * Copies a section's built-in content into the database, so the database becomes the source of truth.
  * Safe to call twice: it does nothing once the section is marked as copied.
  */
-export async function seedKind(kind: string) {
+async function seedKind(kind: string) {
   await assertMaster();
   if (!isContentKind(kind)) throw new Error("Unknown section.");
   if (await isSeeded(kind)) return;

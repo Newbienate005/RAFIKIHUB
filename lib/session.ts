@@ -58,7 +58,7 @@ export function encodeSession(s: NewSession, days: number): string | null {
   return `${data}.${sign(data)}`;
 }
 
-export function decodeSession(token?: string): Session | null {
+function decodeSession(token?: string): Session | null {
   if (!token || !sessionsEnabled()) return null;
   const [data, sig] = token.split(".");
   if (!data || !sig) return null;

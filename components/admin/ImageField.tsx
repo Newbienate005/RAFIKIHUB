@@ -2,15 +2,14 @@
 
 import { isAllowedImageUrl } from "@/lib/image-hosts";
 import { upload } from "@vercel/blob/client";
+import { uploadName } from "@/lib/upload-name";
 import { useId, useRef, useState } from "react";
 
-const slug = (name: string) => name.toLowerCase().replace(/\.[a-z0-9]+$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "image";
-const ext = (name: string) => name.match(/\.[a-z0-9]+$/i)?.[0].toLowerCase() ?? ".jpg";
 
 async function uploadImage(file: File, folder: string) {
   if (!file.type.startsWith("image/")) throw new Error("Choose an image file (JPG, PNG or WebP).");
   if (file.size > 10 * 1024 * 1024) throw new Error("That image is over 10 MB. Resize it and try again.");
-  const blob = await upload(`images/${folder}/${slug(file.name)}${ext(file.name)}`, file, { access: "public", handleUploadUrl: "/api/admin/upload" });
+  const blob = await upload(`images/${folder}/${uploadName(file.name, "image", ".jpg")}`, file, { access: "public", handleUploadUrl: "/api/admin/upload" });
   return blob.url;
 }
 

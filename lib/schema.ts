@@ -2,11 +2,11 @@ import { site } from "./site";
 import manifest from "./image-manifest.json";
 import type { Article, Faq, TalentProfile, TeamMember } from "./data";
 
-export const orgId = `${site.url}/#organization`;
+const orgId = `${site.url}/#organization`;
 const available = new Set<string>(manifest as string[]);
 
 /** Absolute URL for an image, but only if the local file exists (or it's already absolute). */
-export function absImage(src?: string | null): string | undefined {
+function absImage(src?: string | null): string | undefined {
   if (!src) return undefined;
   if (/^https?:\/\//.test(src)) return src;
   return available.has(src) ? `${site.url}${src}` : undefined;
