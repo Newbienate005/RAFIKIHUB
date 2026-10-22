@@ -787,40 +787,25 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .timeline__closing { font-family: var(--display); font-style: italic; font-weight: 700; font-size: clamp(1.3rem, 2.6vw, 1.8rem); line-height: 1.35; letter-spacing: -0.02em; text-align: center; margin-top: 2rem; }
 @media (max-width: 560px) { .timeline li { grid-template-columns: 1fr; gap: 0.25rem; } }
 
-/* Rotating testimonial */
-.rotator { position: relative; }
-/* The next quote waits just off to the side; clip it so it can't widen the page on narrow screens */
-.section:has(.rotator) { overflow-x: clip; }
-.rotator::before { content: "“"; position: absolute; top: -0.35em; right: 0; font: 900 clamp(10rem, 22vw, 18rem)/1 var(--display); color: var(--accent); opacity: .14; pointer-events: none; }
-/* Swipeable: the stage tracks a horizontal drag 1:1 and leaves vertical scrolling to the browser */
-.rotator__stage { display: grid; position: relative; touch-action: pan-y; cursor: grab; }
-.rotator__stage.is-dragging { cursor: grabbing; user-select: none; }
-.rotator__stage.is-dragging .rotator__item, .rotator__stage.is-repositioning .rotator__item:not(.is-active) { transition: none !important; }
-/* Quotes wait on the side the next one arrives from (--dir: 1 = from the right), and leave the other way */
-.rotator__item {
-  grid-area: 1 / 1; margin: 0; opacity: 0; visibility: hidden; transform: translateX(calc(var(--dir, 1) * 56px));
-  transition: opacity .45s ease-out, transform .5s var(--ease-settle), visibility 0s .5s;
-}
-.rotator__item.is-active { opacity: 1; visibility: visible; transform: none; transition: opacity .45s ease-out, transform .5s var(--ease-settle), visibility 0s; }
-.rotator__item.is-leaving { visibility: visible; transform: translateX(calc(var(--dir, 1) * -56px)); transition: opacity .35s ease-out, transform .5s var(--ease-settle), visibility 0s .5s; }
-.rotator blockquote { margin: 0 0 2rem; font-family: var(--display); font-style: italic; font-weight: 700; font-size: clamp(1.7rem, 4.2vw, 3.2rem); line-height: 1.15; letter-spacing: -0.03em; max-width: 24ch; }
-.rotator figcaption { display: flex; align-items: center; gap: 0.9rem; }
-.rotator .quote__face { width: 56px; height: 56px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent); }
-.rotator cite { font-style: normal; font-weight: 700; display: block; }
-.rotator .role { color: var(--muted); font-size: 0.875rem; }
-/* Each dot is drawn small inside a 24px tap target (WCAG 2.5.8) */
-.rotator__dots { display: flex; margin: 1.75rem 0 0 -7px; flex-wrap: wrap; }
-.rotator__dots button { position: relative; width: 24px; height: 24px; border: 0; padding: 0; background: transparent; cursor: pointer; transition: width .3s; }
-.rotator__dots button::before { content: ""; position: absolute; left: 7px; right: 7px; top: 7px; height: 10px; border-radius: 999px; background: var(--line-strong); transition: background-color .3s; }
-.rotator__dots button:hover::before { background: var(--subtle); }
-.rotator__dots button[aria-pressed="true"] { width: 46px; }
-.rotator__dots button[aria-pressed="true"]::before { background: var(--accent); }
-/* Reduced motion: quotes cross-fade in place instead of sliding */
-@media (prefers-reduced-motion: reduce) {
-  .rotator__item, .rotator__item.is-active, .rotator__item.is-leaving { transform: none; transition: opacity .25s ease, visibility 0s .25s; }
-  .rotator__item.is-active { transition: opacity .25s ease, visibility 0s; }
-  .rotator__dots button, .rotator__dots button::before { transition: none; }
-}
+/* Testimonials: a row of cards like the old site (round photo, quote, orange name, "– role –") */
+.tcards { margin-top: 1.5rem; }
+.tcards__row { list-style: none; margin: 0; padding: 0.5rem 0.25rem 1rem; display: grid; grid-auto-flow: column; grid-auto-columns: min(86%, 22rem); gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.tcards__row::-webkit-scrollbar { display: none; }
+@media (min-width: 900px) { .tcards__row { grid-auto-columns: calc((100% - 40px) / 3); } }
+.tcard { scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 1.5rem 1.75rem; background: var(--surface-2); border-radius: 8px; box-shadow: rgba(0,0,0,.3) 0 8px 8px; }
+/* The photo in a ring of beads, the same dotted ring as the social links */
+.tcard__face { position: relative; width: 96px; height: 96px; border-radius: 50%; overflow: hidden; flex: none; background: var(--surface-3); outline: 2px dotted var(--accent); outline-offset: 4px; margin-bottom: 1.5rem; }
+.tcard__quote { margin: 0 0 0.5rem; font-size: 1rem; line-height: 1.55; color: var(--text-soft, #cbcbcb); }
+.tcard__quote.is-clamped { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.tcard__more { background: none; border: 0; padding: 0.25rem 0.5rem; min-height: 44px; color: var(--accent); font: 700 0.875rem var(--body); cursor: pointer; }
+.tcard__name { margin: auto 0 0; padding-top: 1rem; color: var(--accent); font-weight: 700; font-size: 1.05rem; }
+.tcard__role { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.tcards__nav { display: flex; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; }
+.tcards__arrow { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface-3); color: var(--text); font-size: 1.1rem; cursor: pointer; }
+@media (hover: hover) { .tcards__arrow:hover { background: var(--accent); color: var(--accent-ink); } }
+.tcards__arrow:active { transform: scale(.96); }
+@media (prefers-reduced-motion: reduce) { .tcards__row { scroll-behavior: auto; } }
+
 
 /* Kick-off: edge-to-edge photo beside copy */
 .kickoff { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); }

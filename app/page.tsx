@@ -161,7 +161,8 @@ export default async function Home() {
 
       <section className="section section--white" aria-labelledby="voices">
         <div className="wrap">
-          <p className="kicker" id="voices">Happy members</p>
+          <p className="kicker">Testimonials</p>
+          <h2 id="voices">Happy members</h2>
           <Testimonials items={quotes} />
         </div>
       </section>
