@@ -612,7 +612,7 @@ export const timelineClosing =
 export const partnerGroups = ["Brands", "Who we've worked with"] as const;
 export type Partner = { name: string; description?: string; url?: string; logo?: string; group?: (typeof partnerGroups)[number] };
 export const partners: Partner[] = [
-  { name: "GreenLight Films", logo: "https://rafikihub.com/assets/images/partners/16887986701.png", group: "Brands" },
+  { name: "GreenLight Films", logo: "/images/partners/greenlight-films.png", group: "Brands" },
   { name: "Redflash Films", url: "https://www.linkedin.com/company/redflash-films-limited/", logo: "/images/partners/redflash-films.png", group: "Brands" },
   { name: "Mau Mau Arts", url: "https://maumauarts.com", logo: "/images/partners/maumau-arts.png", group: "Brands" },
   { name: "National Youth Theatre of Kenya", url: "https://www.instagram.com/youththeatrekenya/", logo: "/images/partners/national-youth-theatre-kenya.png", group: "Brands" },

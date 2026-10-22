@@ -1,7 +1,5 @@
-/* Loaded by app/dashboard/layout.tsx only, so public pages don't download it */
+/* Loaded by the dashboard and admin layouts only, so public pages do not download it */
 /* ───────────── Dashboards (Performer and Casting) ───────────── */
-.link-button { background: none; border: 0; padding: 0; font: 700 0.875rem var(--body); color: var(--muted); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
-.link-button:hover { color: var(--text); }
 .dash-header__top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .dash-header__top .kicker { margin: 0; }
 .dash-header h1 { margin-top: 1rem; }
