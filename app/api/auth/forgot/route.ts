@@ -21,10 +21,10 @@ export async function POST(req: Request) {
   if ((await failures(db, limitKey, 60 * 60).catch(() => 0)) >= 10) {
     return NextResponse.json({ ok: false, error: "Too many reset requests from here. Wait an hour, or email info@rafikihub.com." }, { status: 429 });
   }
-  await recordFailure(db, limitKey, 60 * 60).catch(() => {});
   const body = (await req.json().catch(() => null)) as { email?: unknown } | null;
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ ok: false, error: "Enter the email address you signed up with." }, { status: 400 });
+  await recordFailure(db, limitKey, 60 * 60).catch(() => {}); // counted after the check, so typos don't use up the allowance
 
   const [acct] = await db.select({ id: accounts.id, name: accounts.name, email: accounts.email, status: accounts.status }).from(accounts).where(sql`lower(${accounts.email}) = ${email}`).limit(1);
   // Same answer whether or not the account exists, so this can't be used to find out who's a member

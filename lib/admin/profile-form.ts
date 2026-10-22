@@ -154,7 +154,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
   if (weight && !(weightKg! > 0 && weightKg! < 300)) errors.weightKg = "Enter a weight in kg.";
 
   // Only photos the site can show (its own storage, the old site's /assets, or local files); the editor already refuses other links
-  const headshots = lines(f, "headshots").filter((h) => isAllowedImageUrl(h) || h.startsWith("/"));
+  const headshots = lines(f, "headshots").filter((h) => isAllowedImageUrl(h) || (h.startsWith("/") && !h.startsWith("//")));
   const email = opt(f, "email");
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address.";
 

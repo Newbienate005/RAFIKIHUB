@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const password = isForm
     ? String((await req.formData().catch(() => null))?.get("password") ?? "")
     : await req.json().then((b: { password?: unknown } | null) => (typeof b?.password === "string" ? b.password : ""), () => "");
-  // Wrong guesses are capped per address (10 in 15 minutes) and site-wide (100 an hour)
+  // Wrong guesses are capped per address (10 in 15 minutes); past 100 an hour site-wide every attempt is slowed, never refused, so strangers can't lock the owner out
   const db = getDb();
   const mine = `master:${clientIp(req)}`;
   if (db) {
@@ -42,7 +42,8 @@ export async function POST(req: Request) {
       console.error("[login] rate limit check failed", e);
       return [0, 0];
     });
-    if (byIp >= 10 || overall >= 100) return fail("Too many wrong passwords. Wait 15 minutes, then try again.", 429);
+    if (byIp >= 10) return fail("Too many wrong passwords. Wait 15 minutes, then try again.", 429);
+    if (overall >= 100) await new Promise((r) => setTimeout(r, 3000));
   }
   if (!checkMasterPassword(password)) {
     if (db) await Promise.all([recordFailure(db, mine, 15 * 60), recordFailure(db, "master:all", 60 * 60)]).catch((e) => console.error("[login] couldn't record a failed attempt", e));

@@ -34,7 +34,10 @@ export async function clearFailures(db: Db, name: string) {
   await db.execute(sql`DELETE FROM site_settings WHERE key = ${keyFor(name)}`);
 }
 
-/** The caller's IP as Vercel (or a proxy in front of Hostinger) reports it. */
+/**
+ * The caller's IP. X-Real-IP is set by Vercel and by nginx-style proxies (Hostinger) from the real connection,
+ * so visitors can't fake it. Failing that, the last X-Forwarded-For entry is the one our proxy added; the first is whatever the visitor sent.
+ */
 export function clientIp(req: Request) {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+  return req.headers.get("x-real-ip")?.trim() || req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() || "unknown";
 }
