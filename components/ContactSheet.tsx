@@ -15,7 +15,7 @@ export function ContactSheet() {
           <li key={p.name} className={i === shortlisted ? "is-picked" : undefined}>
             <Link href={`/profile/${p.profile}`} className="sheet__link">
               <div className="sheet__frame">
-                <Photo src={p.src} alt="" label={p.name} sizes="(max-width: 900px) 33vw, 200px" priority={i < 3} />
+                <Photo src={p.src} alt="" label={p.name} sizes="(max-width: 900px) 33vw, 200px" /* no priority: the hero photo gets the bandwidth first */ />
                 <span className="sheet__view" aria-hidden="true">View profile</span>
               </div>
               <p className="sheet__name">{p.name}</p>

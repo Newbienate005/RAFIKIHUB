@@ -64,7 +64,7 @@ export default async function JoinPage() {
                 { name: "dateOfBirth", label: "Date of birth", type: "date", autoComplete: "bday", half: true, hint: "Used to work out your playing age. It isn't shown publicly." },
                 { name: "category", label: "I'm joining as", type: "select", required: true, options: memberTypes.map((m) => m.formLabel), optionKeys: memberTypes.map((m) => m.key), defaultFromQuery: "as", half: true },
                 { name: "talentCategory", label: "Your category", type: "select", options: profileCategories.filter((c) => c !== "Pet"), hint: "For performers and crew: what casting directors search you by. You can change it later." },
-                { name: "guardian", label: "Parent or guardian", type: "select", options: ["Parent", "Guardian"], hint: "Only if you're registering a performer under 18." },
+                { name: "guardian", label: "Parent or guardian", type: "select", options: ["Parent", "Guardian"], hint: "Needed if you're registering a performer under 18.", requiredWhen: { field: "category", contains: "young" } },
                 { name: "password", label: "Password", type: "password", required: true, autoComplete: "new-password", half: true, hint: "At least 8 characters." },
                 { name: "passwordRepeat", label: "Repeat password", type: "password", required: true, autoComplete: "new-password", half: true, matches: "password" },
                 { name: "plan", label: "Membership plan", type: "select", options: [...plans.map((p) => p.id), "undecided"], optionLabels: [...plans.map((p) => `${p.name}: Ksh ${p.priceKsh.toLocaleString("en-KE")} ${p.label}`), "Not sure yet"], defaultFromQuery: "plan" },

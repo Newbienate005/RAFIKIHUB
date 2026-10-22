@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "../admin/admin.css";
+import "./dashboard.css";
 
 // Private pages: never indexed, and always rendered per request (they read the session cookie).
 export const metadata: Metadata = { title: "Dashboard", robots: { index: false, follow: false } };

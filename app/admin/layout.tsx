@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./admin.css";
 import { AdminNav, type NavGroup } from "@/components/admin/AdminNav";
 import { inboxCounts, inboxKeys, inboxTypes } from "@/lib/admin/inbox";
 import { contentKindList, contentKinds } from "@/lib/content-kinds";
