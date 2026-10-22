@@ -522,16 +522,8 @@ p { margin: 0 0 1em; text-wrap: pretty; }
   font: inherit; font-size: 1rem; padding: 0.85rem 1rem; border: 0; border-radius: 4px;
   background: var(--surface-2); color: var(--text); width: 100%; box-shadow: var(--inset); transition: box-shadow .2s, background-color .2s;
 }
-/* Date: dark calendar, the picker icon in orange and a pill-soft field */
-.field input[type="date"] { color-scheme: dark; min-height: 3rem; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; cursor: pointer; }
-.field input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer; padding: 0.4rem; border-radius: 999px; opacity: 1;
-  /* the native icon, recoloured to the accent */
-  filter: invert(62%) sepia(83%) saturate(1500%) hue-rotate(338deg) brightness(102%);
-}
-@media (hover: hover) { .field input[type="date"]::-webkit-calendar-picker-indicator:hover { background-color: var(--surface-3); } }
-.field input[type="date"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
-.field input[type="date"]::-webkit-datetime-edit-text { color: var(--subtle); padding: 0 0.2em; }
+/* Date of birth as Day / Month / Year (components/DateParts.tsx) */
+.date-parts { display: grid; grid-template-columns: 1fr 1.6fr 1.2fr; gap: 0.5rem; }
 .field input::placeholder, .field textarea::placeholder, .namecheck input::placeholder { color: var(--subtle); }
 .field input:hover, .field select:hover, .field textarea:hover, .namecheck input:hover { box-shadow: rgb(18,18,18) 0 1px 0, var(--muted) 0 0 0 1px inset; }
 .field input:focus, .field select:focus, .field textarea:focus, .namecheck input:focus { outline: none; background: var(--surface-3); box-shadow: inset 0 0 0 2px var(--accent); }
@@ -687,6 +679,17 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 .section--post { padding-top: clamp(2.5rem, 5vw, 4rem); }
 .post-body { max-width: 60rem; }
 .post-body .prose { max-width: 42rem; font-size: 1.0625rem; line-height: 1.65; }
+/* "Light page" (components/ReadingLight.tsx): dark text on warm paper for long reading; the rest of the site stays dark */
+.reading-light { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 40px; margin-bottom: 1.5rem; padding: 0 1rem; border: 0; border-radius: 999px; background: var(--surface-3); color: var(--text); font: 700 0.75rem var(--body); letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
+.reading-light__dot { width: 12px; height: 12px; border-radius: 50%; background: #f4efe6; box-shadow: inset 0 0 0 2px var(--accent); }
+.section--post { transition: background-color .3s; }
+.section--post[data-light] { background: #f4efe6; }
+.section--post[data-light] .reading-light { background: #e4dccd; color: #121212; }
+.section--post[data-light] .reading-light__dot { background: #121212; }
+.section--post[data-light] .prose { color: #2b2721; }
+.section--post[data-light] .prose :is(h2, h3, strong, .lead) { color: #121212; }
+.section--post[data-light] .prose a { color: #a8430b; } /* orange darkened to pass contrast on paper */
+@media (prefers-reduced-motion: reduce) { .section--post { transition: none; } }
 
 /* Home: latest from the blog */
 .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
@@ -856,8 +859,10 @@ p { margin: 0 0 1em; text-wrap: pretty; }
 @media (min-width: 900px) { .partners__groups { grid-template-columns: 2fr 3fr; align-items: start; } }
 .partners__name { font-family: var(--display); font-weight: 800; font-size: 1.2rem; color: var(--muted); text-align: center; display: block; }
 .partners__name .small { display: block; font-family: var(--body); font-size: 0.75rem; font-weight: 400; }
-.partners__list img { width: 100%; height: 100%; max-width: none; object-fit: contain; padding: 0.8rem 1.1rem; background: #EEEEEE; border-radius: 8px; filter: grayscale(1); opacity: .7; transition: filter .3s, opacity .3s, transform .3s; }
-.partners__list a:hover img, .partners__list a:focus-visible img { filter: none; opacity: 1; transform: translateY(-2px); }
+/* Logos as light marks on dark tiles: grey, inverted, and screened so a white logo background drops away. Full colour on a light plate on hover. */
+.partners__list > li > a, .partners__list > li > img { background: var(--surface-2); border-radius: 8px; }
+.partners__list img { width: 100%; height: 100%; max-width: none; object-fit: contain; padding: 0.8rem 1.1rem; border-radius: 8px; filter: grayscale(1) invert(1) brightness(1.15); mix-blend-mode: screen; opacity: .8; transition: filter .3s, opacity .3s, transform .3s, background-color .3s; }
+.partners__list a:hover img, .partners__list a:focus-visible img { filter: none; mix-blend-mode: normal; background: #EEEEEE; opacity: 1; transform: translateY(-2px); }
 
 /* Services (Sio Bahati) */
 .service-list { list-style: none; padding: 0; margin: 0; display: grid; gap: clamp(3.5rem, 8vw, 6rem); }
@@ -1153,3 +1158,8 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 .field__row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
 .field__aside { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-decoration: none; }
 .admin-link { margin: 0.2rem 0 0; font-weight: 700; overflow-wrap: anywhere; }
+
+/* Beadwork on round controls: the same dotted "string of beads" ring as the social links and testimonial photos */
+.video__play, .clip__play { outline: 2px dotted rgba(255,255,255,.85); outline-offset: 3px; }
+.tcards__arrow, .motion-toggle { outline: 2px dotted var(--accent); outline-offset: 3px; }
+:is(.video__start, .clip__start):focus-visible :is(.video__play, .clip__play), .tcards__arrow:focus-visible, .motion-toggle:focus-visible { outline: 3px solid var(--accent); }

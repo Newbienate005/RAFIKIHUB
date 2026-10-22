@@ -1,7 +1,7 @@
 import {
   appearanceOptions, appearanceTraitOptions, eyeColorOptions, facialHairOptions, hairColorOptions, hairLengthOptions,
   petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions,
-  profileCategories, voiceCharacterOptions, voiceQualityOptions,
+  profileCategories, toCreditType, voiceCharacterOptions, voiceQualityOptions,
   type MediaClip, type Measurement, type PetDetails, type TalentProfile,
 } from "@/lib/data";
 
@@ -10,7 +10,7 @@ import {
  * Lists use one item per line; credits and training use "a | b | c" columns, like a simple table.
  */
 
-export const creditTypes = ["Film", "TV", "Theatre", "Commercial", "Radio", "Voice Over", "Music Video", "Other"] as const;
+export { creditTypes } from "@/lib/data";
 export const measurementKeys = ["bustChest", "waist", "hips", "insideLeg", "insideArm", "collar", "hat"] as const;
 export const measurementLabels: Record<(typeof measurementKeys)[number], string> = {
   bustChest: "Bust / chest", waist: "Waist", hips: "Hips", insideLeg: "Inside leg", insideArm: "Inside arm", collar: "Collar", hat: "Hat",
@@ -122,7 +122,7 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
     const [year, production, role, type, director] = cols(line);
     const y = Number(year);
     if (!(y >= 1950 && y <= 2100) || !production || !role) { errors.credits = `Credit ${i + 1}${production ? ` (${production})` : ""}: add the year (1950 to 2100), the production and the role.`; return; }
-    const t = creditTypes.find((c) => c.toLowerCase() === (type ?? "").toLowerCase()) ?? "Other";
+    const t = toCreditType(type);
     credits.push({ year: y, production, role, type: t, ...(director ? { director } : {}) });
   });
 

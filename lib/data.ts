@@ -176,7 +176,7 @@ export type TalentProfile = {
   skills: string[];
   languages: string[];
   accents: string[];
-  credits: { year: number; production: string; role: string; type: "Film" | "TV" | "Theatre" | "Commercial" | "Radio" | "Voice Over" | "Music Video" | "Other"; director?: string }[];
+  credits: { year: number; production: string; role: string; type: CreditType; director?: string }[];
   training: { institution: string; course: string; year?: number }[];
 
   /** Media sections: headshots, SHOWREEL, VOICEOVER REEL, TALENT DOCUMENTS */
@@ -233,7 +233,7 @@ export const exampleProfile: TalentProfile = {
   skills: ["Stage combat", "Contemporary dance", "Swimming"],
   languages: ["English", "Swahili"],
   accents: ["Kenyan", "Standard British"],
-  credits: [{ year: 2025, production: "Example Feature", role: "Supporting", type: "Film" }],
+  credits: [{ year: 2025, production: "Example Feature", role: "Supporting", type: "Feature Film" }],
   training: [{ institution: "RafikiHub Acting Workshop", course: "Screen acting intensive", year: 2024 }],
   media: { headshots: [], showreelUrl: null, voiceoverReelUrl: null, documents: [] },
   isEnhanced: false,
@@ -431,6 +431,21 @@ export const articles: Article[] = [
 ];
 
 /* ─────────────────────────────── Testimonials ─────────────────────────────── */
+
+/** Production types, the old site's full credits list */
+export const creditTypes = [
+  "Animation", "Commercial", "Corporate", "Dance", "Documentary", "Educational", "Event", "Feature Film", "Film School",
+  "Modelling", "Music Video", "Musical", "Radio", "Short Film", "Stage", "Still Photography", "Television",
+  "Television Movie", "Video Game", "Voice Over", "Web Series", "Workshop", "Other",
+] as const;
+// Older saves used a shorter list; these keep their meaning instead of turning into "Other"
+const legacyCreditTypes: Record<string, (typeof creditTypes)[number]> = { film: "Feature Film", tv: "Television", theatre: "Stage" };
+export type CreditType = (typeof creditTypes)[number] | "Film" | "TV" | "Theatre";
+/** The list entry a saved or typed credit type belongs to */
+export const toCreditType = (t?: string | null): (typeof creditTypes)[number] => {
+  const s = (t ?? "").trim().toLowerCase();
+  return creditTypes.find((c) => c.toLowerCase() === s) ?? legacyCreditTypes[s] ?? "Other";
+};
 
 export type Testimonial = {
   name: string;

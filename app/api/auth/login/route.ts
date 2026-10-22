@@ -2,16 +2,8 @@ import { NextResponse } from "next/server";
 import { fromThisSite } from "@/lib/same-site";
 import { getDb } from "@/lib/db";
 import { clearFailures, clientIp, failures, recordFailure } from "@/lib/rate-limit";
+import { landingPath } from "@/lib/landing-path";
 import { MASTER_DAYS, SESSION_COOKIE, checkMasterPassword, cookieOptions, encodeSession, sessionsEnabled } from "@/lib/session";
-
-/** Where to go after signing in: only a path on this site, never another host. */
-function landingPath(next: string | null, base: string) {
-  // Tab, newline and backslash are stripped or rewritten by URL parsers ("/\t/evil.com" becomes "//evil.com"), so refuse them
-  if (!next || /[\u0000- \\]/.test(next) || !next.startsWith("/")) return "/admin";
-  const from = new URL(base);
-  const to = new URL(next, from);
-  return to.origin === from.origin ? to.pathname + to.search + to.hash : "/admin";
-}
 
 /**
  * Master login: one password (MASTER_PASSWORD) that opens every dashboard.

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArticleCard } from "@/components/ArticleCard";
 import { JsonLd } from "@/components/JsonLd";
 import { Photo } from "@/components/Photo";
+import { ReadingLight } from "@/components/ReadingLight";
 import { getArticles } from "@/lib/content";
 import { longDate, readMinutes } from "@/lib/dates";
 import { articleSchema, breadcrumbSchema } from "@/lib/schema";
@@ -67,6 +68,7 @@ export default async function ArticlePage({ params }: Params) {
         </div>
         <div className="section section--post">
           <div className="wrap post-body">
+            <ReadingLight />
             <div className="prose">
             <p className="lead">{article.excerpt}</p>
             {article.content.map((b, i) => (

@@ -62,7 +62,7 @@ test("profiles: fields, media order and publishing", () => {
   assert.deepEqual(d.languages, ["Swahili", "English"]);
   assert.deepEqual(d.accents, ["Kikuyu"]);
   assert.deepEqual(d.skills, ["Contemporary dance"]);
-  assert.deepEqual(d.credits.map((c) => [c.year, c.type]), [[2023, "Film"], [2021, "TV"]]);
+  assert.deepEqual(d.credits.map((c) => [c.year, c.type]), [[2023, "Feature Film"], [2021, "Television"]]);
   assert.equal(d.training[1].year, 2024);
   // the photo flagged as profile comes first; hidden photos (status 0) are dropped
   assert.deepEqual(d.media.headshots, ["https://rafikihub.com/assets/images/gallery/1700000002003.png", "https://rafikihub.com/assets/images/gallery/1700000001003.png"]);
