@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { LeadForm } from "@/components/LeadForm";
 import { localBusinessSchema } from "@/lib/schema";
@@ -21,10 +22,10 @@ export default function ContactPage() {
           <div>
             <h2>Reach us directly</h2>
             <ul className="contact-list">
-              <li><strong>General enquiries</strong><a href={`mailto:${site.email}`}>{site.email}</a></li>
-              <li><strong>Phone</strong><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></li>
-              <li><strong>Agent representation</strong><a href={`mailto:${site.talentEmail}`}>{site.talentEmail}</a></li>
-              <li><strong>Visit us</strong><span>{site.address.building}, {site.address.street}, {site.address.area}, {site.address.city}</span></li>
+              <li><strong><Icon name="mail" size={18} />General enquiries</strong><a href={`mailto:${site.email}`}>{site.email}</a></li>
+              <li><strong><Icon name="phone" size={18} />Phone</strong><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></li>
+              <li><strong><Icon name="people" size={18} />Agent representation</strong><a href={`mailto:${site.talentEmail}`}>{site.talentEmail}</a></li>
+              <li><strong><Icon name="pin" size={18} />Visit us</strong><span>{site.address.building}, {site.address.street}, {site.address.area}, {site.address.city}</span></li>
             </ul>
           </div>
           <div className="panel">

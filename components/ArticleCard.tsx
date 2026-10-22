@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Article } from "@/lib/data";
+import { Icon } from "./Icon";
 import { badgeDate, readMinutes, shortDate } from "@/lib/dates";
 import { Photo } from "./Photo";
 
@@ -28,7 +29,7 @@ export function ArticleCard({ article, featured = false, headingLevel = 3 }: { a
         </H>
         <p className="card__excerpt">{article.excerpt}</p>
         <p className="card__meta">
-          By {article.author} · <time dateTime={article.publishedAt}>{shortDate(article.publishedAt)}</time> · {readMinutes(article.content)} min read
+          <Icon name="calendar" size={15} className="icon icon--inline" />By {article.author} · <time dateTime={article.publishedAt}>{shortDate(article.publishedAt)}</time> · {readMinutes(article.content)} min read
         </p>
         <Link href={`/blog/${article.url}`} className="card__more" aria-label={`Read more: ${article.title}`}>
           Read more <span aria-hidden="true">→</span>
