@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from "react";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 
 export type Field = {
   name: string;
@@ -23,6 +24,8 @@ export type Field = {
   matches?: string;
   /** Starting value, e.g. a country */
   defaultValue?: string;
+  /** Required only while another field's value contains this text (case-insensitive), e.g. guardian when joining as a young performer */
+  requiredWhen?: { field: string; contains: string };
 };
 
 /** The same checks the server makes, run as people fill the form in, so problems show up where they are. */
@@ -68,11 +71,20 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
       const keyed = raw && f.optionKeys ? f.options?.[f.optionKeys.indexOf(raw)] : undefined;
       const v = keyed ?? raw;
       const el = v ? formRef.current?.elements.namedItem(f.name) : null;
-      if (v && (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) && (!f.options || f.options.includes(v))) el.value = v;
+      if (v && (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) && (!f.options || f.options.includes(v))) {
+        el.value = v;
+        setWatched((prev) => ({ ...prev, [f.name]: v })); // e.g. ?as=young makes the guardian field required straight away
+      }
     }
   }, [fields]);
 
   const fieldFor = (name: string) => fields.find((f) => f.name === name);
+  // Values of the fields that make another field required, so its label and checks update as they change
+  const [watched, setWatched] = useState<Record<string, string>>({});
+  const isRequired = (f: Field) =>
+    f.required || (!!f.requiredWhen && (watched[f.requiredWhen.field] ?? "").toLowerCase().includes(f.requiredWhen.contains.toLowerCase()));
+  const req = (f: Field): Field => (isRequired(f) ? { ...f, required: true } : f);
+  const watches = new Set(fields.flatMap((f) => (f.requiredWhen ? [f.requiredWhen.field] : [])));
   /** What another field holds, for checks like "the passwords match" */
   const otherValue = (form: HTMLFormElement | null | undefined, f: Field) =>
     f.matches ? ((form?.elements.namedItem(f.matches) as HTMLInputElement | null)?.value ?? "") : undefined;
@@ -82,15 +94,16 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
     const el = e.target as EventTarget as HTMLInputElement; // the field inside the form that fired it
     const f = fieldFor(el.name);
     if (!f) return;
-    const msg = check(f, el.value, otherValue(el.form, f));
+    const msg = check(req(f), el.value, otherValue(el.form, f));
     setFieldErrors((prev) => (prev[f.name] === msg || (!msg && !prev[f.name]) ? prev : { ...prev, [f.name]: msg }));
   };
   const onInput = (e: FormEvent<HTMLFormElement>) => {
     const el = e.target as EventTarget as HTMLInputElement; // the field inside the form that fired it
     const f = fieldFor(el.name);
+    if (f && watches.has(f.name)) setWatched((prev) => (prev[f.name] === el.value ? prev : { ...prev, [f.name]: el.value }));
     if (f?.max) setCounts((prev) => (prev[f.name] === el.value.length ? prev : { ...prev, [f.name]: el.value.length }));
     if (!f || !fieldErrors[f.name]) return;
-    const msg = check(f, el.value, otherValue(el.form, f));
+    const msg = check(req(f), el.value, otherValue(el.form, f));
     if (msg !== fieldErrors[f.name]) setFieldErrors((prev) => ({ ...prev, [f.name]: msg }));
   };
 
@@ -101,7 +114,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
     const local: Record<string, string> = {};
     for (const f of fields) {
       const el = form.elements.namedItem(f.name) as HTMLInputElement | null;
-      const msg = check(f, el?.value ?? "", otherValue(form, f));
+      const msg = check(req(f), el?.value ?? "", otherValue(form, f));
       if (msg) local[f.name] = msg;
     }
     if (Object.keys(local).length) {
@@ -143,10 +156,11 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
       {fields.map((f) => {
         const id = `${endpoint.replace(/\W/g, "")}-${f.name}`;
         const err = fieldErrors[f.name];
+        const required = isRequired(f);
         const common = {
           id,
           name: f.name,
-          required: f.required,
+          required,
           autoComplete: f.autoComplete,
           "aria-invalid": err ? true : undefined,
           "aria-describedby": err ? `${id}-err` : f.hint ? `${id}-hint` : undefined,
@@ -154,7 +168,7 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
         return (
           <div key={f.name} className={`field ${f.half ? "field--half" : ""}`}>
             <label htmlFor={id} className={compact ? "sr-only" : undefined}>
-              {f.label}{f.required && !compact ? <span className="required" aria-hidden="true"> *</span> : null}{!f.required && !compact ? <span className="optional"> (optional)</span> : null}
+              {f.label}{required && !compact ? <span className="required" aria-hidden="true"> *</span> : null}{!required && !compact ? <span className="optional"> (optional)</span> : null}
             </label>
             {f.type === "textarea" ? (
               <textarea {...common} rows={5} maxLength={f.max ? f.max + 200 : undefined} />
@@ -163,6 +177,8 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
                 <option value="" disabled>Choose one</option>
                 {f.options?.map((o, i) => <option key={o} value={o}>{f.optionLabels?.[i] ?? o}</option>)}
               </select>
+            ) : f.type === "password" ? (
+              <PasswordInput {...common} />
             ) : (
               <input {...common} type={f.type ?? "text"} defaultValue={f.defaultValue} placeholder={compact ? f.label : undefined} />
             )}

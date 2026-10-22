@@ -4,10 +4,9 @@ import manifest from "@/lib/image-manifest.json";
 import { DeferredSlide } from "./DeferredSlide";
 
 const available = new Set<string>(manifest as string[]);
-
-// On a phone the hero is tall and narrow, so a landscape photo is drawn about twice the screen's
-// width to cover it: ask for a file that size, or it's stretched and soft.
-const SIZES = "(max-width: 900px) 200vw, 100vw";
+// On a phone the tall, narrow hero draws a landscape photo about twice the screen width to cover it.
+// The file is capped at 150vw: the photo sits under a dark wash, so the slight softness is invisible and it saves about half the bytes.
+const SIZES = "(max-width: 900px) 150vw, 100vw";
 
 /**
  * The old rafikihub.com home page's background slideshow: full-bleed photos that fade into each other
