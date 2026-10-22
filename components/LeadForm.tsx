@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from "react";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { DateParts } from "@/components/DateParts";
 
 export type Field = {
   name: string;
@@ -177,6 +178,8 @@ export function LeadForm({ endpoint, fields, submitLabel, successMessage, compac
                 <option value="" disabled>Choose one</option>
                 {f.options?.map((o, i) => <option key={o} value={o}>{f.optionLabels?.[i] ?? o}</option>)}
               </select>
+            ) : f.type === "date" ? (
+              <DateParts id={id} name={f.name} invalid={!!err} describedBy={common["aria-describedby"]} required={required} />
             ) : f.type === "password" ? (
               <PasswordInput {...common} />
             ) : (

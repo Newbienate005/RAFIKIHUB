@@ -56,13 +56,6 @@ export const cvSections = [
   { title: "Social links", fields: ["Facebook", "X (Twitter)", "Instagram", "LinkedIn", "YouTube", "WhatsApp", "Telegram"] },
 ];
 
-/** Production types from the old credits form */
-export const creditTypes = [
-  "Animation", "Commercial", "Corporate", "Dance", "Documentary", "Educational", "Event", "Feature Film", "Film School",
-  "Modelling", "Music Video", "Musical", "Radio", "Short Film", "Stage", "Still Photography", "Television",
-  "Television Movie", "Video Game", "Voice Over", "Web Series", "Workshop", "Other",
-];
-
 // ───────── Sample content until the dashboards are connected to real data.
 // Names are fictional and every block using these is labelled "Sample" on the page.
 export const sampleCastings = [

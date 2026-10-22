@@ -19,6 +19,9 @@ const nextConfig = {
     // Keep old rafikihub.com URLs working so Google rankings carry over.
     return [
       { source: "/about-us", destination: "/about", permanent: true },
+      // Short addresses people guess
+      { source: "/talent", destination: "/talent-management", permanent: false },
+      { source: "/castings", destination: "/casting", permanent: false },
       { source: "/join-now", destination: "/join", permanent: true },
       { source: "/our-team", destination: "/team", permanent: true },
       { source: "/blogs", destination: "/blog", permanent: true },

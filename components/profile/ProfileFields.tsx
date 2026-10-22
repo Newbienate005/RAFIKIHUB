@@ -5,7 +5,7 @@ import {
   creditTypes, documentsText, measurementKeys, measurementLabels, profileOptions,
 } from "@/lib/admin/profile-form";
 import { reelsOf, voiceClipsOf } from "@/lib/media";
-import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions, type TalentProfile } from "@/lib/data";
+import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions, toCreditType, type TalentProfile } from "@/lib/data";
 
 /**
  * The talent profile editor's fields, shared by the admin (/admin/profiles/…) and members editing their
@@ -168,7 +168,7 @@ export function ProfileFields({ p, mode, published, uploadFolder, only }: { p: T
 
           <section className="admin-card form" aria-labelledby="s-cv">
             <h2 id="s-cv" className="admin-card__title">Credits, training and skills</h2>
-            <CreditsField types={creditTypes} initial={p.credits.map((c) => ({ year: String(c.year), production: c.production, role: c.role, type: c.type, director: c.director ?? "" }))} />
+            <CreditsField types={creditTypes} initial={p.credits.map((c) => ({ year: String(c.year), production: c.production, role: c.role, type: toCreditType(c.type), director: c.director ?? "" }))} />
             <TrainingField initial={p.training.map((t) => ({ institution: t.institution, course: t.course, year: t.year ? String(t.year) : "" }))} />
             <TagsField name="skills" label="Skills" initial={p.skills} placeholder="e.g. Stage combat, Swimming, Puppetry" />
             <TagsField name="languages" label="Languages" initial={p.languages} placeholder="e.g. Swahili, English" />

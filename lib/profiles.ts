@@ -1,5 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import { exampleProfile, type TalentProfile } from "./data";
 import { getDb } from "./db";
 import { talentProfiles } from "./db/schema";
@@ -28,8 +29,8 @@ const readProfile = (profileUrl: string) =>
     { tags: [PROFILES_TAG, profileTag(profileUrl)], revalidate: 3600 },
   )();
 
-/** One published profile by its old-site URL (e.g. "katesnow"). */
-export async function getProfile(profileUrl: string): Promise<TalentProfile | null> {
+/** One published profile by its old-site URL (e.g. "katesnow"). Shared within a request (the page and its metadata both ask). */
+export const getProfile = cache(async function getProfile(profileUrl: string): Promise<TalentProfile | null> {
   try {
     const p = await readProfile(profileUrl);
     if (p) return p;
@@ -38,7 +39,7 @@ export async function getProfile(profileUrl: string): Promise<TalentProfile | nu
   }
   // The fictional example profile is only served in development, for previewing the layout.
   return isDev && profileUrl === exampleProfile.profileUrl ? exampleProfile : null;
-}
+});
 
 /** Every published profile URL, for the sitemap. */
 export async function getPublishedProfileUrls(): Promise<{ profileUrl: string; updatedAt: Date }[]> {

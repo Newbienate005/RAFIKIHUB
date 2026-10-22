@@ -199,11 +199,23 @@ export function petDetails(u) {
   };
 }
 
+// The old credits form's full list (kept in step with creditTypes in lib/data.ts)
+const creditTypeList = [
+  "Animation", "Commercial", "Corporate", "Dance", "Documentary", "Educational", "Event", "Feature Film", "Film School",
+  "Modelling", "Music Video", "Musical", "Radio", "Short Film", "Stage", "Still Photography", "Television",
+  "Television Movie", "Video Game", "Voice Over", "Web Series", "Workshop", "Other",
+];
 const creditType = (t) => {
   const s = (clean(t) ?? "").toLowerCase();
-  if (/film|movie|feature|short|documentary/.test(s)) return "Film";
-  if (/tele|tv|series|soap/.test(s)) return "TV";
-  if (/stage|theat|play|musical/.test(s)) return "Theatre";
+  const exact = creditTypeList.find((c) => c.toLowerCase() === s);
+  if (exact) return exact;
+  if (/short/.test(s)) return "Short Film";
+  if (/documentary/.test(s)) return "Documentary";
+  if (/film|movie|feature/.test(s)) return "Feature Film";
+  if (/web/.test(s)) return "Web Series";
+  if (/tele|tv|series|soap/.test(s)) return "Television";
+  if (/musical/.test(s)) return "Musical";
+  if (/stage|theat|play/.test(s)) return "Stage";
   if (/commercial|advert|tvc/.test(s)) return "Commercial";
   if (/radio/.test(s)) return "Radio";
   if (/voice/.test(s)) return "Voice Over";
