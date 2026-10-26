@@ -31,7 +31,11 @@ export function notifyTeam(req: Request, data: Record<string, unknown>) {
   after(() => sendEmail({ to, ...submissionEmail(form, data, `${appUrl(req)}/admin`) }).catch((e) => console.error(`[forms] couldn't email the team about a new ${form}`, e)));
 }
 
-/** What the person who sent each form is told, so they know it arrived (the old site sent these too). */
+/**
+ * What the person who sent each form is told, so they know it arrived (the old site sent these too).
+ * The address isn't verified, so nothing typed into the form is repeated (only fixed text and values from our own lists):
+ * otherwise anyone could use the forms to send their own words to a stranger from rafikihub.com.
+ */
 const confirmations: Record<string, (d: Record<string, unknown>) => { subject: string; paragraphs: string[] }> = {
   contact: () => ({
     subject: "We got your message",
@@ -40,7 +44,7 @@ const confirmations: Record<string, (d: Record<string, unknown>) => { subject: s
   booking: (d) => ({
     subject: "Booking received",
     paragraphs: [
-      `Thanks for booking ${String(d.service ?? "a Sio Bahati service").replace(/-/g, " ")} with RafikiHub.${d.preferredDate ? ` You asked for ${String(d.preferredDate)}.` : ""}`,
+      `Thanks for booking ${({ headshots: "headshots", showreels: "a showreel", "audition-preps": "audition prep" } as Record<string, string>)[String(d.service)] ?? "a Sio Bahati service"} with RafikiHub.`,
       "We'll call or email you to confirm the date, time and price. Nothing is charged until then.",
     ],
   }),
@@ -53,7 +57,7 @@ const confirmations: Record<string, (d: Record<string, unknown>) => { subject: s
   casting: (d) => ({
     subject: "Casting request received",
     paragraphs: [
-      `Thanks for sending us${d.projectTitle ? ` "${String(d.projectTitle)}"` : " your casting"}. The team reviews every breakdown before it goes out to agents and performers, and will be in touch if anything's missing.`,
+      `Thanks for sending us your casting. The team reviews every breakdown before it goes out to agents and performers, and will be in touch if anything's missing.`,
       "You can follow your castings and the applications they get from your dashboard.",
     ],
   }),
@@ -65,8 +69,14 @@ function confirmToSender(req: Request, data: Record<string, unknown>) {
   const make = confirmations[form];
   const to = typeof data.email === "string" ? data.email : "";
   if (!make || !to || !emailConfigured()) return;
-  const name = String(data.fullName ?? data.contactName ?? data.organization ?? "");
-  after(() => sendEmail({ to, ...noticeEmail({ name, ...make(data) }) }).catch((e) => console.error(`[forms] couldn't send the ${form} confirmation`, e)));
+  after(async () => {
+    const db = getDb();
+    // At most 3 confirmations a day to one address, so the forms can't be used to flood someone
+    const key = `confirm:${to.toLowerCase()}`;
+    if (!db || (await failures(db, key, 24 * 60 * 60).catch(() => 3)) >= 3) return;
+    await recordFailure(db, key, 24 * 60 * 60).catch(() => {});
+    await sendEmail({ to, ...noticeEmail({ name: "", ...make(data) }) }).catch((e) => console.error(`[forms] couldn't send the ${form} confirmation`, e));
+  });
 }
 
 type SignIn = { redirect: string; session: NewSession };

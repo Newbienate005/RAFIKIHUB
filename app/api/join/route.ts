@@ -108,8 +108,9 @@ export async function POST(req: Request) {
   await recordFailure(db, limitKey, 60 * 60).catch(() => {});
   notifyTeam(req, { "Full name": d.fullName, Email: email, Phone: d.phone, "Joining as": d.category, Details: message || "None" });
   if (emailConfigured()) {
+    // No typed-in text (not even the name): the address isn't verified yet, and an account can only be made once per email
     const welcome = noticeEmail({
-      name: d.fullName,
+      name: "",
       subject: "Welcome to RafikiHub",
       paragraphs: [
         "Your RafikiHub account is ready. You can sign in any time with this email address and the password you chose.",
