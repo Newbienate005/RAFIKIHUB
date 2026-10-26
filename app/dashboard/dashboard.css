@@ -69,3 +69,75 @@
 .talent-filters__actions { display: flex; align-items: center; gap: 1rem; }
 ul.cards--talent { list-style: none; padding: 0; }
 
+
+/* ───────────── 2026 refresh: dashboard frame (sidebar; bottom bar on phones) ───────────── */
+.dash-app { display: flex; flex-wrap: wrap; align-items: flex-start; min-height: 70vh; }
+.dash-side { flex: 1 1 15rem; max-width: 17rem; position: sticky; top: 80px; align-self: flex-start; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.5rem 1rem; box-sizing: border-box; }
+.dash-side__label { margin: 0 0.75rem; font: 800 0.7rem var(--body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--subtle); }
+.dash-main { flex: 999 1 560px; min-width: 0; }
+.dash-header { padding: 2rem clamp(1rem, 3vw, 2rem) 0; }
+.dash-header__hello { margin: 0; color: var(--text-soft); font-size: 0.95rem; }
+.dash-header h1 { margin: 0.3rem 0 0.4rem; font-size: clamp(1.8rem, 3.4vw, 2.6rem); letter-spacing: -0.035em; }
+.dash-header h1 em { color: var(--accent); }
+.dash-header .lead { margin: 0; color: var(--text-soft); font-size: 1rem; max-width: 40em; }
+.dash-main > .section { padding-top: 1.75rem; }
+.dash-main .wrap { max-width: none; padding-inline: clamp(1rem, 3vw, 2rem); }
+
+/* Section links: a vertical list in the sidebar */
+.dash-sections { position: static; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+.dash-sections ul { flex-direction: column; gap: 0.15rem; overflow: visible; }
+.dash-sections a { display: flex; align-items: center; gap: 0.7rem; padding: 0.75rem 0.85rem; border-radius: 10px; border-bottom: 0; font-weight: 600; font-size: 0.95rem; }
+.dash-sections a:hover { background: var(--surface-2); }
+.dash-sections a[aria-current] { background: var(--surface-2); color: var(--text); font-weight: 800; }
+.dash-sections a[aria-current]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+.dash-side .dash-tabs { flex-direction: column; margin: 0; }
+.dash-side .dash-tabs a { background: var(--surface-2); text-align: center; }
+.dash-side .dash-tabs a[aria-current] { background: var(--text); }
+.dash-side__logout { margin: 0 0.85rem; }
+
+/* Cards and numbers: rounder, softer */
+.dash .stat, .dash .panel { border-radius: 16px; }
+.dash .stat { transition: transform .3s var(--ease-settle); }
+/* Profile completeness as a ring (--p is the percent) */
+.ring { --p: 0%; width: 76px; height: 76px; border-radius: 50%; background: conic-gradient(var(--accent) 0 var(--p), var(--surface-3) var(--p) 100%); display: grid; place-items: center; margin: 0.5rem 0; }
+.ring::after { content: ""; width: 58px; height: 58px; border-radius: 50%; background: var(--surface); }
+
+@media (max-width: 900px) {
+  .dash-side { position: static; max-width: none; flex-basis: 100%; padding: 0; gap: 0; }
+  .dash-side__label { display: none; }
+  .dash-side .dash-tabs { flex-direction: row; padding: 1rem 1rem 0; }
+  .dash-side__logout { position: absolute; right: 1rem; margin-top: 1.1rem; }
+  .dash-header { padding-top: 1.25rem; }
+  /* The section links float at the bottom, in thumb reach */
+  .dash-sections { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40; background: rgba(28,28,28,.88); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.6); padding: 6px; }
+  .dash-sections ul { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
+  .dash-sections li { flex: 1 0 auto; }
+  .dash-sections a { justify-content: center; padding: 0.8rem 0.9rem; font-size: 0.8rem; white-space: nowrap; }
+  .dash-sections a[aria-current] { background: none; color: var(--accent); }
+  .dash-sections a[aria-current]::before { display: none; }
+  .dash-main { padding-bottom: 6rem; }
+}
+
+/* Applicant board (casting dashboard) */
+.board-scroll { overflow-x: auto; padding-bottom: 0.5rem; margin-top: 1rem; }
+.board { display: grid; grid-template-columns: repeat(4, minmax(15rem, 1fr)); gap: 0.85rem; min-width: 62rem; }
+.board__col { background: var(--surface); border-radius: 16px; padding: 0.85rem; display: flex; flex-direction: column; gap: 0.6rem; min-height: 16rem; }
+.board__title { display: flex; justify-content: space-between; margin: 0.2rem 0.35rem 0.35rem; font: 800 0.8rem var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-soft); }
+.board__title span { color: var(--subtle); }
+.board__col--shortlisted .board__title { color: var(--accent); }
+.board__col--audition-booked .board__title { color: var(--positive, #6fcf97); }
+.board__card { background: var(--surface-2); border-radius: 12px; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; transition: transform .25s var(--ease-settle), box-shadow .25s; }
+.board__card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.45); }
+.board__who { display: flex; gap: 0.7rem; align-items: center; }
+.board__who > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.board__who .small { color: var(--muted); }
+.board__face { position: relative; width: 48px; height: 60px; flex: none; border-radius: 8px; overflow: hidden; background: var(--surface-3); }
+.board__tools { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8rem; font-weight: 700; }
+.board__tools > a { margin-right: auto; text-decoration: none; }
+.board__tools form { margin: 0; }
+.board__move { font: 800 0.75rem var(--body); color: var(--text); background: var(--surface-3); border: 0; padding: 0.55rem 0.8rem; border-radius: 999px; cursor: pointer; min-height: 36px; transition: background-color .2s, color .2s; }
+.board__move:hover { background: var(--accent); color: var(--accent-ink); }
+.board__no { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--surface-3); color: var(--muted); cursor: pointer; font-size: 0.85rem; }
+.board__no:hover { background: rgba(243,114,127,.18); color: var(--negative); }
+.board__empty { margin: 0.5rem 0.35rem; color: var(--subtle); font-size: 0.85rem; }
+@media (prefers-reduced-motion: reduce) { .board__card { transition: none; } .board__card:hover { transform: none; } }

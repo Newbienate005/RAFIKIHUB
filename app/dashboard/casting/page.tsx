@@ -16,6 +16,13 @@ type Props = { searchParams: Promise<Search> };
 const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
 const day = (d: Date | string) => new Date(typeof d === "string" ? `${d}T00:00:00` : d).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
 const age = (a: { min: number; max: number } | null) => (a ? `${a.min} to ${a.max}` : "Not given");
+/** The applicant board, left to right: what each stage moves someone on to */
+const boardColumns = [
+  { key: "new", label: "New", sample: "new", next: { status: "shortlisted", label: "Shortlist" } },
+  { key: "shortlisted", label: "Shortlisted", sample: "shortlisted", next: { status: "audition-booked", label: "Book audition" } },
+  { key: "audition-booked", label: "Audition booked", sample: "audition-booked", next: null },
+  { key: "declined", label: "Not selected", sample: "not-selected", next: null },
+];
 const castingLabel = (c: { status: string; filled: boolean; closesOn: string }) =>
   c.filled ? "Filled" : c.status === "draft" ? "Draft" : c.status === "closed" || new Date(`${c.closesOn}T23:59:59`) < new Date() ? "Closed" : "Open";
 
@@ -162,55 +169,57 @@ export default async function CastingDashboard({ searchParams }: Props) {
                 {own && !received.length ? (
                   <p className="small dash-empty">No applications yet. They appear here as performers and agents apply to your castings.</p>
                 ) : (
-                  <div className="table-scroll">
-                    <table className="credits subs">
-                      <thead><tr><th scope="col">Performer</th><th scope="col">Casting</th><th scope="col">Playing age</th><th scope="col">Via</th><th scope="col">Applied</th><th scope="col">Status</th></tr></thead>
-                      <tbody>
-                        {own
-                          ? received.map((r) => (
-                              <tr key={r.id}>
-                                <td>
-                                  <span className="subs__who">
-                                    <span className="subs__face"><Photo src={r.headshot ?? undefined} alt="" label={r.name} sizes="40px" /></span>
-                                    <span>{r.profileUrl && r.published ? <Link href={`/profile/${r.profileUrl}`} target="_blank"><strong>{r.name}</strong></Link> : <strong>{r.name}</strong>}<br /><span className="small">{r.category ?? "Performer"}</span></span>
+                  // The applicant board: one column per stage; moving someone saves it and emails them
+                  <div className="board-scroll">
+                    <div className="board">
+                      {boardColumns.map((col) => {
+                        const cards = own
+                          ? received.filter((r) => (col.key === "declined" ? r.status === "declined" || r.status === "withdrawn" : r.status === col.key))
+                          : [];
+                        const samples = own ? [] : sampleSubmissions.filter((s) => slug(s.status) === col.sample);
+                        return (
+                          <section key={col.key} className={`board__col board__col--${col.key}`} aria-labelledby={`col-${col.key}`}>
+                            <h3 id={`col-${col.key}`} className="board__title">{col.label}<span>{own ? cards.length : samples.length}</span></h3>
+                            {cards.map((r) => (
+                              <article key={r.id} className="board__card">
+                                <div className="board__who">
+                                  <span className="board__face"><Photo src={r.headshot ?? undefined} alt="" label={r.name} sizes="48px" /></span>
+                                  <span>
+                                    <strong>{r.name}</strong>
+                                    <span className="small">{[r.category ?? "Performer", age(r.playingAge), r.viaAgent ? `via ${via.get(r.viaAgent) ?? "agent"}` : null].filter((x) => x && x !== "Not given").join(" · ")}</span>
+                                    <span className="small">{r.castingTitle} · {day(r.appliedAt)}</span>
                                   </span>
-                                </td>
-                                <td>{r.castingTitle}<br /><span className="small">{r.castingRef}</span></td>
-                                <td>{age(r.playingAge)}</td>
-                                <td>{r.viaAgent ? via.get(r.viaAgent) ?? "Agent" : "Self"}</td>
-                                <td>{day(r.appliedAt)}</td>
-                                <td>
-                                  {r.status === "withdrawn" ? (
-                                    <span className="status status--withdrawn">{applicationLabel(r.status)}</span>
-                                  ) : (
-                                    <form action={setMyApplicationStatus.bind(null, r.id)} className="admin-status admin-status--inline">
-                                      <label htmlFor={`app-${r.id}`} className="sr-only">Status for {r.name}</label>
-                                      <select id={`app-${r.id}`} name="status" defaultValue={r.status}>
-                                        {["new", "shortlisted", "audition-booked", "declined"].map((v) => <option key={v} value={v}>{applicationLabel(v)}</option>)}
-                                      </select>
-                                      <button type="submit" className="btn btn--ink btn--sm">Set</button>
-                                    </form>
+                                </div>
+                                <div className="board__tools">
+                                  {r.profileUrl && r.published ? <Link href={`/profile/${r.profileUrl}`} target="_blank">Profile</Link> : null}
+                                  {r.status === "withdrawn" ? <span className="status status--withdrawn">Withdrawn</span> : (
+                                    <>
+                                      {col.next ? (
+                                        <form action={setMyApplicationStatus.bind(null, r.id)}><input type="hidden" name="status" value={col.next.status} /><button type="submit" className="board__move">{col.next.label} →</button></form>
+                                      ) : null}
+                                      {col.key !== "declined" ? (
+                                        <form action={setMyApplicationStatus.bind(null, r.id)}><input type="hidden" name="status" value="declined" /><button type="submit" className="board__no" aria-label={`Not selected: ${r.name}`}>✕</button></form>
+                                      ) : (
+                                        <form action={setMyApplicationStatus.bind(null, r.id)}><input type="hidden" name="status" value="new" /><button type="submit" className="board__move">Reconsider</button></form>
+                                      )}
+                                    </>
                                   )}
-                                </td>
-                              </tr>
-                            ))
-                          : sampleSubmissions.map((s) => (
-                              <tr key={s.name}>
-                                <td>
-                                  <span className="subs__who">
-                                    <span className="subs__face"><Photo alt="" label={s.name} sizes="40px" /></span>
-                                    <span><strong>{s.name}</strong><br /><span className="small">{s.category}</span></span>
-                                  </span>
-                                </td>
-                                <td>{s.casting}</td>
-                                <td>{s.age}</td>
-                                <td>{s.via}</td>
-                                <td>Sample</td>
-                                <td><span className={`status status--${slug(s.status)}`}>{s.status}</span></td>
-                              </tr>
+                                </div>
+                              </article>
                             ))}
-                      </tbody>
-                    </table>
+                            {samples.map((s) => (
+                              <article key={s.name} className="board__card">
+                                <div className="board__who">
+                                  <span className="board__face"><Photo alt="" label={s.name} sizes="48px" /></span>
+                                  <span><strong>{s.name}</strong><span className="small">{s.category} · {s.age} · {s.via}</span><span className="small">{s.casting}</span></span>
+                                </div>
+                              </article>
+                            ))}
+                            {(own ? cards.length : samples.length) === 0 ? <p className="board__empty">Nobody here yet</p> : null}
+                          </section>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </section>

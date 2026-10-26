@@ -1210,3 +1210,18 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 .faq details { border-bottom: 0; background: var(--surface); border-radius: 14px; padding: 0 1.4rem; }
 .section--white .faq details { background: var(--surface-2); }
 .faq summary { padding-block: 1.2rem; }
+
+/* ───────────── 2026 refresh: talent profile ───────────── */
+.profile-hero { background: radial-gradient(55% 90% at 75% 0%, rgba(255,128,51,.28), transparent 70%), linear-gradient(180deg, #1c1c1c 0%, var(--bg) 100%); }
+.profile-hero__photo { border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.6); outline: 3px dotted var(--accent); outline-offset: 6px; }
+.profile-hero h1 { letter-spacing: -0.04em; }
+.profile-hero .tags li { background: rgba(255,128,51,.14); color: var(--accent); }
+.profile-grid { gap: 1rem; }
+.profile-block { background: var(--surface); border-radius: 16px; padding: 1.4rem 1.5rem; }
+.profile-block h2 { font-family: var(--display); font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; text-transform: none; color: var(--text); border-bottom: 0; padding-bottom: 0; margin: 0 0 0.75rem; }
+.profile-block .facts dt, .profile-block .facts dd { border-bottom-color: var(--surface-3); }
+.profile-block .credits td:first-child { color: var(--accent); font-weight: 800; }
+.profile-block .credits th, .profile-block .credits td { border-bottom-color: var(--surface-3); }
+.profile-block .gallery li { border-radius: 12px; transition: transform .3s var(--ease-settle); }
+.profile-block .gallery li:hover { transform: translateY(-3px); }
+@media (prefers-reduced-motion: reduce) { .profile-block .gallery li:hover { transform: none; } }

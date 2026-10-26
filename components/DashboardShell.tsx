@@ -10,35 +10,12 @@ export function DashboardShell({ session, role, welcome, tabs, tab, children }: 
   const master = session.kind === "master";
   const first = master ? "" : session.name.split(" ")[0];
   const current = dashboardRoles.find((d) => d.role === role)!;
+  // Sidebar on wide screens; on phones the same section links become a floating bar at the bottom
   return (
-    <>
-      <header className="page-header pattern dash-header">
-        <div className="wrap">
-          <div className="dash-header__top">
-            <p className="kicker">{current.label}</p>
-            <form action="/api/auth/logout" method="post">
-              <button type="submit" className="link-button">Log out</button>
-            </form>
-          </div>
-          <h1>{master ? <>Master <em>view</em>.</> : welcome ? <>Karibu, <em>{first}</em>.</> : <>Welcome back, <em>{first}</em>.</>}</h1>
-          <p className="lead">
-            {master
-              ? "You're signed in with the master login, so you can open both dashboards."
-              : welcome
-                ? "Thanks for joining. Your application is with our team, and this is your dashboard while we set up your membership."
-                : "Here's where your membership, profile and castings live."}
-          </p>
-          {master ? (
-            <nav aria-label="Dashboards" className="dash-tabs">
-              {dashboardRoles.map((d) => (
-                <Link key={d.role} href={d.href} aria-current={d.role === role ? "page" : undefined}>{d.label}</Link>
-              ))}
-            </nav>
-          ) : null}
-        </div>
-      </header>
-      <nav aria-label="Dashboard sections" className="dash-sections">
-        <div className="wrap">
+    <div className="dash-app">
+      <aside className="dash-side">
+        <p className="dash-side__label">{current.label}</p>
+        <nav aria-label="Dashboard sections" className="dash-sections">
           <ul>
             {tabs.map((t) => (
               <li key={t.id}>
@@ -46,10 +23,33 @@ export function DashboardShell({ session, role, welcome, tabs, tab, children }: 
               </li>
             ))}
           </ul>
-        </div>
-      </nav>
-      {children}
-    </>
+        </nav>
+        {master ? (
+          <nav aria-label="Dashboards" className="dash-tabs">
+            {dashboardRoles.map((d) => (
+              <Link key={d.role} href={d.href} aria-current={d.role === role ? "page" : undefined}>{d.label}</Link>
+            ))}
+          </nav>
+        ) : null}
+        <form action="/api/auth/logout" method="post" className="dash-side__logout">
+          <button type="submit" className="link-button">Log out</button>
+        </form>
+      </aside>
+      <div className="dash-main">
+        <header className="dash-header">
+          <p className="dash-header__hello">{master ? "Master view" : welcome ? `Karibu, ${first}` : `Habari, ${first}`}</p>
+          <h1>{master ? <>Every dashboard, <em>one login</em>.</> : welcome ? <>Welcome to <em>RafikiHub</em>.</> : <>Your <em>{current.label.toLowerCase()}</em>.</>}</h1>
+          <p className="lead">
+            {master
+              ? "You're signed in with the master login, so you can open both dashboards."
+              : welcome
+                ? "Your account is ready. Start with your profile: it's what casting directors see first."
+                : "Here's where your membership, profile and castings live."}
+          </p>
+        </header>
+        {children}
+      </div>
+    </div>
   );
 }
 
