@@ -3,6 +3,7 @@ import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell"
 import { Photo } from "@/components/Photo";
 import { profileCategories } from "@/lib/data";
 import { applicationLabel, castingStatus, castingTabs, isAgent, sampleCastings, sampleRoster, sampleSubmissions } from "@/lib/dashboard";
+import { setMyApplicationStatus } from "./actions";
 import { agentNames, getApplicationsToMe, getMyCastings, getMyRoster, searchTalent } from "@/lib/dashboard-data";
 import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
 import { getMember } from "@/lib/member";
@@ -178,7 +179,19 @@ export default async function CastingDashboard({ searchParams }: Props) {
                                 <td>{age(r.playingAge)}</td>
                                 <td>{r.viaAgent ? via.get(r.viaAgent) ?? "Agent" : "Self"}</td>
                                 <td>{day(r.appliedAt)}</td>
-                                <td><span className={`status status--${r.status}`}>{applicationLabel(r.status)}</span></td>
+                                <td>
+                                  {r.status === "withdrawn" ? (
+                                    <span className="status status--withdrawn">{applicationLabel(r.status)}</span>
+                                  ) : (
+                                    <form action={setMyApplicationStatus.bind(null, r.id)} className="admin-status admin-status--inline">
+                                      <label htmlFor={`app-${r.id}`} className="sr-only">Status for {r.name}</label>
+                                      <select id={`app-${r.id}`} name="status" defaultValue={r.status}>
+                                        {["new", "shortlisted", "audition-booked", "declined"].map((v) => <option key={v} value={v}>{applicationLabel(v)}</option>)}
+                                      </select>
+                                      <button type="submit" className="btn btn--ink btn--sm">Set</button>
+                                    </form>
+                                  )}
+                                </td>
                               </tr>
                             ))
                           : sampleSubmissions.map((s) => (

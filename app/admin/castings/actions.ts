@@ -1,12 +1,13 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/admin/AdminForm";
 import { breakdownTypes, breakdownGenders, applicationStatuses } from "@/lib/admin/castings";
 import { rememberForImport } from "@/lib/admin/import-guard";
+import { sendApplicationFeedback } from "@/lib/application-feedback";
 import { nairobiToday } from "@/lib/content-kinds";
 import { profileCategories } from "@/lib/data";
 import { getDb } from "@/lib/db";
@@ -88,6 +89,7 @@ export async function setApplicationStatus(applicationId: number, form: FormData
   await assertMaster();
   const status = String(form.get("status") ?? "");
   if (!(applicationStatuses as readonly string[]).includes(status)) throw new Error("Unknown status.");
-  await db().update(auditionApplications).set({ status }).where(eq(auditionApplications.id, applicationId));
+  const changed = await db().update(auditionApplications).set({ status }).where(and(eq(auditionApplications.id, applicationId), ne(auditionApplications.status, status))).returning({ id: auditionApplications.id });
+  if (changed.length) sendApplicationFeedback(db(), applicationId, status);
   refresh();
 }

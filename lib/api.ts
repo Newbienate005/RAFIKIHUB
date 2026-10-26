@@ -2,7 +2,7 @@ import { after, NextResponse } from "next/server";
 import type { ZodSchema } from "zod";
 import { getDb } from "@/lib/db";
 import { appUrl } from "@/lib/app-url";
-import { emailConfigured, sendEmail, submissionEmail } from "@/lib/email";
+import { emailConfigured, noticeEmail, sendEmail, submissionEmail } from "@/lib/email";
 import { clientIp, failures, recordFailure } from "@/lib/rate-limit";
 import { fromThisSite } from "@/lib/same-site";
 import { site } from "@/lib/site";
@@ -29,6 +29,44 @@ export function notifyTeam(req: Request, data: Record<string, unknown>) {
   }
   const to = process.env.NOTIFY_EMAIL || site.email;
   after(() => sendEmail({ to, ...submissionEmail(form, data, `${appUrl(req)}/admin`) }).catch((e) => console.error(`[forms] couldn't email the team about a new ${form}`, e)));
+}
+
+/** What the person who sent each form is told, so they know it arrived (the old site sent these too). */
+const confirmations: Record<string, (d: Record<string, unknown>) => { subject: string; paragraphs: string[] }> = {
+  contact: () => ({
+    subject: "We got your message",
+    paragraphs: ["Thanks for getting in touch with RafikiHub. Your message has reached the team and we'll reply by email, usually within two working days."],
+  }),
+  booking: (d) => ({
+    subject: "Booking received",
+    paragraphs: [
+      `Thanks for booking ${String(d.service ?? "a Sio Bahati service").replace(/-/g, " ")} with RafikiHub.${d.preferredDate ? ` You asked for ${String(d.preferredDate)}.` : ""}`,
+      "We'll call or email you to confirm the date, time and price. Nothing is charged until then.",
+    ],
+  }),
+  "location-request": (d) => ({
+    subject: "Location request received",
+    paragraphs: [
+      `Thanks for your location request${d.locationType ? ` (${String(d.locationType).toLowerCase()})` : ""}. Our locations team will send you options and next steps by email.`,
+    ],
+  }),
+  casting: (d) => ({
+    subject: "Casting request received",
+    paragraphs: [
+      `Thanks for sending us${d.projectTitle ? ` "${String(d.projectTitle)}"` : " your casting"}. The team reviews every breakdown before it goes out to agents and performers, and will be in touch if anything's missing.`,
+      "You can follow your castings and the applications they get from your dashboard.",
+    ],
+  }),
+};
+
+/** After the response is sent: a short "we got it" email to whoever filled the form in. Never blocks or fails the form. */
+function confirmToSender(req: Request, data: Record<string, unknown>) {
+  const form = new URL(req.url).pathname.split("/").pop() ?? "";
+  const make = confirmations[form];
+  const to = typeof data.email === "string" ? data.email : "";
+  if (!make || !to || !emailConfigured()) return;
+  const name = String(data.fullName ?? data.contactName ?? data.organization ?? "");
+  after(() => sendEmail({ to, ...noticeEmail({ name, ...make(data) }) }).catch((e) => console.error(`[forms] couldn't send the ${form} confirmation`, e)));
 }
 
 type SignIn = { redirect: string; session: NewSession };
@@ -83,6 +121,7 @@ export async function handleForm<T extends { website?: string }>(
     await save(db, data);
     await recordFailure(db, limitKey, 60 * 60).catch((e) => console.error("[forms] couldn't count a submission", e));
     notifyTeam(req, data);
+    confirmToSender(req, data);
     return success(req, signIn?.(data));
   } catch (err: unknown) {
     const code = (err as { code?: string })?.code;

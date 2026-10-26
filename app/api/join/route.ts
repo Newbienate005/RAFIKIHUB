@@ -1,7 +1,9 @@
 import type { BatchItem } from "drizzle-orm/batch";
 import { sql } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { notifyTeam } from "@/lib/api";
+import { appUrl } from "@/lib/app-url";
+import { emailConfigured, noticeEmail, sendEmail } from "@/lib/email";
 import { emptyProfile } from "@/lib/admin/profile-form";
 import { roleForCategory } from "@/lib/dashboard";
 import { profileCategories, type TalentProfile } from "@/lib/data";
@@ -105,6 +107,21 @@ export async function POST(req: Request) {
 
   await recordFailure(db, limitKey, 60 * 60).catch(() => {});
   notifyTeam(req, { "Full name": d.fullName, Email: email, Phone: d.phone, "Joining as": d.category, Details: message || "None" });
+  if (emailConfigured()) {
+    const welcome = noticeEmail({
+      name: d.fullName,
+      subject: "Welcome to RafikiHub",
+      paragraphs: [
+        "Your RafikiHub account is ready. You can sign in any time with this email address and the password you chose.",
+        role === "performer"
+          ? "Next, fill in your profile: headshots, credits, skills and a showreel. Casting directors search by these, and the team checks every profile before it goes public."
+          : "From your dashboard you can post castings, search the talent database and follow applications.",
+        "If you didn't create this account, email info@rafikihub.com and we'll remove it.",
+      ],
+      button: { label: "Open my dashboard", href: `${appUrl(req)}/dashboard/${role}` },
+    });
+    after(() => sendEmail({ to: email, ...welcome }).catch((e) => console.error("[join] couldn't send the welcome email", e)));
+  }
 
   const token = encodeSession(
     { kind: "member", role, accountId, pv: passwordVersion(hash), name: d.fullName, email, category: d.talentCategory || d.category, plan: plan ?? undefined, location: d.location || undefined },
