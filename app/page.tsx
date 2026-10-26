@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ContactSheet } from "@/components/ContactSheet";
+import { CtaBand } from "@/components/CtaBand";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { MotionToggle } from "@/components/MotionToggle";
 import { ArticleCard } from "@/components/ArticleCard";
@@ -60,12 +61,11 @@ export default async function Home() {
                 <p>Post a brief and shortlist from {stats.members} members.</p>
               </div>
             </div>
-            <p className="hero__proof">
-              <strong>{stats.members} members</strong>
-              {stats.castings && stats.applications
-                ? <>, {stats.castings} castings posted and {stats.applications.toLocaleString("en-KE")} applications sent. Based in Nairobi, working across Africa.</>
-                : <>, including agents and casting professionals across the continent. Based in Nairobi.</>}
-            </p>
+            <dl className="hero__stats">
+              <div><dt>members</dt><dd>{stats.members}</dd></div>
+              {stats.castings ? <div><dt>castings posted</dt><dd>{stats.castings}</dd></div> : null}
+              {stats.applications ? <div><dt>applications sent</dt><dd>{stats.applications.toLocaleString("en-KE")}</dd></div> : null}
+            </dl>
           </div>
           <ContactSheet />
         </div>
@@ -222,6 +222,8 @@ export default async function Home() {
           <FaqList items={homeFaqs} />
         </div>
       </section>
+
+      <CtaBand title="Your next role is a profile away." text="Casting directors search RafikiHub every week." primary={{ href: "/join", label: "Create my profile" }} secondary={{ href: "/casting", label: "Post a casting" }} />
     </>
   );
 }
