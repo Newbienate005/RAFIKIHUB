@@ -84,3 +84,21 @@ export function submissionEmail(form: string, data: Record<string, unknown>, adm
 <p><a href="${esc(adminUrl)}">Open the inbox</a></p></body></html>`;
   return { subject: `New ${form}: ${String(rows.find(([k]) => /name|company|organization/i.test(k))?.[1] ?? "RafikiHub")}`.slice(0, 140), text, html };
 }
+
+type Notice = { name: string; subject: string; paragraphs: string[]; button?: { label: string; href: string } };
+
+/** A short branded email to a member or visitor (welcome, "we got your request", application news). Same look as the reset email. */
+export function noticeEmail({ name, subject, paragraphs, button }: Notice) {
+  const first = name.split(" ")[0] || "there";
+  const text = [`Hi ${first},`, ...paragraphs, ...(button ? [`${button.label}: ${button.href}`] : []), "RafikiHub · info@rafikihub.com"].join("\n\n");
+  const body = paragraphs.map((p) => esc(p)).join("<br><br>");
+  const html = `<!doctype html><html><body style="margin:0;background:#121212;font-family:Helvetica,Arial,sans-serif;color:#ffffff">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#121212;padding:32px 16px"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#181818;border-radius:10px;padding:32px">
+<tr><td style="font-weight:900;font-size:22px;letter-spacing:1px;color:#FF8033">RAFIKI<span style="color:#ffffff">HUB</span></td></tr>
+<tr><td style="padding-top:24px;font-size:16px;line-height:1.55;color:#cbcbcb">Hi ${esc(first)},<br><br>${body}</td></tr>
+${button ? `<tr><td style="padding:28px 0 4px"><a href="${esc(button.href)}" style="display:inline-block;background:#FF8033;color:#121212;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:1.4px;text-transform:uppercase;padding:14px 28px;border-radius:999px">${esc(button.label)}</a></td></tr>` : ""}
+<tr><td style="padding-top:28px;font-size:12px;color:#7c7c7c">RafikiHub · info@rafikihub.com · Park Place, Parklands, Nairobi</td></tr>
+</table></td></tr></table></body></html>`;
+  return { subject, text, html };
+}
