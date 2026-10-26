@@ -61,7 +61,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                 <li className="stat">
                   <span className="stat__label">Profile</span>
                   <span className="stat__value">{real?.completeness ? real.completeness.percent : progress}% complete</span>
-                  <span className="meter" aria-hidden="true"><span style={{ width: `${real?.completeness ? real.completeness.percent : progress}%` }} /></span>
+                  <span className="ring" aria-hidden="true" style={{ ["--p" as string]: `${real?.completeness ? real.completeness.percent : progress}%` }} />
                   {real ? <Link href="/dashboard/profile" className="stat__note">Edit my profile →</Link> : null}
                 </li>
               </ul>

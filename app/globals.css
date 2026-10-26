@@ -1163,3 +1163,65 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 .video__play, .clip__play { outline: 2px dotted rgba(255,255,255,.85); outline-offset: 3px; }
 .tcards__arrow, .motion-toggle { outline: 2px dotted var(--accent); outline-offset: 3px; }
 :is(.video__start, .clip__start):focus-visible :is(.video__play, .clip__play), .tcards__arrow:focus-visible, .motion-toggle:focus-visible { outline: 3px solid var(--accent); }
+
+/* ───────────── 2026 refresh: home page and header (approved mockups) ───────────── */
+/* Header: logo on the left, then the menus as soft pills, actions on the right. Phones keep menu | logo | Join. */
+@media (min-width: 1101px) {
+  .site-header__inner { grid-template-columns: auto 1fr auto; gap: 1.75rem; }
+  .brand { order: -1; justify-self: start; }
+  .nav-desktop ul { gap: 0.25rem; }
+  .nav-desktop a, .dropdown__toggle { padding: 0.5rem 0.9rem; border-radius: 999px; transition: background-color .2s, color .2s; }
+  .nav-desktop a:hover, .dropdown__toggle:hover { background: var(--surface-2); }
+  .nav-desktop a[aria-current], .dropdown__toggle.is-active { background: var(--surface-2); }
+  .nav-desktop > ul > li > a[aria-current]::after, .dropdown__toggle.is-active::after { display: none; }
+}
+
+/* Hero numbers: big and scannable instead of a sentence */
+.hero__stats { display: flex; flex-wrap: wrap; gap: 0.5rem 2.25rem; margin: 2.5rem 0 0; }
+.hero__stats > div { display: flex; flex-direction: column-reverse; }
+.hero__stats dd { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(1.9rem, 3vw, 2.4rem); line-height: 1.05; letter-spacing: -0.03em; color: var(--text); }
+.hero__stats dt { font-size: 0.85rem; color: var(--text-soft); }
+
+/* Headshots as separate prints: each on its own cream mount, staggered, the set tilted, lifting on hover */
+.sheet { background: none; padding: 0; box-shadow: none; transform: rotate(-2deg); }
+.sheet::before, .sheet::after { display: none; }
+.sheet__grid { gap: 0.9rem; }
+.sheet__grid li { background: #f4efe6; padding: 0.5rem 0.5rem 0.75rem; border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.55); transition: transform .3s var(--ease-settle), box-shadow .3s; }
+.sheet__grid li:nth-child(3n + 2) { margin-top: 1.75rem; }
+.sheet__grid li:hover, .sheet__grid li:focus-within { transform: translateY(-6px); box-shadow: 0 26px 50px rgba(0,0,0,.6); }
+.sheet__frame { border-radius: 3px; }
+.sheet__frame .photo { filter: none; }
+@media (prefers-reduced-motion: reduce) { .sheet__grid li { transition: none; } .sheet__grid li:hover { transform: none; } }
+
+/* Our services: each path is its own card row */
+.numbered { display: flex; flex-direction: column; gap: 0.5rem; }
+.numbered li, .numbered li:last-child { border: 0; }
+.numbered a { background: var(--surface); padding: 1.4rem 1.6rem; border-radius: 14px; }
+.numbered a:hover { padding-left: 1.6rem; background: var(--surface-2); }
+
+/* Who can join: tiles with a beaded disc that lift on hover */
+.cats--links a { border-radius: 14px; padding: 1.4rem; min-height: 10rem; }
+.cats--links a:hover { transform: translateY(-4px); }
+.cats__name::before { width: 2rem; height: 2rem; rotate: 0deg; translate: 0; border-radius: 50%; background: radial-gradient(circle, var(--bg) 0 18%, var(--accent) 19% 40%, var(--bg) 41% 52%, var(--accent) 53% 70%, transparent 71%); }
+.cats__name { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+
+/* FAQs: each question a soft card */
+.faq { border-top: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.faq details { border-bottom: 0; background: var(--surface); border-radius: 14px; padding: 0 1.4rem; }
+.section--white .faq details { background: var(--surface-2); }
+.faq summary { padding-block: 1.2rem; }
+
+/* ───────────── 2026 refresh: talent profile ───────────── */
+.profile-hero { background: radial-gradient(55% 90% at 75% 0%, rgba(255,128,51,.28), transparent 70%), linear-gradient(180deg, #1c1c1c 0%, var(--bg) 100%); }
+.profile-hero__photo { border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.6); outline: 3px dotted var(--accent); outline-offset: 6px; }
+.profile-hero h1 { letter-spacing: -0.04em; }
+.profile-hero .tags li { background: rgba(255,128,51,.14); color: var(--accent); }
+.profile-grid { gap: 1rem; }
+.profile-block { background: var(--surface); border-radius: 16px; padding: 1.4rem 1.5rem; }
+.profile-block h2 { font-family: var(--display); font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; text-transform: none; color: var(--text); border-bottom: 0; padding-bottom: 0; margin: 0 0 0.75rem; }
+.profile-block .facts dt, .profile-block .facts dd { border-bottom-color: var(--surface-3); }
+.profile-block .credits td:first-child { color: var(--accent); font-weight: 800; }
+.profile-block .credits th, .profile-block .credits td { border-bottom-color: var(--surface-3); }
+.profile-block .gallery li { border-radius: 12px; transition: transform .3s var(--ease-settle); }
+.profile-block .gallery li:hover { transform: translateY(-3px); }
+@media (prefers-reduced-motion: reduce) { .profile-block .gallery li:hover { transform: none; } }
