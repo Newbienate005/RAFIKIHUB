@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell";
+import { MpesaPay } from "@/components/MpesaPay";
+import { plans } from "@/lib/data";
 import { Photo } from "@/components/Photo";
 import { profileCategories } from "@/lib/data";
 import { applicationLabel, castingStatus, castingTabs, isAgent, sampleCastings, sampleRoster, sampleSubmissions } from "@/lib/dashboard";
@@ -99,6 +101,8 @@ export default async function CastingDashboard({ searchParams }: Props) {
                   )}
                   <Link href="/casting" className="btn btn--sun btn--sm" style={{ marginTop: "1.25rem" }}>Post a new casting</Link>
                 </section>
+
+                {me ? <MpesaPay plans={plans} current={me.account.planId} expiresOn={me.account.planExpiresAt ? new Date(me.account.planExpiresAt).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" }) : null} phone={me.account.phone} /> : null}
 
                 <section className="panel" aria-labelledby="account">
                   <h2 id="account">Your details {member ? null : <SampleTag />}</h2>

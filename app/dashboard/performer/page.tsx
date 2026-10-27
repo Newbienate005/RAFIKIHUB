@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell";
+import { MpesaPay } from "@/components/MpesaPay";
 import { plans } from "@/lib/data";
 import { applicationLabel, castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
@@ -66,6 +67,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                 </li>
               </ul>
 
+              {real ? <MpesaPay plans={plans} current={real.account.planId} expiresOn={real.account.planExpiresAt ? new Date(real.account.planExpiresAt).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" }) : null} phone={real.account.phone} /> : null}
               <div className="dash-grid">
                 {real ? (
                   <section className="panel" aria-labelledby="checklist">
