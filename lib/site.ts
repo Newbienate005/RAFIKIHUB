@@ -40,7 +40,8 @@ export const isGroup = (n: NavItem): n is NavGroup => "items" in n;
 export const navLeft: NavItem[] = [
   { label: "About Us", items: [{ href: "/about", label: "About Us" }, { href: "/team", label: "Our Team" }] },
   { href: "/talent-management", label: "Talent Management" },
-  { href: "/blog", label: "Blog" },
+  // Kept short so both sides of the centred logo come out about the same width
+  { href: "/membership", label: "Membership" },
 ];
 
 export const navRight: NavItem[] = [
@@ -54,7 +55,7 @@ export const navRight: NavItem[] = [
       { href: "/resources", label: "RafikiHub Resources" },
     ],
   },
-  { href: "/membership", label: "Membership Options" },
+  { href: "/blog", label: "Blog" },
 ];
 
 /** Grouped menu for the mobile drawer */
