@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { DashboardShell, SampleTag, pickTab } from "@/components/DashboardShell";
+import { ApplyButton, WithdrawButton } from "@/components/ApplyButtons";
+import { cannotApply } from "@/lib/casting-eligibility";
+import { nairobiToday } from "@/lib/content-kinds";
 import { MpesaPay } from "@/components/MpesaPay";
 import { plans } from "@/lib/data";
 import { applicationLabel, castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
@@ -144,21 +147,28 @@ export default async function PerformerDashboard({ searchParams }: Props) {
             <>
               <section aria-labelledby="postings">
                 <h2 id="postings">Talent postings {live.length || member ? null : <SampleTag />}</h2>
-                <p className="small">Open castings appear here while they&apos;re accepting applications. Online applications are being set up: until then, email <a href={`mailto:${site.email}`}>{site.email}</a> with the casting reference and your profile link.</p>
+                <p className="small">Open castings appear here while they&apos;re accepting applications. Apply in one tap: the casting team sees your profile, and you get an email when your application moves on.</p>
                 {live.length ? (
                   <div className="table-scroll">
                     <table className="credits subs">
-                      <thead><tr><th scope="col">Casting</th><th scope="col">Type</th><th scope="col">Gender</th><th scope="col">Closes</th><th scope="col">Status</th></tr></thead>
+                      <thead><tr><th scope="col">Casting</th><th scope="col">Type</th><th scope="col">Gender</th><th scope="col">Closes</th><th scope="col">Status</th>{real ? <th scope="col"><span className="sr-only">Apply</span></th> : null}</tr></thead>
                       <tbody>
-                        {live.map((c) => (
+                        {live.map((c) => {
+                          // What the apply button says: already applied, why not, or the button itself
+                          const mine = applications.find((a) => a.auditionId === c.id);
+                          const pd = real?.profile?.data?.personalData;
+                          const reason = real ? (real.profile ? cannotApply(c, { category: real.profile.data.category || real.account.category, country: pd?.country || real.account.country, gender: pd?.gender }, nairobiToday()) : "Create your profile to apply.") : null;
+                          return (
                           <tr key={c.id}>
                             <td><strong>{c.title}</strong><br /><span className="small">{[c.ref, c.location, c.categories.length ? c.categories.join(", ") : "All categories"].filter(Boolean).join(" · ")}</span></td>
                             <td>{c.type}</td>
                             <td>{c.gender}</td>
                             <td>{closes(c.closesOn)}</td>
                             <td><span className={`status status--${c.filled ? "filled" : "open"}`}>{c.filled ? "Filled" : "Open"}</span></td>
+                            {real ? <td>{mine ? <span className="status status--shortlisted">Applied ✓</span> : reason ? <span className="small">{reason}</span> : <ApplyButton auditionId={c.id} title={c.title} />}</td> : null}
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -191,13 +201,14 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                 {applications.length ? (
                   <div className="table-scroll">
                     <table className="credits subs">
-                      <thead><tr><th scope="col">Casting</th><th scope="col">Applied</th><th scope="col">Status</th></tr></thead>
+                      <thead><tr><th scope="col">Casting</th><th scope="col">Applied</th><th scope="col">Status</th><th scope="col"><span className="sr-only">Withdraw</span></th></tr></thead>
                       <tbody>
                         {applications.map((a) => (
                           <tr key={a.id}>
                             <td><strong>{a.title}</strong><br /><span className="small">{a.ref} · {a.type} · {a.castingStatus === "published" ? `closes ${closes(a.closesOn)}` : "closed"}</span></td>
                             <td>{a.appliedAt.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</td>
                             <td><span className={`status status--${a.status}`}>{applicationLabel(a.status)}</span></td>
+                            <td>{a.status === "new" || a.status === "shortlisted" ? <WithdrawButton applicationId={a.id} title={a.title} /> : null}</td>
                           </tr>
                         ))}
                       </tbody>
