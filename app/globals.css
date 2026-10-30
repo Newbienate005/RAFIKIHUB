@@ -1223,3 +1223,12 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 .profile-block .gallery li { border-radius: 12px; transition: transform .3s var(--ease-settle); }
 .profile-block .gallery li:hover { transform: translateY(-3px); }
 @media (prefers-reduced-motion: reduce) { .profile-block .gallery li:hover { transform: none; } }
+
+/* "Audition shortlist": a strip of torn paper taped above the headshots, written by hand */
+.sheet__note { position: relative; display: table; margin: 0 auto 1.6rem; rotate: -1.5deg; filter: drop-shadow(0 8px 14px rgba(0,0,0,.45)); }
+.sheet__note span { display: block; padding: 0.7rem 2.6rem 0.9rem; background: #f2efe9; color: #1d1a16; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.1; clip-path: polygon(0.0% 1%, 2.5% 8%, 5.0% 3%, 7.5% 7%, 10.0% 1%, 12.5% 6%, 15.0% 3%, 17.5% 10%, 20.0% 1%, 22.5% 9%, 25.0% 3%, 27.5% 8%, 30.0% 1%, 32.5% 7%, 35.0% 3%, 37.5% 6%, 40.0% 1%, 42.5% 10%, 45.0% 3%, 47.5% 9%, 50.0% 1%, 52.5% 8%, 55.0% 3%, 57.5% 7%, 60.0% 1%, 62.5% 6%, 65.0% 3%, 67.5% 10%, 70.0% 1%, 72.5% 9%, 75.0% 3%, 77.5% 8%, 80.0% 1%, 82.5% 7%, 85.0% 3%, 87.5% 6%, 90.0% 1%, 92.5% 10%, 95.0% 3%, 97.5% 9%, 100.0% 1%, 100.0% 99%, 97.5% 92%, 95.0% 97%, 92.5% 92%, 90.0% 99%, 87.5% 92%, 85.0% 97%, 82.5% 92%, 80.0% 99%, 77.5% 92%, 75.0% 97%, 72.5% 92%, 70.0% 99%, 67.5% 92%, 65.0% 97%, 62.5% 92%, 60.0% 99%, 57.5% 92%, 55.0% 97%, 52.5% 92%, 50.0% 99%, 47.5% 92%, 45.0% 97%, 42.5% 92%, 40.0% 99%, 37.5% 92%, 35.0% 97%, 32.5% 92%, 30.0% 99%, 27.5% 92%, 25.0% 97%, 22.5% 92%, 20.0% 99%, 17.5% 92%, 15.0% 97%, 12.5% 92%, 10.0% 99%, 7.5% 92%, 5.0% 97%, 2.5% 92%, 0.0% 99%); }
+.sheet__note::before, .sheet__note::after { content: ""; position: absolute; z-index: 1; top: 50%; width: 3.2rem; height: 1.3rem; background: rgba(232, 214, 178, .72); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.sheet__note::before { left: -1.4rem; translate: 0 -50%; rotate: -38deg; }
+.sheet__note::after { right: -1.4rem; translate: 0 -50%; rotate: 38deg; }
+/* One circle at a time: the member ShortlistPick chose */
+.sheet__grid li:not(.is-picked) .sheet__circle { display: none; }
