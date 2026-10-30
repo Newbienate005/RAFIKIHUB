@@ -1165,10 +1165,8 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 :is(.video__start, .clip__start):focus-visible :is(.video__play, .clip__play), .tcards__arrow:focus-visible, .motion-toggle:focus-visible { outline: 3px solid var(--accent); }
 
 /* ───────────── 2026 refresh: home page and header (approved mockups) ───────────── */
-/* Header: logo on the left, then the menus as soft pills, actions on the right. Phones keep menu | logo | Join. */
+/* Header: menus as soft pills either side of the centred logo. Phones keep menu | logo | Join. */
 @media (min-width: 1101px) {
-  .site-header__inner { grid-template-columns: auto 1fr auto; gap: 1.75rem; }
-  .brand { order: -1; justify-self: start; }
   .nav-desktop ul { gap: 0.25rem; }
   .nav-desktop a, .dropdown__toggle { padding: 0.5rem 0.9rem; border-radius: 999px; transition: background-color .2s, color .2s; }
   .nav-desktop a:hover, .dropdown__toggle:hover { background: var(--surface-2); }
