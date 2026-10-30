@@ -85,12 +85,12 @@ export function submissionEmail(form: string, data: Record<string, unknown>, adm
   return { subject: `New ${form}: ${String(rows.find(([k]) => /name|company|organization/i.test(k))?.[1] ?? "RafikiHub")}`.slice(0, 140), text, html };
 }
 
-type Notice = { name: string; subject: string; paragraphs: string[]; button?: { label: string; href: string } };
+type Notice = { name: string; subject: string; paragraphs: string[]; button?: { label: string; href: string }; footer?: { label: string; href: string } };
 
 /** A short branded email to a member or visitor (welcome, "we got your request", application news). Same look as the reset email. */
-export function noticeEmail({ name, subject, paragraphs, button }: Notice) {
+export function noticeEmail({ name, subject, paragraphs, button, footer }: Notice) {
   const first = name.split(" ")[0] || "there";
-  const text = [`Hi ${first},`, ...paragraphs, ...(button ? [`${button.label}: ${button.href}`] : []), "RafikiHub · info@rafikihub.com"].join("\n\n");
+  const text = [`Hi ${first},`, ...paragraphs, ...(button ? [`${button.label}: ${button.href}`] : []), "RafikiHub · info@rafikihub.com", ...(footer ? [`${footer.label}: ${footer.href}`] : [])].join("\n\n");
   const body = paragraphs.map((p) => esc(p)).join("<br><br>");
   const html = `<!doctype html><html><body style="margin:0;background:#121212;font-family:Helvetica,Arial,sans-serif;color:#ffffff">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#121212;padding:32px 16px"><tr><td align="center">
@@ -98,7 +98,43 @@ export function noticeEmail({ name, subject, paragraphs, button }: Notice) {
 <tr><td style="font-weight:900;font-size:22px;letter-spacing:1px;color:#FF8033">RAFIKI<span style="color:#ffffff">HUB</span></td></tr>
 <tr><td style="padding-top:24px;font-size:16px;line-height:1.55;color:#cbcbcb">Hi ${esc(first)},<br><br>${body}</td></tr>
 ${button ? `<tr><td style="padding:28px 0 4px"><a href="${esc(button.href)}" style="display:inline-block;background:#FF8033;color:#121212;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:1.4px;text-transform:uppercase;padding:14px 28px;border-radius:999px">${esc(button.label)}</a></td></tr>` : ""}
-<tr><td style="padding-top:28px;font-size:12px;color:#7c7c7c">RafikiHub · info@rafikihub.com · Park Place, Parklands, Nairobi</td></tr>
+<tr><td style="padding-top:28px;font-size:12px;color:#7c7c7c">RafikiHub · info@rafikihub.com · Park Place, Parklands, Nairobi${footer ? `<br><a href="${esc(footer.href)}" style="color:#b3b3b3">${esc(footer.label)}</a>` : ""}</td></tr>
 </table></td></tr></table></body></html>`;
   return { subject, text, html };
+}
+
+type BulkRecipient = { email: string; fields: Record<string, string> };
+
+/**
+ * The same email to many people, each with their own merge fields: write `{name}` in the subject or body and give each
+ * recipient `fields.name`. Elastic Email's bulk endpoint fills them in per person, 500 recipients a call; the Resend
+ * fallback sends one by one. Nobody sees anyone else's address.
+ */
+export async function sendBulk(recipients: BulkRecipient[], m: Omit<Message, "to">) {
+  const from = process.env.EMAIL_FROM || "RafikiHub <no-reply@rafikihub.com>";
+  const elastic = process.env.ELASTIC_EMAIL_API_KEY;
+  if (elastic) {
+    for (let i = 0; i < recipients.length; i += 500) {
+      const res = await fetch("https://api.elasticemail.com/v4/emails", {
+        method: "POST",
+        headers: { "X-ElasticEmail-ApiKey": elastic, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Recipients: recipients.slice(i, i + 500).map((r) => ({ Email: r.email, Fields: r.fields })),
+          Content: {
+            From: from,
+            Subject: m.subject,
+            Body: [
+              { ContentType: "HTML", Charset: "utf-8", Content: m.html },
+              { ContentType: "PlainText", Charset: "utf-8", Content: m.text },
+            ],
+          },
+        }),
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!res.ok) throw new Error(`Elastic Email refused the bulk email (${res.status}): ${(await res.text()).slice(0, 200)}`);
+    }
+    return;
+  }
+  const fill = (s: string, f: Record<string, string>) => s.replace(/\{(\w+)\}/g, (all, k) => f[k] ?? all);
+  for (const r of recipients) await sendEmail({ to: r.email, subject: fill(m.subject, r.fields), html: fill(m.html, r.fields), text: fill(m.text, r.fields) });
 }

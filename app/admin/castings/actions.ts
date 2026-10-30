@@ -8,6 +8,8 @@ import type { FormState } from "@/components/admin/AdminForm";
 import { breakdownTypes, breakdownGenders, applicationStatuses } from "@/lib/admin/castings";
 import { rememberForImport } from "@/lib/admin/import-guard";
 import { sendApplicationFeedback } from "@/lib/application-feedback";
+import { sendCastingAlerts } from "@/lib/casting-alerts";
+import { after } from "next/server";
 import { nairobiToday } from "@/lib/content-kinds";
 import { profileCategories } from "@/lib/data";
 import { getDb } from "@/lib/db";
@@ -82,6 +84,18 @@ export async function setBreakdownStatus(id: number, status: "draft" | "publishe
     .where(eq(auditions.id, id));
   await rememberForImport(db(), "import:moderated-auditions", id);
   if (status === "published" && row.castingCallId) await db().update(castingCalls).set({ status: "published" }).where(eq(castingCalls.id, row.castingCallId));
+  // Tell matching performers, once, after the response: a big list mustn't slow the admin down
+  if (status === "published") {
+    after(async () => {
+      try {
+        const n = await sendCastingAlerts(db(), id);
+        if (n) console.log(`[alerts] casting ${id}: emailed ${n} performers`);
+      } catch (e) {
+        console.error(`[alerts] casting ${id}: sending failed, it will retry the next time it is published`, e);
+        await db().update(auditions).set({ alertedAt: null }).where(eq(auditions.id, id));
+      }
+    });
+  }
   refresh();
 }
 
