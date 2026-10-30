@@ -206,6 +206,7 @@ export const payments = pgTable("payments", {
   phone: varchar("phone", { length: 20 }),
   provider: varchar("provider", { length: 30 }).notNull().default("mpesa"),
   reference: varchar("reference", { length: 80 }),
+  providerRef: varchar("provider_ref", { length: 80 }), // Pesawise requestId for an STK push started on the new site
   status: varchar("status", { length: 20 }).notNull(), // success, rejected, pending
   paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
