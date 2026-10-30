@@ -154,3 +154,7 @@ ul.cards--talent { list-style: none; padding: 0; }
 .mpesa__name { font-weight: 800; }
 .mpesa__price { font-family: var(--display); font-size: 1.4rem; font-weight: 900; letter-spacing: -0.02em; }
 .mpesa .btn { align-self: flex-start; }
+
+/* Apply / Withdraw in the performer's castings tables */
+.apply { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+.apply .field-error { max-width: 16rem; font-size: 0.8rem; }

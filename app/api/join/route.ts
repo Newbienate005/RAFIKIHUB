@@ -64,7 +64,7 @@ export async function POST(req: Request) {
   const url = role === "performer" ? await freeProfileUrl(db, d.fullName) : null;
   const base = emptyProfile();
   const profile: TalentProfile | null = url
-    ? { ...base, profileUrl: url, fullName: d.fullName, category, personalData: { ...base.personalData, dateOfBirth: d.dateOfBirth || null, country: d.country }, contactDetails: { ...base.contactDetails, country: d.country } }
+    ? { ...base, profileUrl: url, fullName: d.fullName, category, personalData: { ...base.personalData, dateOfBirth: d.dateOfBirth || null, country: d.country, gender: d.gender || null }, contactDetails: { ...base.contactDetails, country: d.country } }
     : null;
 
   // What the team sees in the inbox, including the details that have no field of their own

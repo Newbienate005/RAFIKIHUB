@@ -25,7 +25,7 @@ export async function getMyApplications(accountId: number) {
   if (!db) return [];
   return safe("applications", () =>
     db
-      .select({ id: auditionApplications.id, status: auditionApplications.status, appliedAt: auditionApplications.createdAt, ref: auditions.ref, title: auditions.title, type: auditions.type, closesOn: auditions.closesOn, castingStatus: auditions.status })
+      .select({ id: auditionApplications.id, auditionId: auditionApplications.auditionId, status: auditionApplications.status, appliedAt: auditionApplications.createdAt, ref: auditions.ref, title: auditions.title, type: auditions.type, closesOn: auditions.closesOn, castingStatus: auditions.status })
       .from(auditionApplications)
       .innerJoin(auditions, eq(auditions.id, auditionApplications.auditionId))
       .where(eq(auditionApplications.applicantId, accountId))

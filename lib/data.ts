@@ -123,6 +123,8 @@ export type TalentProfile = {
     dateOfBirth: Maybe<string>; // ISO date, age is calculated
     playingAge: Maybe<PlayingAge>;
     country: string;
+    /** Female, Male or Other, from the join form; casting gender rules use it when set */
+    gender?: Maybe<string>;
     height: Maybe<Height>;
   };
 
