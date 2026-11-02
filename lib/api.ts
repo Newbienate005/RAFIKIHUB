@@ -17,6 +17,7 @@ const notifyFor: Record<string, string> = {
   contact: "contact message",
   booking: "booking request",
   "location-request": "location request",
+  documents: "document to check",
 };
 
 /** After the response is sent: email the team, and log loudly if that fails. */

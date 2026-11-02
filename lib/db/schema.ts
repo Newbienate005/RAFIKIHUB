@@ -1,4 +1,4 @@
-import { boolean, date, index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/pg-core";
+import { boolean, customType, date, index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/pg-core";
 import type { TalentProfile } from "../data";
 
 export const members = pgTable("members", {
@@ -257,4 +257,26 @@ export const passwordResets = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("password_resets_account_idx").on(t.accountId, t.createdAt)],
+);
+
+/** The file bytes of a member document; read and written as base64 through encode()/decode() in SQL (lib/member-documents.ts). */
+const bytea = customType<{ data: string; driverData: string }>({ dataType: () => "bytea" });
+
+/** Private documents for young performers and pets (scripts/sql/2026-11-02-member-documents.sql). Never served publicly. */
+export const memberDocuments = pgTable(
+  "member_documents",
+  {
+    id: serial("id").primaryKey(),
+    accountId: integer("account_id").notNull().references(() => accounts.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 40 }).notNull(),
+    fileName: varchar("file_name", { length: 200 }).notNull(),
+    mime: varchar("mime", { length: 60 }).notNull(),
+    size: integer("size").notNull(),
+    data: bytea("data").notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, approved, rejected
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  },
+  (t) => [index("member_documents_account_idx").on(t.accountId, t.createdAt), index("member_documents_status_idx").on(t.status, t.createdAt)],
 );
