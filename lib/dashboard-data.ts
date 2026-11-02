@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { TalentProfile } from "./data";
 import { getDb } from "./db";
-import { accounts, agentClients, auditionApplications, auditions, talentProfiles } from "./db/schema";
+import { accounts, agentClients, auditionApplications, auditions, memberDocuments, talentProfiles } from "./db/schema";
 
 /**
  * Real data for the member dashboards: what a performer applied for and who represents them, and for
@@ -163,4 +163,18 @@ export async function agentNames(ids: number[]) {
   if (!db || !ids.length) return new Map<number, string>();
   const rows = await safe("agent names", () => db.select({ id: accounts.id, name: accounts.name }).from(accounts).where(inArray(accounts.id, ids)));
   return new Map(rows.map((r) => [r.id, r.name]));
+}
+
+/** A young performer's or pet's own private documents, newest first (never the file bytes). */
+export async function getMyDocuments(accountId: number) {
+  const db = getDb();
+  if (!db) return [];
+  return safe("documents", () =>
+    db
+      .select({ id: memberDocuments.id, kind: memberDocuments.kind, fileName: memberDocuments.fileName, status: memberDocuments.status, note: memberDocuments.note, createdAt: memberDocuments.createdAt })
+      .from(memberDocuments)
+      .where(eq(memberDocuments.accountId, accountId))
+      .orderBy(desc(memberDocuments.createdAt))
+      .limit(30),
+  );
 }

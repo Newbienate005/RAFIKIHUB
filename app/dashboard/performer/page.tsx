@@ -8,7 +8,9 @@ import { plans } from "@/lib/data";
 import { applicationLabel, castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
-import { getMyAgents, getMyApplications } from "@/lib/dashboard-data";
+import { getMyAgents, getMyApplications, getMyDocuments } from "@/lib/dashboard-data";
+import { DocumentUpload } from "@/components/DocumentUpload";
+import { documentGroup, documentKinds } from "@/lib/document-rules";
 import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
 import { MyMedia } from "@/components/profile/MyMedia";
 import { AdminForm } from "@/components/admin/AdminForm";
@@ -43,6 +45,9 @@ export default async function PerformerDashboard({ searchParams }: Props) {
   // Signed-in members see their own applications and agents; the master preview sees samples
   const applications = tab === "opportunities" && real ? await getMyApplications(real.account.id) : [];
   const agents = tab === "agents" && real ? await getMyAgents(real.account.id) : [];
+  // Young performers and pets send documents the team checks (birth certificate, guardian ID, vaccinations…)
+  const docGroup = real ? documentGroup({ category: real.profile?.data?.category || real.account.category, dateOfBirth: real.profile?.data?.personalData?.dateOfBirth }) : null;
+  const docs = docGroup && tab === "home" && real ? await getMyDocuments(real.account.id) : [];
   const closes = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
 
   return (
@@ -70,6 +75,25 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                 </li>
               </ul>
 
+              {docGroup ? (
+                <section className="panel" aria-labelledby="documents">
+                  <h2 id="documents">{docGroup === "pet" ? "Your pet's documents" : "Parent or guardian documents"}</h2>
+                  <p className="small">{docGroup === "pet" ? "Casting teams need proof of ownership and up-to-date vaccinations before a pet can be booked." : "Performers under 18 are booked through a parent or guardian. Send these once, and the team will check them."} Only you and the RafikiHub team can see them.</p>
+                  <ul className="doc-list">
+                    {documentKinds[docGroup].map((k) => {
+                      const d = docs.find((x) => x.kind === k.id);
+                      const label = !d ? "Not sent yet" : d.status === "approved" ? "Approved" : d.status === "rejected" ? "Please send again" : "Being checked";
+                      return (
+                        <li key={k.id}>
+                          <span><strong>{k.label}</strong>{d ? <span className="small"> · <a href={`/api/documents/${d.id}`}>{d.fileName}</a></span> : null}{d?.status === "rejected" && d.note ? <span className="small doc-list__note">{d.note}</span> : null}</span>
+                          <span className={`status status--${!d ? "draft" : d.status === "approved" ? "audition-booked" : d.status === "rejected" ? "declined" : "shortlisted"}`}>{label}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <DocumentUpload kinds={documentKinds[docGroup]} />
+                </section>
+              ) : null}
               {real ? <MpesaPay plans={plans} current={real.account.planId} expiresOn={real.account.planExpiresAt ? new Date(real.account.planExpiresAt).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" }) : null} phone={real.account.phone} /> : null}
               <div className="dash-grid">
                 {real ? (
