@@ -8,7 +8,8 @@ import { plans } from "@/lib/data";
 import { applicationLabel, castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
-import { getMyAgents, getMyApplications, getMyDocuments } from "@/lib/dashboard-data";
+import { getAgentAccounts, getMyAgents, getMyApplications, getMyDocuments } from "@/lib/dashboard-data";
+import { removeAgentLink, requestAgent } from "@/app/dashboard/agent-actions";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { documentGroup, documentKinds } from "@/lib/document-rules";
 import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
@@ -44,7 +45,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
   const live = tab === "opportunities" ? await getOpenBreakdowns() : [];
   // Signed-in members see their own applications and agents; the master preview sees samples
   const applications = tab === "opportunities" && real ? await getMyApplications(real.account.id) : [];
-  const agents = tab === "agents" && real ? await getMyAgents(real.account.id) : [];
+  const [agents, agentList] = tab === "agents" && real ? await Promise.all([getMyAgents(real.account.id), getAgentAccounts()]) : [[], []];
   // Young performers and pets send documents the team checks (birth certificate, guardian ID, vaccinations…)
   const docGroup = real ? documentGroup({ category: real.profile?.data?.category || real.account.category, dateOfBirth: real.profile?.data?.personalData?.dateOfBirth }) : null;
   const docs = docGroup && tab === "home" && real ? await getMyDocuments(real.account.id) : [];
@@ -332,16 +333,38 @@ export default async function PerformerDashboard({ searchParams }: Props) {
             <>
               <section aria-labelledby="agents">
                 <h2 id="agents">My agents {member ? null : <SampleTag />}</h2>
-                <p className="small">Link your RafikiHub profile to your agent so they can submit you for roles. The agent approves the link from their dashboard.</p>
+                <p className="small">Link your RafikiHub profile to your agent so they can submit you for roles. The agent approves the link from their dashboard, and you get an email each time they submit you.</p>
+                {real && agentList.some((a) => !agents.some((x) => x.agentId === a.id)) ? (
+                  <form action={requestAgent} className="doc-upload">
+                    <div className="field">
+                      <label htmlFor="agent-pick">Add my agent</label>
+                      <select id="agent-pick" name="agentId" required defaultValue="">
+                        <option value="" disabled>Choose your agency</option>
+                        {agentList.filter((a) => !agents.some((x) => x.agentId === a.id)).map((a) => <option key={a.id} value={a.id}>{a.name}{a.country ? ` (${a.country})` : ""}</option>)}
+                      </select>
+                      <p className="hint">Not listed? Your agent needs a RafikiHub agent account. Email <a href={`mailto:${site.email}`}>{site.email}</a> and we&apos;ll help.</p>
+                    </div>
+                    <button type="submit" className="btn btn--sun btn--sm">Send request</button>
+                  </form>
+                ) : null}
                 {member && !agents.length ? (
-                  <p className="small dash-empty">You haven&apos;t linked an agent yet. If you have one, email <a href={`mailto:${site.email}`}>{site.email}</a> and we&apos;ll connect you.</p>
+                  <p className="small dash-empty">You haven&apos;t linked an agent yet.</p>
                 ) : (
                   <div className="table-scroll">
                     <table className="credits subs">
                       <thead><tr><th scope="col">Agent</th><th scope="col">Country</th><th scope="col">Status</th></tr></thead>
                       <tbody>
                         {real
-                          ? agents.map((a) => <tr key={a.id}><td><strong>{a.name}</strong></td><td>{a.country ?? "Not given"}</td><td><span className={`status status--${a.status}`}>{a.status === "approved" ? "Approved" : "Waiting for the agent"}</span></td></tr>)
+                          ? agents.map((a) => (
+                              <tr key={a.id}>
+                                <td><strong>{a.name}</strong></td>
+                                <td>{a.country ?? "Not given"}</td>
+                                <td>
+                                  <span className={`status status--${a.status}`}>{a.status === "approved" ? "Approved" : "Waiting for the agent"}</span>{" "}
+                                  <form action={removeAgentLink.bind(null, a.id)} style={{ display: "inline" }}><button type="submit" className="link-button">{a.status === "approved" ? "Remove" : "Cancel"}</button></form>
+                                </td>
+                              </tr>
+                            ))
                           : sampleAgents.map((a) => <tr key={a.name}><td><strong>{a.name}</strong></td><td>{a.city}</td><td><span className={`status status--${a.status.toLowerCase()}`}>{a.status}</span></td></tr>)}
                       </tbody>
                     </table>

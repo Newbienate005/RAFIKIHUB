@@ -40,7 +40,7 @@ export async function getMyAgents(accountId: number) {
   if (!db) return [];
   return safe("agents", () =>
     db
-      .select({ id: agentClients.id, status: agentClients.status, name: accounts.name, country: accounts.country, since: agentClients.createdAt })
+      .select({ id: agentClients.id, agentId: agentClients.agentId, status: agentClients.status, name: accounts.name, country: accounts.country, since: agentClients.createdAt })
       .from(agentClients)
       .innerJoin(accounts, eq(accounts.id, agentClients.agentId))
       .where(eq(agentClients.performerId, accountId))
@@ -96,12 +96,23 @@ export async function getMyRoster(agentId: number) {
   if (!db) return [];
   return safe("roster", () =>
     db
-      .select({ id: agentClients.id, status: agentClients.status, name: accounts.name, category: accounts.category, profileUrl: talentProfiles.profileUrl, published: talentProfiles.published })
+      .select({ id: agentClients.id, performerId: agentClients.performerId, status: agentClients.status, name: accounts.name, category: accounts.category, profileUrl: talentProfiles.profileUrl, published: talentProfiles.published })
       .from(agentClients)
       .innerJoin(accounts, eq(accounts.id, agentClients.performerId))
       .leftJoin(talentProfiles, eq(talentProfiles.profileUrl, accounts.profileUrl))
       .where(eq(agentClients.agentId, agentId))
       .orderBy(desc(agentClients.createdAt)),
+  );
+}
+
+/** Agent accounts a performer can ask to represent them. */
+export async function getAgentAccounts() {
+  const db = getDb();
+  if (!db) return [];
+  return safe("agent list", () =>
+    db.select({ id: accounts.id, name: accounts.name, country: accounts.country }).from(accounts)
+      .where(and(eq(accounts.role, "casting"), sql`${accounts.category} ILIKE '%agent%'`, inArray(accounts.status, ["active", "unverified"])))
+      .orderBy(accounts.name),
   );
 }
 

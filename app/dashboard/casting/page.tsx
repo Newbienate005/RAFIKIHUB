@@ -7,6 +7,9 @@ import { profileCategories } from "@/lib/data";
 import { applicationLabel, castingStatus, castingTabs, isAgent, sampleCastings, sampleRoster, sampleSubmissions } from "@/lib/dashboard";
 import { setMyApplicationStatus } from "./actions";
 import { agentNames, getApplicationsToMe, getMyCastings, getMyRoster, searchTalent } from "@/lib/dashboard-data";
+import { getOpenBreakdowns } from "@/lib/admin/castings";
+import { SubmitClient } from "@/components/ApplyButtons";
+import { approveClient, removeAgentLink } from "@/app/dashboard/agent-actions";
 import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
 import { getMember } from "@/lib/member";
 import { requireDashboard } from "@/lib/session";
@@ -43,7 +46,7 @@ export default async function CastingDashboard({ searchParams }: Props) {
   const [castings, received] = accountId && (tab === "home" || tab === "castings")
     ? await Promise.all([getMyCastings(accountId), getApplicationsToMe(accountId, tab === "home" ? 200 : 50)])
     : [[], []];
-  const roster = accountId && tab === "roster" ? await getMyRoster(accountId) : [];
+  const [roster, open] = accountId && tab === "roster" ? await Promise.all([getMyRoster(accountId), getOpenBreakdowns(100)]) : [[], []];
   // Their own account, for the editable details on the home tab
   const me = accountId && tab === "home" ? await getMember(accountId) : null;
   const via = await agentNames([...new Set(received.map((r) => r.viaAgent).filter((v): v is number => v !== null))]);
@@ -277,20 +280,25 @@ export default async function CastingDashboard({ searchParams }: Props) {
           {tab === "roster" ? (
             <section aria-labelledby="roster">
               <h2 id="roster">My talents {own ? null : <SampleTag />}</h2>
-              <p className="small">Performers who link their profile to your agency appear here. To approve or remove a link, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+              <p className="small">Performers ask to join your roster from their dashboard. Approve them here, then submit them for open castings: they get an email each time.</p>
               {own && !roster.length ? (
-                <p className="small dash-empty">No performers have linked their profile to you yet. When a performer names your agency on their profile and we confirm it, they appear here.</p>
+                <p className="small dash-empty">No performers have asked to join your roster yet. Tell your clients to pick your agency under &quot;My agents&quot; on their dashboard.</p>
               ) : (
                 <div className="table-scroll">
                   <table className="credits subs">
-                    <thead><tr><th scope="col">Performer</th><th scope="col">Category</th><th scope="col">Status</th></tr></thead>
+                    <thead><tr><th scope="col">Performer</th><th scope="col">Category</th><th scope="col">Status</th>{own ? <th scope="col">Submit for a casting</th> : null}</tr></thead>
                     <tbody>
                       {own
                         ? roster.map((r) => (
                             <tr key={r.id}>
                               <td>{r.profileUrl && r.published ? <Link href={`/profile/${r.profileUrl}`} target="_blank"><strong>{r.name}</strong></Link> : <strong>{r.name}</strong>}</td>
                               <td>{r.category ?? "Performer"}</td>
-                              <td><span className={`status status--${r.status}`}>{r.status === "approved" ? "Approved" : "Waiting for you"}</span></td>
+                              <td>
+                                <span className={`status status--${r.status}`}>{r.status === "approved" ? "Approved" : "Waiting for you"}</span>
+                                {r.status === "pending" ? <form action={approveClient.bind(null, r.id)} style={{ display: "inline", marginLeft: "0.5rem" }}><button type="submit" className="link-button">Approve</button></form> : null}
+                                <form action={removeAgentLink.bind(null, r.id)} style={{ display: "inline", marginLeft: "0.5rem" }}><button type="submit" className="link-button">{r.status === "pending" ? "Decline" : "Remove"}</button></form>
+                              </td>
+                              <td>{r.status === "approved" ? <SubmitClient performerId={r.performerId} name={r.name} castings={open.map((c) => ({ id: c.id, title: c.title }))} /> : <span className="small">Approve first</span>}</td>
                             </tr>
                           ))
                         : sampleRoster.map((r) => (
