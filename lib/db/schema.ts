@@ -129,6 +129,7 @@ export const accounts = pgTable(
     profileUrl: varchar("profile_url", { length: 120 }), // → talent_profiles.profile_url for performers
     planId: varchar("plan_id", { length: 20 }),
     planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
+    castingAlerts: boolean("casting_alerts").notNull().default(true), // emails about new matching castings
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     // Wrong-password lockout: after 8 failures in a row the account is locked for 15 minutes
     failedLogins: integer("failed_logins").notNull().default(0),
@@ -163,6 +164,7 @@ export const auditions = pgTable("auditions", {
   body: text("body").notNull(),
   closesOn: date("closes_on").notNull(),
   filled: boolean("filled").notNull().default(false),
+  alertedAt: timestamp("alerted_at", { withTimezone: true }), // when matching performers were emailed (once per casting)
   publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
