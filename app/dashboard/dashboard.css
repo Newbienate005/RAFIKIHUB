@@ -166,3 +166,21 @@ ul.cards--talent { list-style: none; padding: 0; }
 .doc-list__note { color: var(--negative); }
 .doc-upload { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0 1rem; align-items: end; }
 .doc-upload .btn, .doc-upload .form-error, .doc-upload .form-success { grid-column: 1 / -1; justify-self: start; }
+
+/* Review form: opens in place from a "Review" link */
+.review-form { display: inline-block; }
+.review-form summary { list-style: none; display: inline; }
+.review-form summary::-webkit-details-marker { display: none; }
+.review-form[open] { display: block; margin-top: 0.5rem; }
+.review-form form { display: grid; gap: 0.5rem; max-width: 26rem; margin-top: 0.5rem; }
+.review-form textarea { width: 100%; }
+/* Stars right-to-left so hovering or checking one lights it and every star below it */
+.review-form__stars { border: 0; padding: 0; margin: 0; display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; }
+.review-form__stars legend { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.25rem; }
+.review-form__stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.review-form__stars label { font-size: 1.6rem; line-height: 1; padding: 0 0.1rem; color: var(--line-strong); cursor: pointer; }
+.review-form__stars span:has(input:checked) label,
+.review-form__stars span:has(input:checked) ~ span label,
+.review-form__stars span:hover label,
+.review-form__stars span:hover ~ span label { color: var(--accent); }
+.review-form__stars input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }

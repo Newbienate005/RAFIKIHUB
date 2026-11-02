@@ -74,7 +74,7 @@ export async function getApplicationsToMe(accountId: number, limit = 50) {
   return safe("received applications", () =>
     db
       .select({
-        id: auditionApplications.id, status: auditionApplications.status, appliedAt: auditionApplications.createdAt, viaAgent: auditionApplications.submittedByAgentId,
+        id: auditionApplications.id, applicantId: auditionApplications.applicantId, status: auditionApplications.status, appliedAt: auditionApplications.createdAt, viaAgent: auditionApplications.submittedByAgentId,
         castingRef: auditions.ref, castingTitle: auditions.title,
         name: accounts.name, category: accounts.category, profileUrl: talentProfiles.profileUrl, published: talentProfiles.published,
         headshot: sql<string | null>`${talentProfiles.data}->'media'->'headshots'->>0`,

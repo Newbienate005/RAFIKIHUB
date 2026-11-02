@@ -7,6 +7,8 @@ import { Photo } from "@/components/Photo";
 import { Answer } from "@/components/Answer";
 import { PageFaq } from "@/components/PageFaq";
 import { pageFaqs, services } from "@/lib/data";
+import { getApprovedReviews } from "@/lib/review-data";
+import { ReviewList } from "@/components/ReviewList";
 import { serviceSchema } from "@/lib/schema";
 import { pageMeta } from "@/lib/seo";
 
@@ -15,7 +17,10 @@ const description =
 
 export const metadata = pageMeta({ title: "Headshots, showreels and audition prep in Nairobi", description, path: "/services" });
 
-export default function ServicesPage() {
+export const revalidate = 3600; // approved reviews also refresh the page straight away
+
+export default async function ServicesPage() {
+  const reviewsBy = await Promise.all(services.map((s) => getApprovedReviews("service", s.id)));
   return (
     <>
       <JsonLd data={services.map((s) => serviceSchema(`${s.name} (Sio Bahati Services)`, s.summary, `/services#${s.id}`))} />
@@ -68,6 +73,7 @@ export default function ServicesPage() {
                   <h2>{s.name}</h2>
                   <p className="lead">{s.summary}</p>
                   <ul>{s.includes.map((x) => <li key={x}>{x}</li>)}</ul>
+                  <ReviewList items={reviewsBy[i]} />
                   <a className="btn btn--ink" href={`?service=${s.id}#book`}>Book {s.name.toLowerCase()}</a>
                 </div>
               </li>

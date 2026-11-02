@@ -4,12 +4,15 @@ import { ApplyButton, WithdrawButton } from "@/components/ApplyButtons";
 import { cannotApply } from "@/lib/casting-eligibility";
 import { nairobiToday } from "@/lib/content-kinds";
 import { MpesaPay } from "@/components/MpesaPay";
-import { plans } from "@/lib/data";
+import { plans, services } from "@/lib/data";
 import { applicationLabel, castingStatus, completenessItems, cvSections, performerTabs, sampleAgents, sampleCastings } from "@/lib/dashboard";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { getMember } from "@/lib/member";
 import { getAgentAccounts, getMyAgents, getMyApplications, getMyDocuments } from "@/lib/dashboard-data";
 import { removeAgentLink, requestAgent } from "@/app/dashboard/agent-actions";
+import { ReviewForm } from "@/components/ReviewForm";
+import { getCastingPosterRatings, getMyBookedServices, getMyReviewKeys } from "@/lib/review-data";
+import { stars } from "@/lib/reviews";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { documentGroup, documentKinds } from "@/lib/document-rules";
 import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
@@ -45,6 +48,10 @@ export default async function PerformerDashboard({ searchParams }: Props) {
   const live = tab === "opportunities" ? await getOpenBreakdowns() : [];
   // Signed-in members see their own applications and agents; the master preview sees samples
   const applications = tab === "opportunities" && real ? await getMyApplications(real.account.id) : [];
+  // Reviews: what they already reviewed, services they booked, and how performers rated each casting's poster
+  const reviewed = real && (tab === "opportunities" || tab === "home") ? await getMyReviewKeys(real.account.id) : new Set<string>();
+  const booked = real && tab === "home" ? await getMyBookedServices(real.account.id) : [];
+  const posterRatings = await getCastingPosterRatings(live.map((c) => c.id));
   const [agents, agentList] = tab === "agents" && real ? await Promise.all([getMyAgents(real.account.id), getAgentAccounts()]) : [[], []];
   // Young performers and pets send documents the team checks (birth certificate, guardian ID, vaccinations…)
   const docGroup = real ? documentGroup({ category: real.profile?.data?.category || real.account.category, dateOfBirth: real.profile?.data?.personalData?.dateOfBirth }) : null;
@@ -75,6 +82,16 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                   {real ? <Link href="/dashboard/profile" className="stat__note">Edit my profile →</Link> : null}
                 </li>
               </ul>
+
+              {booked.some((id) => services.some((s) => s.id === id)) ? (
+                <section className="panel" aria-labelledby="rate-services">
+                  <h2 id="rate-services">How was your session?</h2>
+                  <p className="small">Tell other members about the Sio Bahati services you booked. Approved reviews appear on the services page.</p>
+                  <ul className="doc-list">
+                    {services.filter((s) => booked.includes(s.id)).map((s) => <li key={s.id}><strong>{s.name}</strong> <ReviewForm kind="service" subject={s.id} about={s.name} done={reviewed.has(`service:${s.id}`)} /></li>)}
+                  </ul>
+                </section>
+              ) : null}
 
               {docGroup ? (
                 <section className="panel" aria-labelledby="documents">
@@ -185,7 +202,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                           const reason = real ? (real.profile ? cannotApply(c, { category: real.profile.data.category || real.account.category, country: pd?.country || real.account.country, gender: pd?.gender }, nairobiToday()) : "Create your profile to apply.") : null;
                           return (
                           <tr key={c.id}>
-                            <td><strong>{c.title}</strong><br /><span className="small">{[c.ref, c.location, c.categories.length ? c.categories.join(", ") : "All categories"].filter(Boolean).join(" · ")}</span></td>
+                            <td><strong>{c.title}</strong>{posterRatings.get(c.id) ? <span className="small" title="How performers rated this casting team"> {stars(posterRatings.get(c.id)!.avg)} ({posterRatings.get(c.id)!.count})</span> : null}<br /><span className="small">{[c.ref, c.location, c.categories.length ? c.categories.join(", ") : "All categories"].filter(Boolean).join(" · ")}</span></td>
                             <td>{c.type}</td>
                             <td>{c.gender}</td>
                             <td>{closes(c.closesOn)}</td>
@@ -233,7 +250,7 @@ export default async function PerformerDashboard({ searchParams }: Props) {
                             <td><strong>{a.title}</strong><br /><span className="small">{a.ref} · {a.type} · {a.castingStatus === "published" ? `closes ${closes(a.closesOn)}` : "closed"}</span></td>
                             <td>{a.appliedAt.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</td>
                             <td><span className={`status status--${a.status}`}>{applicationLabel(a.status)}</span></td>
-                            <td>{a.status === "new" || a.status === "shortlisted" ? <WithdrawButton applicationId={a.id} title={a.title} /> : null}</td>
+                            <td>{a.status === "new" || a.status === "shortlisted" ? <WithdrawButton applicationId={a.id} title={a.title} /> : null}{a.status !== "withdrawn" ? <> <ReviewForm kind="casting" subject={String(a.auditionId)} about={a.title} done={reviewed.has(`casting:${a.auditionId}`)} /></> : null}</td>
                           </tr>
                         ))}
                       </tbody>
