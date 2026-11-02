@@ -8,6 +8,8 @@ import { ClipPlayer } from "@/components/profile/ClipPlayer";
 import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, isPet, show, type TalentProfile } from "@/lib/data";
 import { reelsOf, voiceClipsOf } from "@/lib/media";
 import { getProfile, getSimilarProfiles } from "@/lib/profiles";
+import { getProfileReviews } from "@/lib/review-data";
+import { ReviewList } from "@/components/ReviewList";
 import { breadcrumbSchema, profilePageSchema } from "@/lib/schema";
 import { defaultShareImage } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -51,7 +53,7 @@ export default async function ProfilePage({ params }: Params) {
   const { url } = await params;
   const p = await getProfile(url);
   if (!p) notFound();
-  const similar = await getSimilarProfiles(p);
+  const [similar, reviewsOf] = await Promise.all([getSimilarProfiles(p), getProfileReviews(p.profileUrl)]);
   const m = p.furtherMeasurements;
   const age = ageFrom(p.personalData.dateOfBirth);
   const reels = reelsOf(p);
@@ -169,6 +171,9 @@ export default async function ProfilePage({ params }: Params) {
             <Section title={voices.length > 1 ? "Voice clips" : "Voice clip"} wide>
               <ul className="clips clips--audio profile-clips">{voices.map((v, i) => <li key={v.url + i} className="clip"><p className="clip__title">{v.title || `Voice clip ${i + 1}`}</p><ClipPlayer clip={v} fallbackTitle={`${p.fullName}, voice clip ${i + 1}`} /></li>)}</ul>
             </Section>
+          ) : null}
+          {reviewsOf.length ? (
+            <Section title="What casting directors say" wide id="reviews"><ReviewList items={reviewsOf} /></Section>
           ) : null}
           {p.media.documents.length ? (
             <Section title="Documents">

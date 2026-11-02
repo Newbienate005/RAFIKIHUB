@@ -1232,3 +1232,14 @@ button, summary, .chip, .icon-btn { touch-action: manipulation; }
 .sheet__note::after { right: -1.4rem; translate: 0 -50%; rotate: 38deg; }
 /* One circle at a time: the member ShortlistPick chose */
 .sheet__grid li:not(.is-picked) .sheet__circle { display: none; }
+
+/* Reviews (profiles, services) */
+.reviews { margin: 1rem 0; }
+.reviews__avg { margin: 0 0 0.75rem; color: var(--accent); }
+.reviews__avg strong { color: var(--text); margin-left: 0.25rem; }
+.reviews__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.reviews__list li { background: var(--surface-2); border-radius: 8px; padding: 0.85rem 1rem; }
+.reviews__list p { margin: 0.25rem 0; line-height: 1.45; }
+.reviews__stars { color: var(--accent); letter-spacing: 0.1em; }
+.section--white .reviews__list li { background: rgba(0, 0, 0, .05); }
+.section--white .reviews__avg strong { color: inherit; }

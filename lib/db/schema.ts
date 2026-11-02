@@ -280,3 +280,20 @@ export const memberDocuments = pgTable(
   },
   (t) => [index("member_documents_account_idx").on(t.accountId, t.createdAt), index("member_documents_status_idx").on(t.status, t.createdAt)],
 );
+
+/** Reviews: casting directors on performers, performers on castings, members on services (scripts/sql/2026-11-03-reviews.sql). */
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: serial("id").primaryKey(),
+    authorId: integer("author_id").notNull().references(() => accounts.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 20 }).notNull(), // performer, casting, service
+    subject: varchar("subject", { length: 60 }).notNull(), // performer: account id; casting: audition id; service: service id
+    rating: integer("rating").notNull(),
+    body: text("body").notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, approved, rejected
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("reviews_once_idx").on(t.authorId, t.kind, t.subject), index("reviews_subject_idx").on(t.kind, t.subject, t.status), index("reviews_status_idx").on(t.status, t.createdAt)],
+);

@@ -9,6 +9,8 @@ import { setMyApplicationStatus } from "./actions";
 import { agentNames, getApplicationsToMe, getMyCastings, getMyRoster, searchTalent } from "@/lib/dashboard-data";
 import { getOpenBreakdowns } from "@/lib/admin/castings";
 import { SubmitClient } from "@/components/ApplyButtons";
+import { ReviewForm } from "@/components/ReviewForm";
+import { getMyReviewKeys } from "@/lib/review-data";
 import { approveClient, removeAgentLink } from "@/app/dashboard/agent-actions";
 import { MyDetailsForm } from "@/components/profile/MyDetailsForm";
 import { getMember } from "@/lib/member";
@@ -49,6 +51,7 @@ export default async function CastingDashboard({ searchParams }: Props) {
   const [roster, open] = accountId && tab === "roster" ? await Promise.all([getMyRoster(accountId), getOpenBreakdowns(100)]) : [[], []];
   // Their own account, for the editable details on the home tab
   const me = accountId && tab === "home" ? await getMember(accountId) : null;
+  const reviewed = accountId && tab === "castings" ? await getMyReviewKeys(accountId) : new Set<string>();
   const via = await agentNames([...new Set(received.map((r) => r.viaAgent).filter((v): v is number => v !== null))]);
   const shortlisted = own ? received.filter((r) => r.status === "shortlisted" || r.status === "audition-booked").length : sampleSubmissions.filter((s) => s.status !== "New").length;
 
@@ -199,6 +202,7 @@ export default async function CastingDashboard({ searchParams }: Props) {
                                 </div>
                                 <div className="board__tools">
                                   {r.profileUrl && r.published ? <Link href={`/profile/${r.profileUrl}`} target="_blank">Profile</Link> : null}
+                                  {own && r.status !== "withdrawn" ? <ReviewForm kind="performer" subject={String(r.applicantId)} about={r.name} done={reviewed.has(`performer:${r.applicantId}`)} /> : null}
                                   {r.status === "withdrawn" ? <span className="status status--withdrawn">Withdrawn</span> : (
                                     <>
                                       {col.next ? (
