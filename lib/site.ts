@@ -48,7 +48,7 @@ export const navRight: NavItem[] = [
   {
     label: "Resource Hub",
     items: [
-      { href: "/videos", label: "RafikiHub Online" },
+      { href: "/videos", label: "Video Library" },
       { href: "/contact-listings", label: "RafikiHub Connect" },
       { href: "/services", label: "Sio Bahati Services" },
       { href: "/locations", label: "RafikiHub Locations" },

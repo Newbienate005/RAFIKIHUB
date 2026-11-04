@@ -47,7 +47,7 @@ ${articles.map((x) => `- [${x.title}](${u(`/blog/${x.url}`)}): ${x.excerpt}`).jo
 - [Team](${u("/team")}): ${team.map((m) => `${m.name} (${m.position})`).join(", ")}
 - [RafikiHub Locations](${u("/locations")}): Nairobi headquarters and where RafikiHub works
 - [Resources](${u("/resources")}): Resource Hub and free stage name checker
-${videos.length ? `- [RafikiHub Online](${u("/videos")}): video library of free workshops and masterclasses\n` : ""}- [Full text for LLMs](${u("/llms-full.txt")}): all FAQs, plans, services and articles in one file
+${videos.length ? `- [Video Library](${u("/videos")}): free masterclasses, training workshops and how-to videos\n` : ""}- [Full text for LLMs](${u("/llms-full.txt")}): all FAQs, plans, services and articles in one file
 `;
 }
 

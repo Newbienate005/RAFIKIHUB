@@ -1,5 +1,5 @@
 import {
-  articleGenres, articles, contactListings, faqCategories, faqs, partnerGroups, partners, team, testimonials, videos,
+  articleGenres, articles, contactListings, faqCategories, faqs, partnerGroups, partners, team, testimonials, videoGenres, videos,
   type Article, type ContactListing, type Faq, type Partner, type TeamMember, type Testimonial, type Video,
 } from "./data";
 
@@ -14,6 +14,7 @@ export type FieldType =
   | "text" | "textarea" | "url" | "email" | "date" | "select" | "checkbox" | "image"
   | "slug" // lower-case words joined by hyphens, used in links
   | "youtube" // a YouTube link or id; stored as the id
+  | "video" // an uploaded video file, or a link to one
   | "lines" // string[], one per line
   | "paragraphs" // string[], separated by a blank line
   | "blocks"; // { heading?, text }[]: paragraphs, with "## " starting a new section
@@ -52,6 +53,8 @@ type KindConfig<K extends ContentKind> = {
   title: (d: ContentTypes[K]) => string;
   subtitle?: (d: ContentTypes[K]) => string;
   defaults?: () => Partial<ContentTypes[K]>;
+  /** Checks across fields, after each field is valid on its own. Returns errors keyed by field name. */
+  check?: (d: Record<string, unknown>) => Record<string, string> | null;
   seed: () => ContentTypes[K][];
 };
 
@@ -85,22 +88,24 @@ export const contentKinds: { [K in ContentKind]: KindConfig<K> } = {
     seed: () => articles,
   },
   videos: {
-    label: "RafikiHub Online videos",
+    label: "Video Library",
     singular: "video",
-    description: "Workshops and masterclasses that play on the RafikiHub Online page.",
+    description: "Workshops, masterclasses and how-to videos on the Video Library page.",
     path: "/videos",
     sortable: true,
     fields: [
-      { name: "youtubeId", label: "YouTube link", type: "youtube", required: true, hint: "Paste the video's YouTube link." },
       { name: "title", label: "Title", type: "text", required: true },
-      { name: "category", label: "Category", type: "text", required: true, hint: "e.g. Acting, Filmmaking, Workshops. Visitors can filter by it." },
+      { name: "category", label: "Genre", type: "select", options: videoGenres, required: true, hint: "Visitors can filter the library by genre." },
+      { name: "youtubeId", label: "YouTube link", type: "youtube", hint: "Paste the video's YouTube link, or upload a video file below instead." },
+      { name: "file", label: "Video file", type: "video", hint: "MP4, WebM or MOV, up to 150 MB. Only needed if the video isn't on YouTube." },
       { name: "instructor", label: "Teacher or guest", type: "text" },
       { name: "duration", label: "Length", type: "text", hint: "e.g. 12 min" },
       { name: "published", label: "Upload date", type: "date", required: true },
     ],
     title: (d) => d.title,
-    subtitle: (d) => [d.category, d.instructor].filter(Boolean).join(" · "),
+    subtitle: (d) => [d.category, d.published, d.youtubeId ? null : "Video file"].filter(Boolean).join(" · "),
     defaults: () => ({ published: nairobiToday() }),
+    check: (d) => (d.youtubeId || d.file ? null : { youtubeId: "Add a YouTube link or upload a video file." }),
     seed: () => videos,
   },
   team: {
@@ -245,7 +250,7 @@ export function fromForm(fields: Field[], form: FormData): { data: Record<string
     const raw = String(form.get(f.name) ?? "").trim();
     if (!raw) {
       if (f.required) errors[f.name] = `Add ${f.label.toLowerCase()}.`;
-      else if (f.type === "image") data[f.name] = null;
+      else if (f.type === "image" || f.type === "video" || f.type === "youtube") data[f.name] = null;
       continue;
     }
     switch (f.type) {
@@ -262,6 +267,7 @@ export function fromForm(fields: Field[], form: FormData): { data: Record<string
         break;
       }
       case "url":
+      case "video":
       case "image": {
         // Images can be site paths (/images/...) as well as full links
         const ok = /^https?:\/\/\S+$/i.test(raw) || (f.type === "image" && /^\/\S+$/.test(raw));

@@ -1,27 +1,28 @@
 import { CtaBand } from "@/components/CtaBand";
-import { FilterGrid } from "@/components/FilterGrid";
 import { JsonLd } from "@/components/JsonLd";
 import { PageHeader } from "@/components/PageHeader";
+import { VideoLibrary } from "@/components/VideoLibrary";
 import { images } from "@/lib/images";
-import { VideoPlayer } from "@/components/VideoPlayer";
 import { getContent } from "@/lib/content";
+import { videoGenres } from "@/lib/data";
 import { pageMeta } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const generateMetadata = async () => pageMeta({
-  title: "RafikiHub Online: video library of acting workshops and masterclasses",
-  description: "Free workshops and masterclasses from RafikiHub: acting, self-tapes, auditions and crew skills, taught by working artists in Kenya.",
+  title: "Master Classes: the RafikiHub Video Library",
+  description: "Free masterclasses, training workshops and how-to videos from RafikiHub, taught by working artists in Kenya.",
   path: "/videos",
   noindex: (await getContent("videos")).length === 0,
 });
 
 export default async function VideosPage() {
   const videos = await getContent("videos");
-  const schema = videos.map((v) => ({
+  // Search engines get the YouTube videos; uploaded files have no thumbnail to show in results
+  const schema = videos.filter((v) => v.youtubeId).map((v) => ({
     "@context": "https://schema.org",
     "@type": "VideoObject",
     name: v.title,
-    description: `${v.title}${v.instructor ? ` with ${v.instructor}` : ""}. A RafikiHub ${v.category.toLowerCase()} masterclass.`,
+    description: `${v.title}${v.instructor ? ` with ${v.instructor}` : ""}. From the RafikiHub Video Library (${v.category}).`,
     thumbnailUrl: `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`,
     embedUrl: `https://www.youtube-nocookie.com/embed/${v.youtubeId}`,
     contentUrl: `https://www.youtube.com/watch?v=${v.youtubeId}`,
@@ -29,24 +30,17 @@ export default async function VideosPage() {
   }));
   return (
     <>
-      {videos.length ? <JsonLd data={schema} /> : null}
+      {schema.length ? <JsonLd data={schema} /> : null}
       <PageHeader image={images.headers.videos}
-        kicker="RafikiHub Online · Video Library"
-        title={<>Learn from <em>working artists</em>.</>}
-        lead="Free workshops and masterclasses from the RafikiHub community of performers and crew."
-        crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Online", path: "/videos" }]}
+        kicker="RafikiHub Resources"
+        title={<>Video <em>Library</em></>}
+        lead="Masterclasses, training workshops and how-to videos from the RafikiHub community of performers and crew."
+        crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "Video Library", path: "/videos" }]}
       />
       <section className="section">
         <div className="wrap">
           {videos.length ? (
-            <FilterGrid
-              label="Filter videos by category"
-              items={videos.map((v) => ({
-                key: v.youtubeId,
-                group: v.category,
-                node: <VideoPlayer video={v} />,
-              }))}
-            />
+            <VideoLibrary videos={videos} genres={videoGenres} />
           ) : (
             <div className="empty">
               <h2>New videos are on their way</h2>

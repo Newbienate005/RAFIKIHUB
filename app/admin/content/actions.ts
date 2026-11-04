@@ -62,6 +62,8 @@ export async function saveContent(kind: string, id: string, _prev: FormState, fo
   const parsed = fromForm(cfg.fields, form);
   if ("errors" in parsed) return { errors: parsed.errors, message: "Some fields need attention." };
   const data = parsed.data;
+  const crossErrors = cfg.check?.(data);
+  if (crossErrors) return { errors: crossErrors, message: "Some fields need attention." };
   const slug = cfg.slugField ? String(data[cfg.slugField]) : null;
   const published = form.get("_published") === "on";
 

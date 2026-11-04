@@ -701,19 +701,31 @@ export const joinBenefits = [
 ];
 
 /* ─────────────────────────────── Video Library ────────────────────────────── */
-// Videos from the RafikiHub YouTube channel; they play on the site in RafikiHub Online.
-// youtubeId is the part after "v=" in the link; published is the YouTube upload date.
-// The channel's 2021 "How to sign up / apply for castings" walkthroughs are left out: they show the old site.
-export type Video = { youtubeId: string; title: string; category: string; published: string; instructor?: string; duration?: string };
+// The old site's Video Library ("classes"), video for video: same titles, dates and genres, newest first.
+// Each video is a YouTube video (youtubeId, the part after "v=") or an uploaded file (file, a full link).
+// The "How To" walkthroughs show the old site's screens; hide them in the admin once the new site is live.
+export const videoGenres = ["How To Videos", "Masterclass", "Others", "Training"] as const;
+export type Video = { youtubeId?: string | null; file?: string | null; title: string; category: string; published: string; instructor?: string; duration?: string };
 export const videos: Video[] = [
-  { youtubeId: "GNomMlaVeyI", title: "RafikiHub August Workshop", category: "Workshops", published: "2022-12-19" },
-  { youtubeId: "Nyp_fquLgRY", title: "What is RafikiHub? An interview with founder and CEO Kate Snow", category: "About RafikiHub", instructor: "Kate Snow, interviewed by Creatives Garage", published: "2021-10-28" },
-  { youtubeId: "HopsDcJxFuA", title: "Masterclass in acting", category: "Acting", instructor: "Susan Goodwillie", published: "2021-10-20" },
-  { youtubeId: "jqCGJPPuaZY", title: "A tip on acting", category: "Acting", instructor: "Susan Goodwillie", published: "2021-10-20" },
-  { youtubeId: "5BHKCvPj89E", title: "Creative writing for film: webinar", category: "Filmmaking", published: "2021-10-20" },
-  { youtubeId: "6sjZJUThyfU", title: "Tips on genre and storyline", category: "Filmmaking", published: "2021-10-20" },
-  { youtubeId: "JqueRY79WyI", title: "Tips on style: consciousness, loops and twists", category: "Filmmaking", published: "2021-10-20" },
-  { youtubeId: "K2wGO74tRqo", title: "A tip on scoring", category: "Filmmaking", published: "2021-10-20" },
+  { youtubeId: "GNomMlaVeyI", title: "RafikiHub August Workshop", category: "Training", published: "2022-12-27" },
+  { file: "https://rafikihub.com/assets/videos/How_to_write_user_testimonial_review.mp4", title: "How To Write User Review/Testimonial", category: "How To Videos", published: "2022-12-13" },
+  { youtubeId: "sF6czMea7PE", title: "Where to find Video library", category: "How To Videos", published: "2022-10-11" },
+  { youtubeId: "Nyp_fquLgRY", title: "Creatives Garage sits down with Founder/CEO", category: "Others", published: "2021-10-28" },
+  // The old site plays the same video for "View Castings" and "Apply for Castings"; copied as it is
+  { youtubeId: "jpp_uSlaR3o", title: "How To View Castings", category: "How To Videos", published: "2021-10-27" },
+  { youtubeId: "bEXNWLFuIH4", title: "How To Create New Casting", category: "How To Videos", published: "2021-10-27" },
+  { youtubeId: "jpp_uSlaR3o", title: "How To Apply for Castings", category: "How To Videos", published: "2021-10-27" },
+  { youtubeId: "Sad3VvKLB40", title: "How To Join Now", category: "How To Videos", published: "2021-10-27" },
+  { youtubeId: "5BHKCvPj89E", title: "Creative Writing for Film Webinar", category: "Masterclass", published: "2021-10-21" },
+  { youtubeId: "HopsDcJxFuA", title: "Masterclass in Acting with Susan Goodwillie", category: "Masterclass", published: "2021-10-21" },
+  { youtubeId: "jqCGJPPuaZY", title: "Tip On Acting By Susan Goodwillie", category: "Masterclass", published: "2021-10-21" },
+  { youtubeId: "K2wGO74tRqo", title: "Tip on Scoring", category: "Masterclass", published: "2021-10-21" },
+  { youtubeId: "6sjZJUThyfU", title: "Tips on Genre & Storyline Filmmaking", category: "Masterclass", published: "2021-10-21" },
+  { youtubeId: "JqueRY79WyI", title: "Tips on Style Consciousness, Loops & Twists", category: "Masterclass", published: "2021-10-21" },
+  { youtubeId: "PtxbngFdogo", title: "How to Book Acting Class Workshop", category: "How To Videos", published: "2021-10-21" },
+  { youtubeId: "TT2MXJxzsfw", title: "How to Sign up", category: "How To Videos", published: "2021-10-20" },
+  { youtubeId: "Uni73hS4ZZY", title: "How to Navigate to Ts and Cs, Privacy Policy", category: "How To Videos", published: "2021-10-20" },
+  { youtubeId: "sAZFe4Q7BUw", title: "How to Update Profile", category: "How To Videos", published: "2021-10-20" },
 ];
 
 /* ───────────────────────────── Contact Listings ───────────────────────────── */
