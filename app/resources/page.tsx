@@ -7,14 +7,14 @@ import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "RafikiHub Resources: tools and guides for performers",
-  description: "RafikiHub Resources: RafikiHub Connect contact listings, career guides, the RafikiHub Online video library, Sio Bahati Services and a free stage name checker.",
+  description: "RafikiHub Resources: RafikiHub Connect contact listings, career guides, the RafikiHub Video Library, Sio Bahati Services and a free stage name checker.",
   path: "/resources",
 });
 
 const cards = [
   { tag: "RafikiHub Connect", title: "Contact listings", text: "Find agents, casting directors and the services performers rely on.", href: "/contact-listings", cta: "Browse contacts" },
   { tag: "Guides", title: "Career and industry guides", text: "Headshots, auditions, how casting works, and building a career in the arts.", href: "/blog", cta: "Read the guides" },
-  { tag: "RafikiHub Online", title: "Video library: workshops and masterclasses", text: "Learn from working actors, directors and crew.", href: "/videos", cta: "Watch now" },
+  { tag: "Video Library", title: "Masterclasses, training and how-to videos", text: "Learn from working actors, directors and crew.", href: "/videos", cta: "Watch now" },
   { tag: "Sio Bahati", title: "Headshots, showreels, audition prep", text: "Book the services that get you seen.", href: "/services", cta: "See services" },
 ];
 

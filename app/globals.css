@@ -935,8 +935,17 @@ a.resource:hover { background: var(--card-hover); color: var(--text); box-shadow
 .video__dur { position: absolute; left: 0.6rem; bottom: 0.6rem; background: rgba(0,0,0,.75); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; font-variant-numeric: tabular-nums; }
 .video__title { font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.3; letter-spacing: -0.01em; margin: 0 0 0.25rem; }
 .video .card__meta { margin-bottom: 0.4rem; }
-.video__yt { margin-top: auto; padding-top: 0.4rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
-.video__yt:hover { color: var(--accent); }
+.video__file { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; }
+.video__meta { display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; margin: 0 0 0.5rem; font-size: 0.8rem; color: var(--subtle); }
+.video__genre { margin-top: auto; }
+/* Video Library: genre dropdown and pages, as on the old site */
+.vlib { scroll-margin-top: 6rem; }
+.vlib__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.vlib__title { font-family: var(--display); font-size: 1.5rem; font-weight: 700; margin: 0; }
+.vlib__genre { margin: 0; flex: 0 1 15rem; width: auto; }
+.vlib__genre select { border-radius: 9999px; }
+.vlib__pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 2.5rem; }
+.vlib__pages .chip:disabled { opacity: .4; cursor: default; transform: none; }
 @media (prefers-reduced-motion: reduce) { .video__start img, .video__play { transition: none; } }
 
 /* Contact listings */

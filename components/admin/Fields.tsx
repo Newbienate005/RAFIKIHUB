@@ -1,5 +1,6 @@
 import { toFormValue, type Field } from "@/lib/content-kinds";
 import { ImageField } from "./ImageField";
+import { VideoField } from "./VideoField";
 
 /** One form field from its definition in lib/content-kinds.ts. */
 export function FieldInput({ field, value, folder }: { field: Field; value: unknown; folder?: string }) {
@@ -14,6 +15,7 @@ export function FieldInput({ field, value, folder }: { field: Field; value: unkn
   );
 
   if (field.type === "image") return <ImageField name={field.name} label={field.label} defaultValue={String(v)} folder={folder} hint={field.hint} />;
+  if (field.type === "video") return <VideoField name={field.name} label={field.label} defaultValue={String(v)} folder={folder} hint={field.hint} />;
 
   if (field.type === "checkbox") {
     return (

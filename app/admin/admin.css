@@ -134,7 +134,7 @@ a.admin-list__title:hover { color: var(--accent); }
 .unit-input select { flex: none; width: 4.5rem !important; }
 .img-field { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
 .img-field__preview { width: 7.5rem; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: var(--mudcloth), var(--surface-2); display: grid; place-items: center; flex: none; }
-.img-field__preview img { width: 100%; height: 100%; object-fit: cover; }
+.img-field__preview img, .img-field__preview video { width: 100%; height: 100%; object-fit: cover; }
 .img-field__preview span { font-size: 0.75rem; color: var(--subtle); }
 .img-field__controls { flex: 1 1 14rem; display: grid; gap: 0.6rem; }
 .img-field__url, .img-field__paste input { font: inherit; font-size: 0.875rem; padding: 0.6rem 0.8rem; border: 0; border-radius: 4px; background: var(--surface-2); color: var(--text); box-shadow: var(--inset); width: 100%; }
