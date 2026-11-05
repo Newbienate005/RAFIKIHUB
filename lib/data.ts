@@ -405,7 +405,7 @@ export const articles: Article[] = [
 
   /* Articles from the old blog. Summaries only: paste the full text from the old site into `content`. */
   {
-    url: "lwanda-otero-the-musical-review", // TODO: match the old article's ?url= value so its link redirects here
+    url: "lwanda-otero-the-musical-review", // the old site never gave it a link name (its link was /article?url=), so that old link lands on /blog
     title: "Lwanda Otero: The Musical, reviewed",
     genre: "Review",
     excerpt: "A modern musical retelling of a Kenyan folk tale, strong on music and dance but light on depth.",

@@ -6,7 +6,7 @@ import { plans } from "@/lib/data";
 import { getDb } from "@/lib/db";
 import { accounts, payments } from "@/lib/db/schema";
 import { emailConfigured, noticeEmail, sendEmail } from "@/lib/email";
-import { extendPlan } from "@/lib/mpesa-utils";
+import { callbackVerdict, extendPlan } from "@/lib/mpesa-utils";
 
 const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
@@ -32,16 +32,13 @@ export async function POST(req: Request) {
     console.warn(`[pesawise] callback for an unknown or already settled payment: ${requestId}`);
     return NextResponse.json({ ok: true });
   }
-  if (data?.reference != null && String(data.reference) !== p.reference) {
-    console.warn(`[pesawise] reference mismatch for ${requestId}`);
+  const verdict = callbackVerdict(p, data ?? {});
+  if (verdict.action === "ignore") {
+    console.warn(`[pesawise] ${verdict.why} for ${requestId}`);
     return NextResponse.json({ ok: true });
   }
-  if (data?.success !== true) {
+  if (verdict.action === "reject") {
     await db.update(payments).set({ status: "rejected" }).where(and(eq(payments.id, p.id), eq(payments.status, "pending")));
-    return NextResponse.json({ ok: true });
-  }
-  if (Number(data.amount) !== p.amountKsh) {
-    console.warn(`[pesawise] amount mismatch for ${requestId}: expected ${p.amountKsh}, got ${String(data.amount)}`);
     return NextResponse.json({ ok: true });
   }
 

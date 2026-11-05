@@ -14,3 +14,18 @@ export function extendPlan(currentExpiry: Date | null, months: number, now = new
   end.setMonth(end.getMonth() + months);
   return end;
 }
+
+/**
+ * What to do with Pesawise's confirmation of a payment we started and that is still pending:
+ * settle it (switch the plan on), mark it rejected, or ignore it and log why. The plan only switches on
+ * when Pesawise says it succeeded for exactly the amount we asked, on the same reference.
+ */
+export function callbackVerdict(
+  p: { reference: string | null; amountKsh: number },
+  data: { reference?: unknown; success?: unknown; amount?: unknown },
+): { action: "settle" } | { action: "reject" } | { action: "ignore"; why: string } {
+  if (data.reference != null && String(data.reference) !== p.reference) return { action: "ignore", why: "reference mismatch" };
+  if (data.success !== true) return { action: "reject" };
+  if (Number(data.amount) !== p.amountKsh) return { action: "ignore", why: `amount mismatch: expected ${p.amountKsh}, got ${String(data.amount)}` };
+  return { action: "settle" };
+}
