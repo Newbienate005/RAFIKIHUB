@@ -21,8 +21,9 @@ export function Header() {
       <a className="skip" href="#main">Skip to content</a>
       <div className="wrap site-header__inner">
         <div className="site-header__side">
+          {/* The full menu at every width; wide screens also show the main links beside it */}
+          <MobileDrawer />
           <nav aria-label="Main" className="nav-desktop"><NavList items={navLeft} /></nav>
-          <div className="nav-mobile"><MobileDrawer /></div>
         </div>
 
         <Link href="/" className="brand" aria-label="RafikiHub home">
