@@ -243,16 +243,25 @@ try {
       completeness = excluded.completeness, updated_at = now()
     WHERE talent_profiles.source = 'legacy'`, 100);
 
-  // Profiles edited on the new site aren't refreshed above, but their old-site links still move to the copies
-  if (moved.size && want("profiles")) {
+  // Profiles edited on the new site aren't refreshed above. Their old-site links still move to the copies, and they get
+  // the old skill groups and levels and social links if they have none yet (skill groups only while their skills are unchanged)
+  if (want("profiles")) {
+    const old = new Map(out.profiles.map((p) => [p.profile_url, p.data]));
+    const same = (a, b) => JSON.stringify(a ?? []) === JSON.stringify(b ?? []);
     let n = 0;
     for (const row of await sql(`SELECT profile_url, data FROM talent_profiles WHERE source <> 'legacy'`)) {
       const before = JSON.stringify(row.data);
       let after = before;
       for (const [from, to] of moved) if (after.includes(from)) after = after.split(from).join(to);
+      const data = JSON.parse(after), o = old.get(row.profile_url);
+      if (o) {
+        if (!data.skillList && o.skillList?.length && same(data.skills, o.skills) && same(data.languages, o.languages) && same(data.accents, o.accents)) data.skillList = o.skillList;
+        if (!data.social && o.social) data.social = o.social;
+        after = JSON.stringify(data);
+      }
       if (after !== before) { await sql(`UPDATE talent_profiles SET data = $2::jsonb WHERE profile_url = $1`, [row.profile_url, after]); n++; }
     }
-    log(`  ${"Edited profiles' links".padEnd(22)} ${n}`);
+    log(`  ${"Edited profiles updated".padEnd(22)} ${n}`);
   }
 
   if (want("castings")) await load("Casting breakdowns", out.auditions, `

@@ -1,8 +1,8 @@
 import {
   appearanceOptions, appearanceTraitOptions, eyeColorOptions, facialHairOptions, hairColorOptions, hairLengthOptions,
   petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions,
-  profileCategories, toCreditType, voiceCharacterOptions, voiceQualityOptions,
-  type MediaClip, type Measurement, type PetDetails, type TalentProfile,
+  flatSkills, profileCategories, skillEntriesOf, skillGroups, socialLink, socialSites, toCreditType, voiceCharacterOptions, voiceQualityOptions,
+  type MediaClip, type Measurement, type PetDetails, type SkillEntry, type SocialKey, type TalentProfile,
 } from "@/lib/data";
 
 /**
@@ -86,6 +86,29 @@ function url(f: FormData, k: string, errors: Errors) {
   return v;
 }
 
+/** Grouped skills: one hidden field per group, "name | level" per line. Null when the form didn't have them. */
+function skillList(f: FormData): SkillEntry[] | null {
+  if (!f.has("skill_other")) return null;
+  return skillGroups.flatMap((g) => lines(f, `skill_${g.key}`).slice(0, 50).map((line) => {
+    const [name, level] = cols(line);
+    return { group: g.key, name: name.slice(0, 80), level: (g.levels as readonly string[]).includes(level) ? level : null };
+  }).filter((s) => s.name));
+}
+
+/** Social links: each must point at its own site, so a profile can't link anywhere else. Null when the form didn't have them. */
+function socialLinks(f: FormData, errors: Errors): TalentProfile["social"] | null {
+  if (!f.has("instagram")) return null;
+  const out: Partial<Record<SocialKey, string>> = {};
+  for (const s of socialSites) {
+    const v = str(f, s.key);
+    if (!v) continue;
+    const link = socialLink(v, s.hosts);
+    if (link) out[s.key] = link;
+    else errors[s.key] = `Paste the full link to the ${s.label} profile, e.g. https://www.${s.hosts[0]}/yourname`;
+  }
+  return out;
+}
+
 export function parseProfileForm(f: FormData, base: TalentProfile): { profile: TalentProfile } | { errors: Errors } {
   const errors: Errors = {};
   // The dashboard's Edit CV form has no basics section: name and category stay as saved
@@ -160,6 +183,8 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
 
   // Everything that can add an error is worked out before the check below
   const website = url(f, "website", errors);
+  const social = socialLinks(f, errors) ?? base.social;
+  const grouped = skillList(f);
   const reels = clips(f, "reels", errors) ?? [];
   const voiceClips = clips(f, "voiceClips", errors) ?? [];
   const appearance = {
@@ -206,7 +231,10 @@ export function parseProfileForm(f: FormData, base: TalentProfile): { profile: T
       furtherMeasurements,
       appearanceTraits,
       bio: opt(f, "bio"),
-      skills: lines(f, "skills"), languages: lines(f, "languages"), accents: lines(f, "accents"),
+      // Forms without the skills section (pets, the profile tab) keep the saved skills
+      ...(grouped ? { skillList: grouped } : {}),
+      ...flatSkills(grouped ?? skillEntriesOf(base)),
+      ...(social && Object.keys(social).length ? { social } : { social: undefined }),
       credits: credits.sort((a, b) => b.year - a.year),
       training,
       media: { headshots, showreelUrl: reels[0]?.url ?? null, voiceoverReelUrl: voiceClips[0]?.url ?? null, documents, reels, voiceClips },
@@ -240,9 +268,6 @@ function keepMissing(f: FormData, base: TalentProfile, p: TalentProfile): Talent
     voiceRange: on("lowVoice") ? p.voiceRange : base.voiceRange,
     furtherMeasurements: on("m_waist") ? p.furtherMeasurements : base.furtherMeasurements,
     appearanceTraits: on("traits") ? p.appearanceTraits : base.appearanceTraits,
-    skills: on("skills") ? p.skills : base.skills,
-    languages: on("languages") ? p.languages : base.languages,
-    accents: on("accents") ? p.accents : base.accents,
     credits: on("credits") ? p.credits : base.credits,
     training: on("training") ? p.training : base.training,
     media: {

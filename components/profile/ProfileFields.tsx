@@ -1,11 +1,11 @@
 import { ImageListField } from "@/components/admin/ImageField";
 import { ClipListField } from "@/components/profile/ClipListField";
-import { CreditsField, TagsField, TraitsField, TrainingField } from "@/components/profile/CvFields";
+import { CreditsField, SkillGroupsField, TagsField, TraitsField, TrainingField } from "@/components/profile/CvFields";
 import {
   creditTypes, documentsText, measurementKeys, measurementLabels, profileOptions,
 } from "@/lib/admin/profile-form";
 import { reelsOf, voiceClipsOf } from "@/lib/media";
-import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions, toCreditType, type TalentProfile } from "@/lib/data";
+import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrainingOptions, petTypeOptions, skillEntriesOf, skillGroups, socialSites, toCreditType, type TalentProfile } from "@/lib/data";
 
 /**
  * The talent profile editor's fields, shared by the admin (/admin/profiles/…) and members editing their
@@ -16,7 +16,7 @@ import { isPet, petPersonalityOptions, petSizeOptions, petSkillOptions, petTrain
 export const profileFieldLabels: Record<string, string> = {
   fullName: "Name", profileUrl: "Link name", category: "Category", ageMax: "Playing age", heightFeet: "Height", dateOfBirth: "Date of birth",
   credits: "Credits", training: "Training", traits: "Appearance traits", documents: "Documents", weightKg: "Weight", email: "Email",
-  website: "Website", reels: "Showreels", voiceClips: "Voice clips", petType: "Type of animal", petSize: "Size",
+  website: "Website", instagram: "Instagram", facebook: "Facebook", twitter: "X (Twitter)", linkedin: "LinkedIn", reels: "Showreels", voiceClips: "Voice clips", petType: "Type of animal", petSize: "Size",
   petTrainingLevel: "Training level", petPersonality: "Personality",
 };
 
@@ -98,6 +98,12 @@ export function ProfileFields({ p, mode, published, uploadFolder, only }: { p: T
         {pet ? null : <ClipListField name="voiceClips" label="Voice clips and voice-over reels" kind="audio" defaultValue={voiceClipsOf(p)} folder={clipFolder} />}
         {isAdmin && !pet ? <Area name="documents" label="Documents" value={documentsText(p)} rows={2} hint="Public: anyone viewing the profile can open them. One per line, as Name | https://link. Never add ID or passport scans." /> : null}
       </section>
+
+      <section className="admin-card form" aria-labelledby="s-social">
+        <h2 id="s-social" className="admin-card__title">Social media</h2>
+        <p className="hint">Shown as buttons on the public profile. Paste the full link to each profile.</p>
+        {socialSites.map((s) => <Text key={s.key} name={s.key} label={s.label} value={p.social?.[s.key]} type="url" half />)}
+      </section>
       </>}
 
       {pet ? (
@@ -170,9 +176,12 @@ export function ProfileFields({ p, mode, published, uploadFolder, only }: { p: T
             <h2 id="s-cv" className="admin-card__title">Credits, training and skills</h2>
             <CreditsField types={creditTypes} initial={p.credits.map((c) => ({ year: String(c.year), production: c.production, role: c.role, type: toCreditType(c.type), director: c.director ?? "" }))} />
             <TrainingField initial={p.training.map((t) => ({ institution: t.institution, course: t.course, year: t.year ? String(t.year) : "" }))} />
-            <TagsField name="skills" label="Skills" initial={p.skills} placeholder="e.g. Stage combat, Swimming, Puppetry" />
-            <TagsField name="languages" label="Languages" initial={p.languages} placeholder="e.g. Swahili, English" />
-            <TagsField name="accents" label="Accents" initial={p.accents} placeholder="e.g. Kikuyu, British RP" />
+          </section>
+
+          <section className="admin-card form" aria-labelledby="s-skills">
+            <h2 id="s-skills" className="admin-card__title">Skills</h2>
+            <p className="hint">Add each skill under its group, with how good you are at it. Casting directors search these.</p>
+            <SkillGroupsField groups={skillGroups} initial={skillEntriesOf(p)} />
           </section>
         </>
       )}

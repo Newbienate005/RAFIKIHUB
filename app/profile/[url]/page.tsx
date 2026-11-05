@@ -5,7 +5,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { ProfileCard } from "@/components/ProfileCard";
 import { Photo } from "@/components/Photo";
 import { ClipPlayer } from "@/components/profile/ClipPlayer";
-import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, isPet, show, type TalentProfile } from "@/lib/data";
+import { ageFrom, exampleProfile, formatHeight, formatPlayingAge, isPet, show, skillEntriesOf, skillGroups, type TalentProfile } from "@/lib/data";
+import { ProfileSocial } from "@/components/SocialIcons";
 import { reelsOf, voiceClipsOf } from "@/lib/media";
 import { getProfile, getSimilarProfiles } from "@/lib/profiles";
 import { getProfileReviews } from "@/lib/review-data";
@@ -58,6 +59,7 @@ export default async function ProfilePage({ params }: Params) {
   const age = ageFrom(p.personalData.dateOfBirth);
   const reels = reelsOf(p);
   const voices = isPet(p) ? [] : voiceClipsOf(p);
+  const skills = isPet(p) ? [] : skillEntriesOf(p);
 
   const person = profilePageSchema(p);
 
@@ -80,6 +82,7 @@ export default async function ProfilePage({ params }: Params) {
               {reels.length ? <a className="btn btn--sun" href="#showreels">{reels.length > 1 ? "Watch showreels" : "Watch showreel"}</a> : null}
               <Link className="btn btn--ink" href={p.representedByRafikiHub ? "/talent-management" : "/contact"}>{p.representedByRafikiHub ? "Contact the agent" : isPet(p) ? "Contact the owner" : "Get in touch"}</Link>
             </div>
+            <ProfileSocial links={p.social} name={p.fullName} />
           </div>
         </div>
       </section>
@@ -128,10 +131,18 @@ export default async function ProfilePage({ params }: Params) {
               <Row label="Low" value={show(p.voiceRange.lowVoice)} />
               <Row label="Medium" value={show(p.voiceRange.mediumVoice)} />
               <Row label="High" value={show(p.voiceRange.highVoice)} />
-              <Row label="Languages" value={show(p.languages.join(", "))} />
-              <Row label="Accents" value={show(p.accents.join(", "))} />
             </dl>
           </Section>
+          {skills.length ? (
+            <Section title="Skills">
+              <dl className="facts">
+                {skillGroups.map((g) => {
+                  const inGroup = skills.filter((s) => s.group === g.key);
+                  return inGroup.length ? <Row key={g.key} label={g.label} value={inGroup.map((s) => (s.level ? `${s.name} (${s.level})` : s.name)).join(", ")} /> : null;
+                })}
+              </dl>
+            </Section>
+          ) : null}
           <Section title="Measurements">
             <dl className="facts">
               <Row label="Bust / chest" value={show(m.bustChest)} />

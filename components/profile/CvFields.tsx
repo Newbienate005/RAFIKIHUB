@@ -102,6 +102,23 @@ export function TraitsField({ initial, traits }: { initial: TraitRow[]; traits: 
   );
 }
 
+/** Skills in the old site's groups, each with a level. One hidden field per group: skill_<group>, "name | level" per line. */
+export function SkillGroupsField({ groups, initial }: { groups: readonly { key: string; label: string; levels: readonly string[]; placeholder: string }[]; initial: { group: string; name: string; level: string | null }[] }) {
+  return (
+    <>
+      {groups.map((g) => (
+        <Rows key={g.key} name={`skill_${g.key}`} label={g.label} noun="skill"
+          initial={initial.filter((s) => s.group === g.key).map((s) => ({ name: s.name, level: s.level ?? "" }))}
+          blank={{ name: "", level: g.levels[0] }}
+          cols={[
+            { key: "name", label: "Skill", placeholder: g.placeholder },
+            { key: "level", label: "Level", type: "select", options: g.levels, width: "10rem" },
+          ]} />
+      ))}
+    </>
+  );
+}
+
 /** A list of short items (skills, languages, cities) as removable tags. Enter or comma adds one. */
 export function TagsField({ name, label, initial, placeholder, hint, max }: { name: string; label: string; initial: string[]; placeholder?: string; hint?: string; max?: number }) {
   const [tags, setTags] = useState<string[]>(initial);

@@ -180,6 +180,42 @@ export function measurement(v) {
   return { value, unit: /cm/i.test(m[2] ?? "") ? "cm" : "inches" };
 }
 
+/** The old skills.type → the new skill group, and the levels each group allows (mirrors skillGroups in lib/data.ts) */
+const skillGroupOf = { dialect: "accents", language: "languages", music: "music", other: "other", perfomance: "performance", performance: "performance", present: "presenting", sport: "sports", vehicle: "vehicles" };
+const speakingLevels = ["High Standard", "Native"], doingLevels = ["Skilled", "Highly Skilled"];
+const groupOrder = ["accents", "languages", "music", "other", "performance", "presenting", "sports", "vehicles"];
+
+/** One member's old skills rows → [{ group, name, level }], grouped in the new order, without repeats */
+export function skillList(rows) {
+  const seen = new Set();
+  return rows
+    .map((r) => {
+      const group = skillGroupOf[(clean(r.type) ?? "").toLowerCase()];
+      const name = fixText(r.name);
+      if (!group || !name) return null;
+      const levels = group === "accents" || group === "languages" ? speakingLevels : doingLevels;
+      const level = levels.find((l) => l.toLowerCase() === (clean(r.proficiency) ?? "").toLowerCase()) ?? null;
+      return { group, name, level };
+    })
+    .filter((s) => s && !seen.has(`${s.group}:${s.name.toLowerCase()}`) && seen.add(`${s.group}:${s.name.toLowerCase()}`))
+    .sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group));
+}
+
+/** The old users.instagram / facebook / twitter / linkedin → links that really point at those sites (mirrors socialLink in lib/data.ts) */
+const socialHosts = { instagram: ["instagram.com"], facebook: ["facebook.com", "fb.com"], twitter: ["x.com", "twitter.com"], linkedin: ["linkedin.com"] };
+export function socialLinks(u) {
+  const out = {};
+  for (const [key, hosts] of Object.entries(socialHosts)) {
+    try {
+      const link = new URL(clean(u[key]) ?? "");
+      const host = link.hostname.toLowerCase();
+      // The old site saved the bare site ("https://www.instagram.com/") for members who left it empty
+      if (link.protocol === "https:" && hosts.some((h) => host === h || host.endsWith(`.${h}`)) && link.pathname.replace(/\/+$/, "")) out[key] = link.href;
+    } catch { /* not a link */ }
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 /**
  * The old pet columns → the new pet details. Skills were stored as one string of picks ("Fetch Roll Over Sit"),
  * so known skills are matched inside it; "Retreive" was misspelt on the old form, and "Sit Down" folds into "Sit".
@@ -355,6 +391,8 @@ export function transform(t, { assetsBase }) {
       skills: skillNames(["other", "perfomance", "performance", "present", "sport", "vehicle", "music"]),
       languages: skillNames(["language"]),
       accents: skillNames(["dialect"]),
+      skillList: skillList(sk),
+      social: socialLinks(u),
       credits: (credits.get(id) ?? [])
         .map((c) => ({ year: int(c.production_year), production: fixText(c.production_name), role: fixText(c.role) ?? (roleId === 4 ? "Crew" : "Cast"), type: creditType(c.production_type), ...(fixText(c.director) ? { director: fixText(c.director) } : {}) }))
         .filter((c) => c.year >= 1920 && c.year <= 2100 && c.production)
