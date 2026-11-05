@@ -1,121 +1,112 @@
 # RafikiHub website (v2)
 
-Next.js 15 site for RafikiHub, with SEO + AEO built in, forms saved to a Postgres database, and ready to host on Vercel.
+The new rafikihub.com: a Next.js 15 site with member logins, talent profiles, castings, M-Pesa membership
+payments and an admin, backed by a Neon Postgres database.
 
-## 1. Run it on your computer
+- **Staging:** https://rafikihub-b42r.vercel.app (Vercel). Every push to `main` deploys there.
+- **Production:** rafikihub.com moves to this site on **Hostinger**, replacing the old PHP site. See "Moving to Hostinger" below.
+- **Design:** follow [DESIGN.md](DESIGN.md) and [CLAUDE.md](CLAUDE.md) (RafikiHub orange `#FF8033`, dark surfaces, pill buttons).
 
-Requires Node.js 20+.
+## Run it on your computer
+
+Requires Node.js 20 or newer.
 
 ```bash
 npm install
-cp .env.example .env.local      # then fill in the values
+cp .env.example .env.local      # then fill in the values (see Settings)
 npm run dev                     # open http://localhost:3000
 ```
 
-The site runs without a database. Forms will show a "database isn't connected yet" message until step 3 is done.
+> **`.env.local` points at the live database.** Anything you do locally (sign-ups, imports, SQL, test accounts)
+> changes the real site's data. Use a Neon branch in `DATABASE_URL` if you want to experiment.
 
-## 2. Bring over the images from the old site
+Without `DATABASE_URL` the site still runs, using the built-in content in `lib/data.ts`. Forms say the database
+isn't connected, and `/profile/example-performer` shows a fictional example profile.
+
+## Settings
+
+Every setting the site reads is listed, with notes, in [.env.example](.env.example). Set them in `.env.local` and
+wherever the site runs.
+
+| Setting | What it's for |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | The live domain, for canonical links, the sitemap and schema |
+| `DATABASE_URL` | The Neon Postgres connection string |
+| `MASTER_PASSWORD` | The master login at `/login`: opens `/admin` and previews both dashboards |
+| `SESSION_SECRET` | Signs login cookies. Required in production; changing it signs everyone out |
+| `APP_URL` | Where links in emails point (password resets, "Open my dashboard") |
+| `ELASTIC_EMAIL_API_KEY`, `EMAIL_FROM`, `NOTIFY_EMAIL` | Emails to members and form alerts to the team (`RESEND_API_KEY` also works) |
+| `BLOB_READ_WRITE_TOKEN` | Photo, showreel, voice clip and document uploads (Vercel Blob; works from any host) |
+| `PESAWISE_API_KEY`, `PESAWISE_API_SECRET`, `PESAWISE_BALANCE_ID`, `PESAWISE_WEBHOOK_TOKEN` | M-Pesa membership payments |
+| `LEGACY_ASSETS_URL` | Where the old site's `/assets/...` files are served from after the switch |
+
+The admin home page (`/admin`) shows which of these are set up.
+
+## Database changes
+
+The database is Neon **PostgreSQL 18**.
+
+- **Never run `npm run db:push` on it.** drizzle-kit 0.30.6 misreads PostgreSQL 18's named NOT NULL constraints
+  and tries to drop them.
+- Instead, write an idempotent `.sql` file in `scripts/sql/` (dated, like the ones there) and run it:
+  `npm run db:sql -- scripts/sql/<file>.sql`. Keep `lib/db/schema.ts` in step by hand.
+- `npm run db:check` lists the tables and row counts (read-only).
+
+## Logins and dashboards
+
+- **Members** join at `/join` and log in with their email and password. Performers, crew and pets get the
+  Performer dashboard. Agents, casting directors and brands get the Casting dashboard.
+- **The team** uses the master login at `/login` (not linked in the menus) to open the admin at `/admin`.
+- **The admin covers:**
+  - Members and profiles, castings, member documents, reviews and the inbox
+  - Website content: blog posts, the Video Library, team, partners, testimonials, FAQs and contact listings
+  - The old-site import
+
+## Bringing data over from the old site
+
+The importer is `scripts/import-old-db.mjs`. [docs/MIGRATION.md](docs/MIGRATION.md) explains what it moves and
+how old fields map to new ones.
 
 ```bash
-npm run images:import
+npm run import:old -- path/to/export.sql --dry-run   # check the export, changes nothing
+npm run import:old -- path/to/export.sql             # import (into whatever DATABASE_URL points at)
 ```
 
-This crawls rafikihub.com and downloads every image (headshots, logo, banners) into `public/images/legacy/`.
-Open `public/images/legacy/index.html` in your browser to see them all with their file paths.
+Re-running is safe. Profiles members have edited on the new site keep their edits.
 
-Then open `lib/images.ts` and point each slot at the file you want, e.g.
+## Tests
 
-```ts
-logo: "/images/legacy/logo.png",
-hero: [{ src: "/images/legacy/june-wekesa.jpg", name: "June Wekesa", role: "Actress" }, ...]
+```bash
+npm test               # everything: lib/*.test.ts and the importer tests
+npm run test:import    # just the importer, against a fictional old-site export
 ```
 
-Any slot without a file shows a neat initials placeholder, so nothing ever looks broken. Restart `npm run dev` after adding images.
+## Moving to Hostinger
 
-## 3. Connect the database (Neon Postgres, free tier)
+1. Deploy this site as a Node.js app on Hostinger (`npm run build`, then `npm start`), with every setting above.
+2. Serve the old site's uploaded files (about 14.7 GB) from a Hostinger subdomain, e.g. `media.rafikihub.com`, and
+   set `LEGACY_ASSETS_URL` to it. Old photos, reels and the Video Library's testimonial video load from there.
+3. Set `APP_URL` and `NEXT_PUBLIC_SITE_URL` to `https://rafikihub.com`.
+4. In Pesawise, change the callback URL to `https://rafikihub.com/api/payments/pesawise?token=<PESAWISE_WEBHOOK_TOKEN>`.
+5. Export the old database once more and run the import, so the last sign-ups on the old site come across.
+6. Point rafikihub.com at the new site. Old links (`/profile?url=…`, `/article?url=…`, `/join-now` and the rest) redirect
+   to their new pages (`next.config.mjs`).
 
-The database stores four things (see `lib/db/schema.ts`):
+## After launch: SEO
 
-| Table | Filled by |
-|---|---|
-| `members` | Join form (`/join`) |
-| `casting_calls` | Post a casting form (`/casting`) |
-| `contact_messages` | Contact form (`/contact`) |
-| `newsletter_subscribers` | Footer email sign-up |
+- Add the site to **Google Search Console** and **Bing Webmaster Tools**, and submit `https://rafikihub.com/sitemap.xml`.
+- Create or claim the **Google Business Profile** for RafikiHub in Nairobi, with the same name, phone and email as the site.
+- Test structured data at search.google.com/test/rich-results (home, `/faq`, a blog post, a profile).
 
-**Easiest way, through Vercel (after step 4):**
-1. In your Vercel project, open **Storage → Create Database → Neon (Serverless Postgres)** and connect it to the project.
-   Vercel adds `DATABASE_URL` to your environment variables automatically.
-2. Copy that `DATABASE_URL` into your local `.env.local`.
-3. Create the tables:
-   ```bash
-   npm run db:push
-   ```
-4. Redeploy on Vercel. Forms now save.
-
-**Or directly with Neon:** sign up at neon.tech, create a project, copy the connection string into `DATABASE_URL`, run `npm run db:push`, and add the same variable in Vercel → Settings → Environment Variables.
-
-**See submissions:** `npm run db:studio` opens a table browser, or use the Tables view in the Neon console.
-
-Want to use Supabase or another Postgres instead? Any Postgres connection string works in `DATABASE_URL`.
-
-## 4. Host on Vercel
-
-1. Push this folder to a GitHub repository:
-   ```bash
-   git init && git add . && git commit -m "RafikiHub v2"
-   git branch -M main
-   git remote add origin https://github.com/<you>/rafikihub.git
-   git push -u origin main
-   ```
-2. Go to vercel.com → **Add New → Project** → import the repo. Vercel detects Next.js; keep the defaults.
-3. Add environment variables: `NEXT_PUBLIC_SITE_URL=https://rafikihub.com` (and `DATABASE_URL`, see step 3).
-4. Click **Deploy**. You get a `*.vercel.app` preview link.
-5. Point your domain: Vercel → Project → **Settings → Domains** → add `rafikihub.com` and `www.rafikihub.com`,
-   then update the DNS records at your domain registrar exactly as Vercel shows (usually an `A` record to `76.76.21.21` and a `CNAME` for `www` to `cname.vercel-dns.com`).
-
-Every future `git push` redeploys automatically.
-
-## Dashboards and the master login
-
-There are two dashboards: **Performer** (`/dashboard/performer`) and **Casting** (`/dashboard/casting`).
-
-- **Members:** submitting the join form (`/join`) signs the person in and opens the dashboard for what they chose under "I'm joining as". Agents, casting directors and brands get the Casting dashboard; everyone else gets the Performer dashboard. Posting a breakdown on `/casting` opens the Casting dashboard. This only happens once the submission is saved, so the database (step 3) must be connected.
-- **Master login:** go to `/login` (it isn't linked in the menus, so bookmark it) and enter `MASTER_PASSWORD`. You can then switch between both dashboards. The session lasts 7 days; member sessions last 30 days.
-
-Set these in `.env.local` and in Vercel → Settings → Environment Variables, then redeploy:
-
-| Variable | What it does |
-|---|---|
-| `MASTER_PASSWORD` | The master login password. Without it, `/login` explains it isn't set up and members aren't signed in after the forms. |
-| `SESSION_SECRET` | Required in production. A long random string, different from `MASTER_PASSWORD`, that signs the session cookies. Without it nobody can sign in. Changing it signs everyone out. |
-
-The member's own form details are real. Castings, submissions and the stats marked **Sample** are placeholders until the dashboards are connected to real data.
-
-## 5. After launch: SEO checklist
-
-- Add the site to **Google Search Console** and **Bing Webmaster Tools**, then submit `https://rafikihub.com/sitemap.xml`.
-- Old URLs (`/about-us`, `/join-now`, `/services`) redirect permanently to the new pages (`next.config.mjs`), so existing rankings carry over. Add more there if you find other old links.
-- Create or claim a **Google Business Profile** for RafikiHub in Nairobi, using the same name, phone and email as the site.
-- Test structured data at search.google.com/test/rich-results (home, /faq, a blog post).
-
-## What's built in for SEO and AEO
-
-- **Metadata** on every page: unique title, description, canonical URL, Open Graph and Twitter cards, plus an auto-generated share image (`app/opengraph-image.tsx`).
-- **Structured data (JSON-LD):** Organization + LocalBusiness, WebSite, FAQPage, BreadcrumbList, Article, Service and Person.
-- **Answer-first content:** question headings ("What is RafikiHub?", "How does casting work?") with a direct answer in the first sentence, which is what Google's AI Overviews, ChatGPT, Perplexity and Claude quote.
-- **FAQ in plain HTML** (`<details>`) so answers are readable by every crawler, with or without JavaScript.
-- **`robots.txt`** that allows search engines and AI answer engines, **`sitemap.xml`**, and **`/llms.txt`**, a plain-text summary for AI assistants.
-- Static pages, optimised images (AVIF/WebP), semantic HTML, accessible forms and keyboard focus for strong Core Web Vitals.
+Already built in: metadata and share images on every page, JSON-LD (Organization, LocalBusiness, FAQPage,
+Article, Person, VideoObject and breadcrumbs), `robots.txt`, `sitemap.xml` and `/llms.txt`.
 
 ## Where to edit things
 
-| What | File |
+| What | Where |
 |---|---|
-| Phone, email, domain, social links | `lib/site.ts` |
-| FAQs, testimonials, member types, team, articles, profile structure | `lib/data.ts` |
-| Images | `lib/images.ts` |
-| Colours and fonts | top of `app/globals.css` |
-| Form fields | the page file, e.g. `app/join/page.tsx`, plus `lib/validation.ts` |
-
-To add a blog post, add an entry to `articles` in `lib/data.ts`. It appears on `/blog`, in the sitemap and gets Article schema automatically.
+| Blog posts, videos, team, partners, testimonials, FAQs, contact listings | The admin (`/admin`); `lib/data.ts` holds the built-in starting content |
+| Phone, email, domain, menus, social links | `lib/site.ts` |
+| Membership plans and prices, profile options | `lib/data.ts` |
+| Images | `lib/images.ts` and `public/images/` |
+| Colours and fonts | the top of `app/globals.css` |
