@@ -28,8 +28,10 @@ Tests: `npm run test:import` (runs against `scripts/lib/fixtures/old-sample.sql`
 - For casting and rooms accounts, `date_of_birth` holds the signup time, not a birthday.
 - `payment_history` amounts were shown with a `$` sign; they're imported as Ksh, so check a few.
 - Old profile links (`link_url`) are random strings with capitals. They're kept exactly, so old links keep working.
-- Not imported: rooms and studio accounts (role 6), pet *profiles* (their accounts are imported), every row in `files`, and the
+- Not imported: rooms and studio accounts (role 6; the feature was dropped), every row in `files`, and the
   content tables (`classes`, `testimonials`, `partners`, `faqs`), which are curated in the admin.
+- Pet profiles are imported with their pet details (`pet`). Skills keep their old group and level (`skillList`), and
+  Instagram, Facebook, Twitter and LinkedIn links come across when they point at those sites (`social`).
 - **Security:** the old `.env` holds an Elastic Email API key, and `data/files/payment.php` has a Pesawise API key and secret
   hard-coded. Rotate all three, and never copy them into this repo.
 
@@ -95,8 +97,9 @@ Also copy the uploaded files. The database only stores bare filenames, and the f
 - Training ← `training` (course_name, institution_name, date_started, date_ended).
 - Media: headshots ← `photos.name` (the one flagged `profile` first), showreel ← first `videos` row or `users.youtube`, voice reel ← first `voices` row.
 - **Leave out of the public JSON:** `id_passport`, `tax_pin`, and ID, passport, birth certificate and consent documents in `files`.
-- **No home in the new type:** social links, the pet fields, and Sport/Vehicle/Music/Performance/Presenting skills.
-  Add fields for them if you want them, or leave them out on purpose.
+- Skills: every `skills` row goes into `skillList` with its group and level; the flat `skills`, `languages` and `accents`
+  lists are kept alongside for search. Social links: `instagram`, `facebook`, `twitter`, `linkedin` → `social`.
+  Not carried over: the WhatsApp number (members' phone numbers stay private).
 
 ## 3. Things the script must handle
 

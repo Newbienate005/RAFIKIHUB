@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { parseDump } from "./mysqldump.mjs";
-import { dateOnly, fixText, height, htmlToBlocks, measurement, timestamp, transform } from "./transform-old.mjs";
+import { dateOnly, fixText, height, htmlToBlocks, measurement, socialLinks, timestamp, transform } from "./transform-old.mjs";
 
 const sql = readFileSync(new URL("./fixtures/old-sample.sql", import.meta.url), "utf8");
 const out = transform(parseDump(sql), { assetsBase: "https://rafikihub.com" });
@@ -147,4 +147,19 @@ test("pets: a pet profile with the old pet details", () => {
   });
   assert.equal(simba.data.bio, "Good boy.");
   assert.equal(out.report.skipped["pet profiles (account imported, profile not: no pet profile type yet)"], undefined);
+});
+
+test("skills keep their old groups and levels; social links must point at their own site", () => {
+  const w = out.profiles.find((p) => p.profile_url === "Wanj3AbCdE").data;
+  assert.deepEqual(w.skillList, [
+    { group: "accents", name: "Kikuyu", level: "Native" },
+    { group: "languages", name: "Swahili", level: "Native" },
+    { group: "languages", name: "English", level: "High Standard" },
+    // "High Standard" isn't a level for performance skills, so it's dropped rather than guessed
+    { group: "performance", name: "Contemporary dance", level: null },
+  ]);
+  assert.deepEqual(w.skills, ["Contemporary dance"]);
+  assert.deepEqual(socialLinks({ instagram: "https://www.instagram.com/", facebook: "https://www.facebook.com/kate.snow", twitter: "https://evil.example/x.com", linkedin: "NULL" }),
+    { facebook: "https://www.facebook.com/kate.snow" });
+  assert.equal(socialLinks({ instagram: "http://instagram.com/kate" }), undefined, "only https links");
 });

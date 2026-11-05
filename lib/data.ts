@@ -98,6 +98,59 @@ export const voiceCharacterOptions = ["Sincere", "Authoritative", "Friendly", "C
 
 export const appearanceTraitOptions = ["Tatoo", "Piercing", "Birthmark", "Scar"] as const;
 
+/* Skills in the old site's groups, each with the old site's levels (performers-body.php, view-common.php) */
+const speaking = ["High Standard", "Native"] as const;
+const doing = ["Skilled", "Highly Skilled"] as const;
+export const skillGroups = [
+  { key: "accents", label: "Accents & Dialects", levels: speaking, placeholder: "e.g. Kikuyu, British RP" },
+  { key: "languages", label: "Languages", levels: speaking, placeholder: "e.g. Swahili" },
+  { key: "music", label: "Music & Dance", levels: doing, placeholder: "e.g. Contemporary dance" },
+  { key: "other", label: "Other Skills", levels: doing, placeholder: "e.g. Puppetry" },
+  { key: "performance", label: "Performance", levels: doing, placeholder: "e.g. Stage combat" },
+  { key: "presenting", label: "Presenting", levels: doing, placeholder: "e.g. TV presenting" },
+  { key: "sports", label: "Sports", levels: doing, placeholder: "e.g. Swimming" },
+  { key: "vehicles", label: "Vehicle Licences", levels: doing, placeholder: "e.g. Car licence" },
+] as const;
+export type SkillGroupKey = (typeof skillGroups)[number]["key"];
+export type SkillEntry = { group: SkillGroupKey; name: string; level: Maybe<string> };
+
+/** Every skill with its group. Profiles saved before groups existed show their skills under Other Skills. */
+export const skillEntriesOf = (p: Pick<TalentProfile, "skillList" | "skills" | "languages" | "accents">): SkillEntry[] =>
+  p.skillList ?? [
+    ...p.accents.map((name) => ({ group: "accents" as const, name, level: null })),
+    ...p.languages.map((name) => ({ group: "languages" as const, name, level: null })),
+    ...p.skills.map((name) => ({ group: "other" as const, name, level: null })),
+  ];
+
+/** The flat lists search and the completeness meter read, from the grouped skills */
+export const flatSkills = (list: SkillEntry[]) => ({
+  skills: list.filter((s) => s.group !== "accents" && s.group !== "languages").map((s) => s.name),
+  languages: list.filter((s) => s.group === "languages").map((s) => s.name),
+  accents: list.filter((s) => s.group === "accents").map((s) => s.name),
+});
+
+/* Social media links on a profile, as on the old site. Each one must be a link to that site. */
+export const socialSites = [
+  { key: "instagram", label: "Instagram", hosts: ["instagram.com"] },
+  { key: "facebook", label: "Facebook", hosts: ["facebook.com", "fb.com"] },
+  { key: "twitter", label: "X (Twitter)", hosts: ["x.com", "twitter.com"] },
+  { key: "linkedin", label: "LinkedIn", hosts: ["linkedin.com"] },
+] as const;
+export type SocialKey = (typeof socialSites)[number]["key"];
+
+/** A cleaned https link if `url` points at one of `hosts` (or a subdomain), else null */
+export function socialLink(url: string | null | undefined, hosts: readonly string[]): string | null {
+  try {
+    const u = new URL((url ?? "").trim());
+    const host = u.hostname.toLowerCase();
+    if (u.protocol !== "https:" || !hosts.some((h) => host === h || host.endsWith(`.${h}`))) return null;
+    // A bare site link (the old site saved "https://www.instagram.com/" for members who left it empty) isn't a profile
+    return u.pathname.replace(/\/+$/, "") ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 /* ─────────────────────────────── Talent profile ────────────────────────────── */
 
 export type Height = { feet: number; inches: number };
@@ -174,10 +227,14 @@ export type TalentProfile = {
   /** Free-text "about me" */
   bio: Maybe<string>;
 
-  /** Searchable profile content referenced in the old FAQ */
+  /** Searchable profile content referenced in the old FAQ. Kept in step with skillList, which adds groups and levels. */
   skills: string[];
   languages: string[];
   accents: string[];
+  /** Every skill with its group and level (old site). Missing on profiles saved before groups: see skillEntriesOf. */
+  skillList?: SkillEntry[];
+  /** Social media links (old site's Instagram, Facebook, Twitter and LinkedIn) */
+  social?: Partial<Record<SocialKey, string>>;
   credits: { year: number; production: string; role: string; type: CreditType; director?: string }[];
   training: { institution: string; course: string; year?: number }[];
 
@@ -235,6 +292,16 @@ export const exampleProfile: TalentProfile = {
   skills: ["Stage combat", "Contemporary dance", "Swimming"],
   languages: ["English", "Swahili"],
   accents: ["Kenyan", "Standard British"],
+  skillList: [
+    { group: "accents", name: "Kenyan", level: "Native" },
+    { group: "accents", name: "Standard British", level: "High Standard" },
+    { group: "languages", name: "English", level: "Native" },
+    { group: "languages", name: "Swahili", level: "Native" },
+    { group: "music", name: "Contemporary dance", level: "Skilled" },
+    { group: "performance", name: "Stage combat", level: "Highly Skilled" },
+    { group: "sports", name: "Swimming", level: null },
+  ],
+  social: { instagram: "https://www.instagram.com/example.performer", linkedin: "https://www.linkedin.com/in/example-performer" },
   credits: [{ year: 2025, production: "Example Feature", role: "Supporting", type: "Feature Film" }],
   training: [{ institution: "RafikiHub Acting Workshop", course: "Screen acting intensive", year: 2024 }],
   media: { headshots: [], showreelUrl: null, voiceoverReelUrl: null, documents: [] },
