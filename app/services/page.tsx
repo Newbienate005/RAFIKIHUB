@@ -26,7 +26,7 @@ export default async function ServicesPage() {
       <JsonLd data={services.map((s) => serviceSchema(`${s.name} (Sio Bahati Services)`, s.summary, `/services#${s.id}`))} />
       <PageHeader image={images.headers.services}
         kicker="Sio Bahati Services"
-        title={<>It's not luck. It's <em>preparation</em>.</>}
+        title={<>It's not luck, it's <em>preparation</em></>}
         lead="Sio bahati means 'it's not luck' in Swahili. Headshots, showreels and audition prep to give casting directors every reason to call you in."
         crumbs={[{ name: "Sio Bahati Services", path: "/services" }]}
         actions={<a className="btn btn--sun" href="#book">Book a session</a>}

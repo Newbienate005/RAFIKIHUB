@@ -40,8 +40,8 @@ export default function MembershipPage() {
     <>
       <JsonLd data={offers} />
       <PageHeader image={images.headers.membership}
-        kicker="Account Options"
-        title={<>Choose the plan that <em>fits</em>.</>}
+        kicker="Membership"
+        title={<>Choose the plan that <em>fits</em></>}
         lead="Every plan includes the same full membership. Longer plans cost less per month."
         crumbs={[{ name: "Membership options", path: "/membership" }]}
       />

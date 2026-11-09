@@ -331,7 +331,7 @@ export const memberTypes: MemberType[] = [
     formLabel: "Actor or performer",
     benefits: [
       "Build a full professional profile, headshots and multimedia included",
-      "Be seen by all the industry professionals who use RafikiHub every day",
+      "Be seen by the industry professionals who use RafikiHub",
       "Submit your RafikiHub link for roles instantly",
       "Support with events, career advice and training workshops, so you stay connected with the industry",
     ],
@@ -385,7 +385,7 @@ export const memberTypes: MemberType[] = [
     tagline: "Camera, lighting, sound, styling, make-up and more.",
     formLabel: "Crew (camera, lighting, styling, make-up…)",
     benefits: [
-      "Showcase your professional portfolio to the industry professionals who use RafikiHub every day",
+      "Show your portfolio to the industry professionals who use RafikiHub",
       "Submit your RafikiHub link for upcoming work instantly",
       "Support with events, career advice and training workshops, so you stay connected with the industry",
     ],
@@ -667,9 +667,9 @@ export const pageFaqs: Record<PageFaqKey, { q: string; a: string }[]> = {
 /* ─────────────────────────── Home: three ways in ──────────────────────────── */
 // Copy from the old rafikihub.com home page ("Our Services").
 export const homePaths = [
-  { title: "Performers", text: "Be seen by the industry and apply for professional work.", href: "/join" },
-  { title: "Casting Professionals", text: "Access a vast database of performers and use us to cast your projects with fluidity and ease.", href: "/casting" },
-  { title: "Crew", text: "Express yourself, boost your portfolio and build industry contacts.", href: "/join" },
+  { title: "Performers", text: "Build a profile with headshots, credits and showreels, and apply for castings.", href: "/join" },
+  { title: "Casting professionals", text: "Post a breakdown, search the talent database and shortlist people for audition.", href: "/casting" },
+  { title: "Crew", text: "Show your credits and skills, and get found for productions.", href: "/join" },
 ];
 
 /* ──────────────────────────────── Timeline ────────────────────────────────── */
@@ -751,7 +751,7 @@ export const savingVsBasic = (p: Plan) => plans[0].priceKsh * p.months - p.price
 /** What every membership includes (from the old join page) */
 export const membershipIncludes = [
   "A full profile with headshots, credits, showreels and voice clips",
-  "Seen by the industry professionals who use RafikiHub every day",
+  "Seen by the industry professionals who use RafikiHub",
   "Submit your RafikiHub link for roles instantly",
   "Castings from directors across Kenya and Africa",
   "Invitations to workshops, events and career advice",

@@ -38,7 +38,7 @@ export const isGroup = (n: NavItem): n is NavGroup => "items" in n;
 
 /** Header menu, mirroring the old rafikihub.com header as rebuilt in the Figma design. */
 export const navLeft: NavItem[] = [
-  { label: "About Us", items: [{ href: "/about", label: "About Us" }, { href: "/team", label: "Our Team" }] },
+  { label: "About us", items: [{ href: "/about", label: "About us" }, { href: "/team", label: "Our team" }] },
   { href: "/talent-management", label: "Talent Management" },
   // Kept short so both sides of the centred logo come out about the same width
   { href: "/membership", label: "Membership" },
@@ -61,11 +61,11 @@ export const navRight: NavItem[] = [
 /** Grouped menu for the mobile drawer */
 export const drawerGroups: NavGroup[] = [
   {
-    label: "About Us",
+    label: "About us",
     items: [
       { href: "/", label: "Home" },
-      { href: "/about", label: "About Us" },
-      { href: "/team", label: "Our Team" },
+      { href: "/about", label: "About us" },
+      { href: "/team", label: "Our team" },
       { href: "/talent-management", label: "Talent Management" },
       { href: "/blog", label: "Blog" },
     ],
@@ -75,14 +75,14 @@ export const drawerGroups: NavGroup[] = [
     label: "Get started",
     items: [
       { href: "/login", label: "Log in" },
-      { href: "/join", label: "Join Now" },
-      { href: "/membership", label: "Membership Options" },
-      { href: "/casting", label: "Post a Casting" },
-      { href: "/contact", label: "Contact Us" },
+      { href: "/join", label: "Join now" },
+      { href: "/membership", label: "Membership options" },
+      { href: "/casting", label: "Post a casting" },
+      { href: "/contact", label: "Contact us" },
     ],
   },
   {
-    label: "The Small Print",
+    label: "The small print",
     items: [
       { href: "/faq", label: "RafikiHub Help & FAQ" },
       { href: "/privacy", label: "Privacy Policy" },

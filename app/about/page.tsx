@@ -23,7 +23,7 @@ export default async function AboutPage() {
       <PageHeader image={images.headers.about}
         kicker="About us"
         title={<>Bringing the industry <em>together</em></>}
-        lead="Our mission is to create easy links between artists and industry professionals, while boosting the showcase of Kenyan, East African and African talent."
+        lead="We link artists with the industry professionals casting them, and put Kenyan, East African and African talent in front of them."
         crumbs={[{ name: "About", path: "/about" }]}
       />
       <Answer question="Who founded RafikiHub?">
@@ -36,11 +36,10 @@ export default async function AboutPage() {
           <div className="prose">
             <h2 style={{ marginTop: 0 }}>What we do</h2>
             <p>
-              RafikiHub serves as a central platform for the performing arts, focused on fostering talent by providing
-              educational and career development tools, while linking performers with opportunities in theatre,
-              television and film. We empower performers to showcase their abilities through dynamic profiles, reaching
-              a global network of casting directors and project creators. Our goal is to support talent discovery and
-              contribute to the ongoing vitality of stages and screens around Africa and beyond.
+              RafikiHub is a platform for the performing arts. It links performers with roles in theatre, television
+              and film, and offers workshops and career advice along the way. Performers show their work through
+              profiles with headshots, credits and showreels that casting directors and producers search, in Kenya
+              and beyond.
             </p>
             <h2>Who we are</h2>
             <p>
@@ -111,7 +110,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <CtaBand title="Come build it with us." primary={{ href: "/join", label: "Join the Hub" }} secondary={{ href: "/contact", label: "Talk to us" }} />
+      <CtaBand title="Come build it with us" primary={{ href: "/join", label: "Join the Hub" }} secondary={{ href: "/contact", label: "Talk to us" }} />
     </>
   );
 }
