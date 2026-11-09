@@ -27,7 +27,7 @@ export default function LocationsPage() {
       <JsonLd data={localBusinessSchema()} />
       <PageHeader image={images.headers.locations}
         kicker="RafikiHub Locations"
-        title={<>Rooted in Nairobi, <em>working across Africa</em>.</>}
+        title={<>Rooted in Nairobi, <em>working across Africa</em></>}
         lead="Our home is in Parklands, Nairobi. Our members and productions reach across the continent and beyond."
         crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Locations", path: "/locations" }]}
         actions={<a className="btn btn--sun" href="#scouting">Request location scouting</a>}
@@ -73,7 +73,7 @@ export default function LocationsPage() {
         <div className="wrap form-wrap">
           <div className="prose">
             <p className="kicker">For productions</p>
-            <h2 id="scouting-title" style={{ marginTop: 0 }}>Filming in Kenya? We'll find your location.</h2>
+            <h2 id="scouting-title" style={{ marginTop: 0 }}>Filming in Kenya? We'll find your location</h2>
             <p>
               RafikiHub and its partners share one vision: discovering Kenya's vast, untouched landscapes, unique properties
               and distinctive culture, and bringing them to life through film, art and storytelling that's authentic to the
@@ -110,7 +110,7 @@ export default function LocationsPage() {
         </div>
       </section>
       <PageFaq title="Visiting and working with us" items={pageFaqs.locations} />
-      <CtaBand title="Wherever you are, you can join." text="RafikiHub profiles and castings are online, so you can be seen from anywhere." primary={{ href: "/join", label: "Join the Hub" }} />
+      <CtaBand title="Wherever you are, you can join" text="RafikiHub profiles and castings are online, so you can be seen from anywhere." primary={{ href: "/join", label: "Join the Hub" }} />
     </>
   );
 }

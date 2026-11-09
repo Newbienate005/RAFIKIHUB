@@ -38,7 +38,7 @@ export function DashboardShell({ session, role, welcome, tabs, tab, children }: 
       <div className="dash-main">
         <header className="dash-header">
           <p className="dash-header__hello">{master ? "Master view" : welcome ? `Karibu, ${first}` : `Habari, ${first}`}</p>
-          <h1>{master ? <>Every dashboard, <em>one login</em>.</> : welcome ? <>Welcome to <em>RafikiHub</em>.</> : <>Your <em>{current.label.toLowerCase()}</em>.</>}</h1>
+          <h1>{master ? <>Every dashboard, <em>one login</em></> : welcome ? <>Your <em>RafikiHub</em> dashboard</> : <>Your <em>{current.label.toLowerCase()}</em></>}</h1>
           <p className="lead">
             {master
               ? "You're signed in with the master login, so you can open both dashboards."

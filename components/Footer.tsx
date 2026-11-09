@@ -33,11 +33,11 @@ export function Footer() {
           <ul>{sioBahati.map((l) => <li key={l.href}><Link href={l.href}>{l.label}</Link></li>)}</ul>
         </nav>
         <nav aria-label="The small print">
-          <h2>The Small Print</h2>
+          <h2>The small print</h2>
           <ul>{smallPrint.map((l) => <li key={l.href}><Link href={l.href}>{l.label}</Link></li>)}</ul>
         </nav>
         <div>
-          <h2>Get In Touch</h2>
+          <h2>Get in touch</h2>
           <address className="icon-lines">
             <span><Icon name="pin" size={18} /><span>{a.building}<br />{a.street}<br />{a.area}, {a.city}, {a.countryName}</span></span>
             <span><Icon name="phone" size={18} /><a href={`tel:${site.phone}`}>{site.phoneDisplay}</a></span>

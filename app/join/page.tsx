@@ -27,7 +27,7 @@ export default async function JoinPage() {
       <JsonLd data={faqSchema(joinFaqs)} />
       <PageHeader image={images.headers.join}
         kicker="Membership"
-        title={<>Find your <em>rafiki</em>.</>}
+        title={<>Find your <em>rafiki</em></>}
         lead="Tell us about yourself and we'll set up your membership. You'll get a full profile and start receiving castings that match you."
         crumbs={[{ name: "Join", path: "/join" }]}
         actions={<>

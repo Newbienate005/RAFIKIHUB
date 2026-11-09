@@ -9,7 +9,7 @@ import { FaqList } from "@/components/FaqList";
 import { JsonLd } from "@/components/JsonLd";
 import { Testimonials } from "@/components/Testimonials";
 import { Photo } from "@/components/Photo";
-import { homePaths, memberTypes, partnerGroups } from "@/lib/data";
+import { homePaths, memberTypes, partnerGroups, plans } from "@/lib/data";
 import { getArticles, getContent } from "@/lib/content";
 import { images } from "@/lib/images";
 import { shortDate } from "@/lib/dates";
@@ -111,7 +111,6 @@ export default async function Home() {
       <section className="section" aria-labelledby="services">
         <div className="wrap split">
           <div>
-            <p className="kicker">What we offer</p>
             <h2 id="services">Our services</h2>
             <p className="lead">Three ways in, whichever seat you sit in at the table.</p>
           </div>
@@ -132,7 +131,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section section--paper-2" aria-labelledby="who">
+      <section className="section--tight section--paper-2" aria-labelledby="who">
         <div className="wrap">
           <h2 id="who">Who can join</h2>
           <p className="lead">Anyone working in, or ready to work in, the performing arts and production.</p>
@@ -143,7 +142,7 @@ export default async function Home() {
                 <a href={`/join?as=${c.key}#join-form`}>
                   <span className="cats__name">{c.name}</span>
                   <span className="cats__text">{c.tagline}</span>
-                  <span className="cats__go">Apply now <span aria-hidden="true">→</span></span>
+                  <span className="cats__go">Apply <span aria-hidden="true">→</span></span>
                 </a>
               </li>
             ))}
@@ -161,8 +160,7 @@ export default async function Home() {
 
       <section className="section section--white" aria-labelledby="voices">
         <div className="wrap">
-          <p className="kicker">Testimonials</p>
-          <h2 id="voices">Happy members</h2>
+          <h2 id="voices">What members say</h2>
           <Testimonials items={quotes} />
         </div>
       </section>
@@ -172,10 +170,9 @@ export default async function Home() {
           <Photo src={images.sections.kickoff} alt="Illustrated portrait of a woman with a headwrap and hoop earrings" label="Kick-off" sizes="(max-width: 860px) 100vw, 50vw" />
         </div>
         <div className="kickoff__body">
-          <p className="kicker">Get noticed</p>
-          <h2 id="kickoff">Kick-off your career in performing arts</h2>
-          <p>RafikiHub is a casting platform built to bring the industry together: a straightforward way for artists and industry professionals to connect, while putting African performing talent in front of the people casting for it.</p>
-          <p>If you're serious about a career in the arts, choose a membership option and take the next step.</p>
+          <h2 id="kickoff">Kick off your career in the performing arts</h2>
+          <p>Members get a public profile casting directors can search, new castings that match them by email, and online applications from their dashboard.</p>
+          <p>Plans start at Ksh {plans[0].priceKsh} a month.</p>
           <div className="btn-row">
             <Link href="/membership" className="btn btn--sun">See membership options</Link>
             <Link href="/join" className="btn btn--ink">Join now</Link>
@@ -187,7 +184,6 @@ export default async function Home() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <p className="kicker">News</p>
               <h2 id="blog">Latest news</h2>
             </div>
             <Link href="/blog" className="link-strong">View all posts →</Link>
@@ -223,7 +219,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <CtaBand title="Your next role is a profile away." text="Casting directors search RafikiHub every week." primary={{ href: "/join", label: "Create my profile" }} secondary={{ href: "/casting", label: "Post a casting" }} />
+      <CtaBand title="Your next role is a profile away" text="Build your profile once, then apply to castings from your dashboard." primary={{ href: "/join", label: "Create my profile" }} secondary={{ href: "/casting", label: "Post a casting" }} />
     </>
   );
 }

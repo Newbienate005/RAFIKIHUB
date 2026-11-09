@@ -9,7 +9,7 @@ const LONG = 170;
 
 /**
  * "Happy members", laid out like the old rafikihub.com: a row of cards, each with a round photo, the quote,
- * the name in orange and "– role –". Swipe or scroll the row (it snaps card by card); the arrows do the same
+ * the name and their role. Swipe or scroll the row (it snaps card by card); the arrows do the same
  * for mouse and keyboard users. Nothing moves on its own.
  */
 export function Testimonials({ items }: { items: Testimonial[] }) {
@@ -37,7 +37,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
                 </button>
               ) : null}
               <p className="tcard__name">{t.name}</p>
-              {t.category ? <p className="tcard__role">– {t.category} –</p> : null}
+              {t.category ? <p className="tcard__role">{t.category}</p> : null}
             </li>
           );
         })}

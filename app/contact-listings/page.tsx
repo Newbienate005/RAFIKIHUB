@@ -29,7 +29,7 @@ export default async function ContactListingsPage() {
     <>
       <JsonLd data={schema} />
       <PageHeader image={images.headers.contactListings}
-        kicker="RafikiHub Connect · Contact Listings"
+        kicker="RafikiHub Connect · Contact listings"
         title={<>RafikiHub <em>Connect</em></>}
         lead="A trusted directory of agents, casting directors and the services performers rely on."
         crumbs={[{ name: "RafikiHub Resources", path: "/resources" }, { name: "RafikiHub Connect", path: "/contact-listings" }]}

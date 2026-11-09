@@ -23,7 +23,7 @@ export default function ResourcesPage() {
     <>
       <PageHeader image={images.headers.resources}
         kicker="RafikiHub Resources"
-        title={<>Tools built for <em>working creatives</em>.</>}
+        title={<>Tools built for <em>working creatives</em></>}
         lead="Everything a RafikiHub member reaches for, in one place."
         crumbs={[{ name: "RafikiHub Resources", path: "/resources" }]}
       />
