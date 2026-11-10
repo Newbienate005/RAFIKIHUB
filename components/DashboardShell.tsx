@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { dashboardRoles, type DashboardRole } from "@/lib/dashboard";
 import type { Session } from "@/lib/session";
+import { Rafiki } from "./Rafiki";
 
 type Tab = { id: string; label: string };
 type Props = { session: Session; role: DashboardRole; welcome?: boolean; tabs: readonly Tab[]; tab: string; children: React.ReactNode };
@@ -19,7 +20,7 @@ export function DashboardShell({ session, role, welcome, tabs, tab, children }: 
           <ul>
             {tabs.map((t) => (
               <li key={t.id}>
-                <Link href={t.id === "home" ? current.href : `${current.href}?tab=${t.id}`} aria-current={t.id === tab ? "page" : undefined}>{t.label}</Link>
+                <Link href={t.id === "home" ? current.href : `${current.href}?tab=${t.id}`} aria-current={t.id === tab ? "page" : undefined} data-tab={t.id}>{t.label}</Link>
               </li>
             ))}
           </ul>
@@ -49,6 +50,8 @@ export function DashboardShell({ session, role, welcome, tabs, tab, children }: 
         </header>
         {children}
       </div>
+      {/* The walkthrough is for members; the team's master login skips it */}
+      {master ? null : <Rafiki role={role} />}
     </div>
   );
 }
