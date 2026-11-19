@@ -1,3 +1,4 @@
+import { seeOther } from "@/lib/app-url";
 import { NextResponse } from "next/server";
 import { fromThisSite } from "@/lib/same-site";
 import { getDb } from "@/lib/db";
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
   const isForm = !(req.headers.get("content-type") ?? "").includes("application/json");
   // Form posts get redirects (303 so the browser follows with GET); fetch calls get JSON.
   const fail = (error: string, status: number) =>
-    isForm ? NextResponse.redirect(new URL("/login?error=1", req.url), 303) : NextResponse.json({ ok: false, error }, { status });
+    isForm ? seeOther("/login?error=1") : NextResponse.json({ ok: false, error }, { status });
 
   if (!sessionsEnabled()) {
     return fail("Sign-in isn't set up yet. Add SESSION_SECRET to the environment variables.", 503);
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
   // The master login opens the admin; ?next= is only honoured for paths on this site
   const next = new URL(req.headers.get("referer") ?? req.url).searchParams.get("next");
   const dest = landingPath(next, req.url);
-  const res = isForm ? NextResponse.redirect(new URL(dest, req.url), 303) : NextResponse.json({ ok: true, redirect: dest });
+  const res = isForm ? seeOther(dest) : NextResponse.json({ ok: true, redirect: dest });
   res.cookies.set(SESSION_COOKIE, encodeSession({ kind: "master" }, MASTER_DAYS)!, cookieOptions(MASTER_DAYS));
   return res;
 }
