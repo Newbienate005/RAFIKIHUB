@@ -50,9 +50,11 @@ export async function POST(req: Request) {
       body: JSON.stringify({ balanceId: balance, amount: plan.priceKsh, phoneNumber: phone, reference }),
       signal: AbortSignal.timeout(20_000),
     });
-    const json = (await res.json().catch(() => null)) as { requestId?: unknown } | null;
+    const text = await res.text().catch(() => "");
+    let json: { requestId?: unknown } | null = null;
+    try { json = JSON.parse(text); } catch {}
     if (res.ok && json?.requestId != null) requestId = String(json.requestId);
-    else console.error("[mpesa] Pesawise refused the STK push", res.status);
+    else console.error("[mpesa] Pesawise refused the STK push", res.status, text.slice(0, 500)); // its reason, never our keys
   } catch (e) {
     console.error("[mpesa] couldn't reach Pesawise", e);
   }
