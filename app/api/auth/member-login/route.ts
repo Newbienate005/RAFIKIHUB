@@ -1,3 +1,4 @@
+import { seeOther } from "@/lib/app-url";
 import { NextResponse } from "next/server";
 import { fromThisSite } from "@/lib/same-site";
 import { eq, sql } from "drizzle-orm";
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
   const res = await signIn(req);
   // A plain form post that failed goes back to the login page with a message, not a page of JSON
   if (res.status !== 303 && !(req.headers.get("content-type") ?? "").includes("application/json")) {
-    return NextResponse.redirect(new URL("/login?error=1", req.url), 303);
+    return seeOther("/login?error=1");
   }
   return res;
 }
@@ -79,7 +80,7 @@ async function signIn(req: Request) {
   const role = acct.role === "casting" ? "casting" : "performer";
   const token = encodeSession({ kind: "member", role, accountId: acct.id, pv: passwordVersion(upgrade?.hash ?? acct.passwordHash), name: acct.name, email: acct.email, category: acct.category ?? undefined, plan: acct.planId ?? undefined }, MEMBER_DAYS);
   if (!token) return NextResponse.json({ ok: false, error: "Sign-in isn't set up on this server yet." }, { status: 503 });
-  const res = isForm ? NextResponse.redirect(new URL(`/dashboard/${role}`, req.url), 303) : NextResponse.json({ ok: true, redirect: `/dashboard/${role}` });
+  const res = isForm ? seeOther(`/dashboard/${role}`) : NextResponse.json({ ok: true, redirect: `/dashboard/${role}` });
   res.cookies.set(SESSION_COOKIE, token, cookieOptions(MEMBER_DAYS));
   return res;
 }

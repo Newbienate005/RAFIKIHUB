@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { site } from "@/lib/site";
 
 /**
@@ -16,4 +17,13 @@ export function configuredAppUrl() {
   if (process.env.NODE_ENV !== "production") return "http://localhost:3000";
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   return site.url;
+}
+
+/**
+ * A 303 redirect to a path on this site. The Location is relative on purpose: behind Hostinger's proxy `req.url`
+ * is the app's internal address (http://0.0.0.0:3000), and a relative path also keeps people on www or the bare
+ * domain they came in on, so their session cookie still applies.
+ */
+export function seeOther(path: string) {
+  return new NextResponse(null, { status: 303, headers: { Location: path } });
 }
