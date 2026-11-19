@@ -23,7 +23,7 @@
     "@neondatabase/serverless": "^0.10.4",
     "@vercel/blob": "^1.1.1",
     "drizzle-orm": "^0.38.3",
-    "next": "15.5.26",
+    "next": "15.5.28",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "^3.24.1"
