@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { isGroup, navLeft, navRight, type NavItem } from "@/lib/site";
+import { AutoHideHeader } from "./AutoHideHeader";
 import { Logo } from "./Logo";
 import { MobileDrawer } from "./MobileDrawer";
 import { NavDropdown } from "./NavDropdown";
@@ -17,7 +18,7 @@ function NavList({ items }: { items: NavItem[] }) {
 
 export function Header() {
   return (
-    <header className="site-header">
+    <AutoHideHeader>
       <a className="skip" href="#main">Skip to content</a>
       <div className="wrap site-header__inner">
         <div className="site-header__side">
@@ -38,6 +39,6 @@ export function Header() {
         </div>
       </div>
       <div className="beadband" aria-hidden="true" />
-    </header>
+    </AutoHideHeader>
   );
 }
